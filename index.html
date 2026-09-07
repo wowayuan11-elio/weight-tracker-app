@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="体重小本本">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+<title>双人体重小本本</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<main>
+
+  <!-- 记录 -->
+  <section id="page-record" class="page active">
+    <div class="page-head">
+      <h1>体重</h1>
+      <button class="icon-btn" data-action="open-settings" aria-label="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+          <circle cx="9.5" cy="7" r="2.1" fill="var(--bg)"/>
+          <circle cx="15" cy="12" r="2.1" fill="var(--bg)"/>
+          <circle cx="8" cy="17" r="2.1" fill="var(--bg)"/>
+        </svg>
+      </button>
+    </div>
+    <div class="date-row">
+      <input type="date" id="record-date" class="date-input">
+      <button class="linklike" data-action="goto-today" id="btn-today" style="display:none">回到今天</button>
+    </div>
+    <div id="record-card"></div>
+    <div id="hero-row"></div>
+    <div id="record-extra"></div>
+  </section>
+
+  <!-- 趋势 -->
+  <section id="page-trend" class="page">
+    <div class="page-head"><h1>趋势</h1></div>
+    <div class="seg" id="range-seg">
+      <button data-range="7">7天</button>
+      <button data-range="30" class="active">30天</button>
+      <button data-range="90">90天</button>
+      <button data-range="0">全部</button>
+    </div>
+    <div id="chart-box"></div>
+    <div id="range-summary"></div>
+  </section>
+
+  <!-- 统计 -->
+  <section id="page-stats" class="page">
+    <div class="page-head"><h1>统计</h1></div>
+    <div id="stats-body"></div>
+  </section>
+
+</main>
+
+<nav id="tabbar">
+  <button class="tab active" data-page="record">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8.2v7.6M8.2 12h7.6"/></svg>
+    <span>记录</span>
+  </button>
+  <button class="tab" data-page="trend">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5l4.8-5.5 3.6 2.8L20 6.5"/></svg>
+    <span>趋势</span>
+  </button>
+  <button class="tab" data-page="stats">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 20v-7M12 20V5.5M18.5 20v-10"/></svg>
+    <span>统计</span>
+  </button>
+</nav>
+</div>
+
+<div id="toast"></div>
+
+<!-- 设置抽屉 -->
+<div class="mask" id="sheet-mask" data-action="close-settings"></div>
+<div class="sheet" id="settings-sheet">
+  <div class="sheet-head">
+    <span class="sheet-title">设置</span>
+    <button class="icon-btn" data-action="close-settings" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body" id="settings-body"></div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="modal-wrap" id="modal-wrap">
+  <div class="modal-bg" data-action="modal-cancel"></div>
+  <div class="modal-box">
+    <p id="modal-msg"></p>
+    <div class="modal-btns">
+      <button class="mbtn" data-action="modal-cancel">取消</button>
+      <button class="mbtn ok" data-action="modal-ok">确定</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
