@@ -13,7 +13,7 @@
 /* 自愈机制：版本变化时自动清掉手机上的旧缓存/旧SW，用户无感 */
 (function(){
   try{
-    var BUILD='v8f-20260908';
+    var BUILD='v8g-20260908';
     if(localStorage.getItem('wt_build')!==BUILD){
       localStorage.setItem('wt_build',BUILD);
       if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})});}
@@ -26,7 +26,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="favicon.png">
-<link rel="stylesheet" href="styles.css?v=8f">
+<link rel="stylesheet" href="styles.css?v=8g">
 </head>
 <body>
 <div id="app">
@@ -117,6 +117,6 @@
   </div>
 </div>
 
-<script src="app.js?v=8f"></script>
+<script src="app.js?v=8g"></script>
 </body>
 </html>
