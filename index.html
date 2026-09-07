@@ -9,10 +9,24 @@
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
 <title>双人体重小本本</title>
+<script>
+/* 自愈机制：版本变化时自动清掉手机上的旧缓存/旧SW，用户无感 */
+(function(){
+  try{
+    var BUILD='v8f-20260908';
+    if(localStorage.getItem('wt_build')!==BUILD){
+      localStorage.setItem('wt_build',BUILD);
+      if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})});}
+      if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})});}
+      setTimeout(function(){location.reload()},400);
+    }
+  }catch(e){}
+})();
+</script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="favicon.png">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=8f">
 </head>
 <body>
 <div id="app">
@@ -103,6 +117,6 @@
   </div>
 </div>
 
-<script src="app.js"></script>
+<script src="app.js?v=8f"></script>
 </body>
 </html>
