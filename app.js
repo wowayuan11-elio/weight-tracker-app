@@ -172,7 +172,8 @@ async function cloudRestore() {
 
 /* 用 token 自动开通：查身份 → 建私有数据仓库 → 保存配置 */
 async function setupCloud(raw) {
-  let token = String(raw).trim();
+  /* 关键：杀掉聊天系统注入的零宽字符等一切不可见字符（肉眼看不见但会让码被切断） */
+  let token = String(raw).replace(/[^\x21-\x7e]/g, '').trim();
   const m = token.match(/#k=([A-Za-z0-9._~\/+=-]+)/);
   if (m) token = m[1];
   const tm = token.match(/(gh[pousrnw]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{30,})/);
