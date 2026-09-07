@@ -175,7 +175,7 @@ async function setupCloud(raw) {
   let token = String(raw).trim();
   const m = token.match(/#k=([A-Za-z0-9._~\/+=-]+)/);
   if (m) token = m[1];
-  const tm = token.match(/(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{30,}|[A-Za-z0-9]{40})/);
+  const tm = token.match(/(gh[pousrnw]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{30,})/);
   if (!tm) { toast('没认出授权码，请完整粘贴'); return; }
   token = tm[1];
   toast('正在开通云备份…');
