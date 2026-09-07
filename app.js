@@ -183,7 +183,7 @@ async function setupCloud(raw) {
     const u = await fetch('https://api.github.com/user', {
       headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }
     });
-    if (!u.ok) { toast('授权码无效或已过期'); return; }
+    if (!u.ok) { toast('码不完整或已失效——回聊天长按那条码消息，点「全选」再「拷贝」，重新粘贴'); return; }
     const owner = (await u.json()).login;
     await fetch('https://api.github.com/user/repos', {
       method: 'POST',
