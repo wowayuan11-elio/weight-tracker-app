@@ -125,7 +125,10 @@ async function cloudBackup(reason) {
       headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json' }
     });
     if (g.status === 200) { sha = (await g.json()).sha; }
-    else if (g.status !== 404) { return false; }
+    else if (g.status !== 404) {
+      diagMsg('自动备份失败：GitHub 回应 ' + g.status);
+      return false;
+    }
     const p = await fetch(ghBase(), {
       method: 'PUT',
       headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
@@ -141,9 +144,14 @@ async function cloudBackup(reason) {
       if (document.getElementById('settings-body') && document.getElementById('settings-sheet').classList.contains('show')) {
         renderSettings();
       }
+    } else {
+      diagMsg('自动备份失败：写入回应 ' + p.status);
     }
     return p.ok;
-  } catch (e) { return false; }
+  } catch (e) {
+    diagMsg('自动备份失败：网络异常 · ' + (e && e.message ? e.message : e));
+    return false;
+  }
 }
 
 async function cloudRestore() {
@@ -170,6 +178,23 @@ async function cloudRestore() {
   } catch (e) { toast('云端读取失败，检查网络'); }
 }
 
+/* 诊断探头：把失败细节显示出来并记住，方便定位问题 */
+function diagMsg(s) {
+  try { localStorage.setItem('wt_diag', s); } catch (e) {}
+  const d = document.getElementById('cloud-diag');
+  if (d) { d.textContent = s; d.style.display = 'block'; }
+}
+function diagFromStorage() {
+  try { return localStorage.getItem('wt_diag') || ''; } catch (e) { return ''; }
+}
+async function ghUser(token, style) {
+  return fetch('https://api.github.com/user', {
+    headers: style === 'token'
+      ? { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' }
+      : { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }
+  });
+}
+
 /* 用 token 自动开通：查身份 → 建私有数据仓库 → 保存配置 */
 async function setupCloud(raw) {
   /* 关键：杀掉聊天系统注入的零宽字符等一切不可见字符（肉眼看不见但会让码被切断） */
@@ -177,25 +202,38 @@ async function setupCloud(raw) {
   const m = token.match(/#k=([A-Za-z0-9._~\/+=-]+)/);
   if (m) token = m[1];
   const tm = token.match(/(gh[pousrnw]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{30,})/);
-  if (!tm) { toast('没认出授权码，请完整粘贴'); return; }
+  if (!tm) { diagMsg('诊断：粘贴内容里没找到码（清洗后长度 ' + token.length + '）'); toast('没认出授权码，请完整粘贴'); return; }
   token = tm[1];
   toast('正在开通云备份…');
   try {
-    const u = await fetch('https://api.github.com/user', {
-      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }
-    });
-    if (!u.ok) { toast('码不完整或已失效——回聊天长按那条码消息，点「全选」再「拷贝」，重新粘贴'); return; }
+    let u = await ghUser(token, 'bearer');
+    if (u.status === 401 || u.status === 403) u = await ghUser(token, 'token');  // 换备用鉴权方式再试
+    if (!u.ok) {
+      let frag = '';
+      try { frag = (await u.text()).replace(/<[^>]*>/g, '').slice(0, 100); } catch (e) {}
+      diagMsg('诊断：码长 ' + token.length + ' · GitHub 回应 ' + u.status + (frag ? ' · ' + frag : ''));
+      toast('开通失败(' + u.status + ')——失败原因已显示在下方，截图发我');
+      return;
+    }
     const owner = (await u.json()).login;
-    await fetch('https://api.github.com/user/repos', {
+    const cr = await fetch('https://api.github.com/user/repos', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: GH_DATA_REPO, private: true, description: '体重数据自动云备份（私有）' })
     });
+    if (!cr.ok && cr.status !== 422) {
+      diagMsg('诊断：身份验证通过(' + owner + ')，但建仓库失败 ' + cr.status);
+      toast('建仓库失败(' + cr.status + ')——详情在下方，截图发我');
+      return;
+    }
     saveGhConf({ token: token, owner: owner, repo: GH_DATA_REPO });
     renderSettings();
     cloudBackup('first-sync');
     toast('云备份已开通，数据会自动上云');
-  } catch (e) { toast('开通失败，检查网络后重试'); }
+  } catch (e) {
+    diagMsg('诊断：网络异常 · ' + (e && e.message ? e.message : e));
+    toast('开通失败——原因已显示在下方，截图发我');
+  }
 }
 
 function backupJSON() {
@@ -764,6 +802,7 @@ function renderSettings() {
         '<p class="sub">开通后数据自动上云，永不用手动备份。粘贴我发给你的「配置链接」或授权码：</p>' +
         '<textarea class="json-area cloud-area" placeholder="粘贴配置链接或授权码" spellcheck="false"></textarea>' +
         '<button class="btn" data-action="cloud-setup">开通自动云备份</button>' +
+        '<p class="s-dim" id="cloud-diag" style="display:none;margin-top:10px;color:#b91c1c;word-break:break-all">' + esc(diagFromStorage()) + '</p>' +
       '</div>') +
     '<div class="card">' +
       '<h3 class="card-label">备份与恢复（手动）</h3>' +
