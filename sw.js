@@ -1,6 +1,6 @@
 /* 双人体重小本本 - Service Worker
  * 发布新版本时必须把 CACHE 版本号 +1，否则老资源不会更新 */
-const CACHE = 'wt-static-v8i';
+const CACHE = 'wt-static-v8j';
 const ASSETS = [
   './',
   './index.html',
