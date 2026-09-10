@@ -120,6 +120,7 @@ function ghBase() { return 'https://api.github.com/repos/' + ghConf.owner + '/' 
 async function cloudBackup(reason) {
   if (!ghConf) return false;
   try {
+    if (ghConf.provider === 'gitee') return await giteeBackup(reason);
     let sha = null;
     const g = await fetch(ghBase(), {
       headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json' }
@@ -154,17 +155,60 @@ async function cloudBackup(reason) {
   }
 }
 
+/* Gitee 通道（国内网络直连，无中间人问题） */
+async function giteeBackup(reason) {
+  const base = 'https://api.gitee.com/api/v5/repos/' + ghConf.owner + '/' + ghConf.repo + '/contents/data/backup.json';
+  let sha = null;
+  const g = await fetch(base + '?access_token=' + encodeURIComponent(ghConf.token));
+  if (g.status === 200) { sha = (await g.json()).sha; }
+  else if (g.status !== 404) {
+    diagMsg('自动备份失败：Gitee 回应 ' + g.status);
+    return false;
+  }
+  const p = await fetch(base, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      access_token: ghConf.token,
+      content: btoa(unescape(encodeURIComponent(backupJSON()))),
+      sha: sha,
+      branch: 'master',
+      message: '自动备份 ' + todayKey() + (reason ? ' (' + reason + ')' : '')
+    })
+  });
+  if (p.ok) {
+    markBackedUp();
+    try { localStorage.setItem(GH_SYNC_KEY, String(Date.now())); } catch (e) {}
+    if (document.getElementById('settings-body') && document.getElementById('settings-sheet') && document.getElementById('settings-sheet').classList.contains('show')) {
+      renderSettings();
+    }
+  } else {
+    let frag = '';
+    try { frag = (await p.text()).slice(0, 80); } catch (e) {}
+    diagMsg('自动备份失败：Gitee 写入回应 ' + p.status + (frag ? ' · ' + frag : ''));
+  }
+  return p.ok;
+}
+
 async function cloudRestore() {
   if (!ghConf) { toast('先开通自动云备份'); return; }
   toast('正在从云端读取…');
   try {
-    const g = await fetch(ghBase(), {
-      headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json' }
-    });
-    if (g.status === 404) { toast('云端还没有备份'); return; }
-    if (!g.ok) { toast('云端读取失败，检查网络'); return; }
-    const j = await g.json();
-    const txt = decodeURIComponent(escape(atob(j.content.replace(/\n/g, ''))));
+    let j;
+    if (ghConf.provider === 'gitee') {
+      const g = await fetch('https://api.gitee.com/api/v5/repos/' + ghConf.owner + '/' + ghConf.repo + '/contents/data/backup.json?access_token=' + encodeURIComponent(ghConf.token));
+      if (g.status === 404) { toast('云端还没有备份'); return; }
+      if (!g.ok) { diagMsg('恢复失败：Gitee 回应 ' + g.status); toast('云端读取失败，检查网络'); return; }
+      j = await g.json();
+    } else {
+      const g = await fetch(ghBase(), {
+        headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json' }
+      });
+      if (g.status === 404) { toast('云端还没有备份'); return; }
+      if (!g.ok) { toast('云端读取失败，检查网络'); return; }
+      j = await g.json();
+    }
+    const txt = decodeURIComponent(escape(atob(String(j.content).replace(/\n/g, ''))));
     const remote = parseBackupText(txt);
     if (!remote) { toast('云端数据无效'); return; }
     const count = Object.keys(remote.records).length;
@@ -195,15 +239,56 @@ async function ghUser(token, style) {
   });
 }
 
-/* 用 token 自动开通：查身份 → 建私有数据仓库 → 保存配置 */
 async function setupCloud(raw) {
   /* 关键：杀掉聊天系统注入的零宽字符等一切不可见字符（肉眼看不见但会让码被切断） */
   let token = String(raw).replace(/[^\x21-\x7e]/g, '').trim();
   const m = token.match(/#k=([A-Za-z0-9._~\/+=-]+)/);
   if (m) token = m[1];
-  const tm = token.match(/(gh[pousrnw]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{30,})/);
-  if (!tm) { diagMsg('诊断：粘贴内容里没找到码（清洗后长度 ' + token.length + '）'); toast('没认出授权码，请完整粘贴'); return; }
-  token = tm[1];
+  const ghm = token.match(/(gh[pousrnw]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{30,})/);
+  if (ghm) return setupGithub(ghm[1]);
+  const gtm = token.match(/\b([0-9a-f]{40})\b/i);   /* Gitee 私人令牌：40位 */
+  if (gtm) return setupGitee(gtm[1]);
+  diagMsg('诊断：粘贴内容里没找到码（清洗后长度 ' + token.length + '）');
+  toast('没认出授权码，请完整粘贴');
+}
+
+/* Gitee 通道开通（国内网络直连） */
+async function setupGitee(token) {
+  toast('正在开通云备份（国内通道）…');
+  try {
+    const u = await fetch('https://api.gitee.com/api/v5/user?access_token=' + encodeURIComponent(token));
+    if (!u.ok) {
+      let frag = '';
+      try { frag = (await u.text()).slice(0, 80); } catch (e) {}
+      diagMsg('诊断：Gitee 回应 ' + u.status + (frag ? ' · ' + frag : '') + ' · 码长 ' + token.length + '（令牌生成后只显示一次，请确认复制的是完整的40位）');
+      toast('令牌无效(' + u.status + ')——详情在下方，截图发我');
+      return;
+    }
+    const owner = (await u.json()).login;
+    const cr = await fetch('https://api.gitee.com/api/v5/user/repos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: token, name: GH_DATA_REPO, private: true, description: '体重数据自动云备份（私有）' })
+    });
+    if (!cr.ok && cr.status !== 400) {   /* 400 = 仓库可能已存在，继续 */
+      let frag = '';
+      try { frag = (await cr.text()).slice(0, 80); } catch (e) {}
+      diagMsg('诊断：身份验证通过(' + owner + ')，但建仓库失败 ' + cr.status + (frag ? ' · ' + frag : ''));
+      toast('建仓库失败(' + cr.status + ')——详情在下方，截图发我');
+      return;
+    }
+    saveGhConf({ provider: 'gitee', token: token, owner: owner, repo: GH_DATA_REPO });
+    renderSettings();
+    cloudBackup('first-sync');
+    toast('云备份已开通，数据会自动上云');
+  } catch (e) {
+    diagMsg('诊断：网络异常 · ' + (e && e.message ? e.message : e));
+    toast('开通失败——原因已显示在下方，截图发我');
+  }
+}
+
+/* GitHub 通道开通 */
+async function setupGithub(token) {
   toast('正在开通云备份…');
   try {
     let u = await ghUser(token, 'bearer');
@@ -226,7 +311,7 @@ async function setupCloud(raw) {
       toast('建仓库失败(' + cr.status + ')——详情在下方，截图发我');
       return;
     }
-    saveGhConf({ token: token, owner: owner, repo: GH_DATA_REPO });
+    saveGhConf({ provider: 'github', token: token, owner: owner, repo: GH_DATA_REPO });
     renderSettings();
     cloudBackup('first-sync');
     toast('云备份已开通，数据会自动上云');
@@ -791,7 +876,7 @@ function renderSettings() {
     (ghConf
       ? '<div class="card">' +
         '<h3 class="card-label">自动云备份</h3>' +
-        '<p class="sub">已开通 · 每次记录后数据自动上云（私有仓库 ' + esc(ghConf.owner) + '/' + esc(ghConf.repo) + '，只有你能看）</p>' +
+        '<p class="sub">已开通 · 每次记录后数据自动上云（' + (ghConf.provider === 'gitee' ? 'Gitee 国内通道' : 'GitHub') + ' · 私有仓库 ' + esc(ghConf.owner) + '/' + esc(ghConf.repo) + '，只有你能看）</p>' +
         '<p class="s-dim" style="margin-bottom:10px">上次同步：' + lastSyncText() + '</p>' +
         '<button class="btn" data-action="cloud-sync">立即同步</button>' +
         '<button class="btn ghost" data-action="cloud-restore">从云端恢复（换手机 / 误删时用）</button>' +
@@ -799,7 +884,7 @@ function renderSettings() {
       '</div>'
       : '<div class="card">' +
         '<h3 class="card-label">自动云备份</h3>' +
-        '<p class="sub">开通后数据自动上云，永不用手动备份。粘贴我发给你的「配置链接」或授权码：</p>' +
+        '<p class="sub">开通后数据自动上云，永不用手动备份。推荐用 Gitee 私人令牌（国内网络稳定）。粘贴令牌：</p>' +
         '<textarea class="json-area cloud-area" placeholder="粘贴配置链接或授权码" spellcheck="false"></textarea>' +
         '<button class="btn" data-action="cloud-setup">开通自动云备份</button>' +
         '<p class="s-dim" id="cloud-diag" style="display:none;margin-top:10px;color:#b91c1c;word-break:break-all">' + esc(diagFromStorage()) + '</p>' +
