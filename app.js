@@ -490,7 +490,7 @@ function renderRecord() {
         const val = has ? r[p] : esc(drafts[p] || '');
         return '<div class="in-row">' +
           '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-          '<input class="w-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (prev ? prev.value.toFixed(1) : '0.0') + '" data-person="' + p + '" value="' + val + '">' +
+          '<input class="w-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (prev ? '未记 · 上次 ' + prev.value.toFixed(1) : '未记录') + '" data-person="' + p + '" value="' + val + '">' +
           '<span class="unit">kg</span>' +
         '</div>';
       }).join('') +
