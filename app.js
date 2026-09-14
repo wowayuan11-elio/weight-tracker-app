@@ -430,13 +430,14 @@ function avgBetween(from, to, who) {
 function esc(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-function deltaChip(d, digits) {
+function deltaChip(d, digits, label) {
   digits = digits || 1;
+  label = label || '';
   if (d === null || d === undefined || isNaN(d)) return '<span class="delta flat">—</span>';
-  if (Math.abs(d) < 0.05) return '<span class="delta flat">持平</span>';
+  if (Math.abs(d) < 0.05) return '<span class="delta flat">' + label + '持平</span>';
   return d < 0
-    ? '<span class="delta down">↓' + Math.abs(d).toFixed(digits) + '</span>'
-    : '<span class="delta up">↑' + d.toFixed(digits) + '</span>';
+    ? '<span class="delta down">' + label + '↓' + Math.abs(d).toFixed(digits) + '</span>'
+    : '<span class="delta up">' + label + '↑' + d.toFixed(digits) + '</span>';
 }
 
 /* ---------- Toast / 确认弹窗 ---------- */
@@ -480,10 +481,24 @@ function renderRecord() {
   const r = getRec(currentDate);
   const when = currentDate === todayKey() ? '今天' : fmtMD(currentDate) + ' ' + WEEK_LABELS[parseKey(currentDate).getDay()];
   const both = r && typeof r.me === 'number' && typeof r.partner === 'number';
+  const prevMe = prevRecord(currentDate, 'me');
+
+  /* 这天是什么状态，一句话说清 */
+  let recHint;
+  if (both) {
+    recHint = '这天已记录：' + esc(state.names.me) + ' ' + r.me.toFixed(1) + ' kg · ' + esc(state.names.partner) + ' ' + r.partner.toFixed(1) + ' kg。数字有错直接改，改完点保存';
+  } else if (r) {
+    recHint = '这天只记了一半（缺的人填上即可），改完点保存';
+  } else if (currentDate === todayKey()) {
+    recHint = '今天还没记。灰字是上次称的数，只是参考——照着改或清空重输，点保存才算数';
+  } else {
+    recHint = '这天没记过。灰字是上次（' + (prevMe ? fmtMD(prevMe.key) + ' ' + prevMe.value.toFixed(1) + ' kg' : '暂无') + '）的参考值，要补录就照着改，点保存才算数';
+  }
 
   document.getElementById('record-card').innerHTML =
     '<div class="card">' +
       '<h3 class="card-label">记录 · ' + when + '</h3>' +
+      '<p class="sub" style="margin-bottom:8px">' + recHint + '</p>' +
       PERSON_IDS.map(p => {
         const has = r && typeof r[p] === 'number';
         const prev = prevRecord(currentDate, p);
@@ -495,7 +510,7 @@ function renderRecord() {
         '</div>';
       }).join('') +
       '<button class="btn" data-action="save-all">保存</button>' +
-      (both ? '<div class="card-foot">相差 ' + Math.abs(r.me - r.partner).toFixed(1) + ' kg</div>' : '') +
+      (both ? '<div class="card-foot">这天的记录：你们俩相差 ' + Math.abs(r.me - r.partner).toFixed(1) + ' kg</div>' : '') +
     '</div>';
 
   document.getElementById('hero-row').innerHTML = heroHTML();
@@ -509,19 +524,21 @@ function heroHTML() {
       return '<div class="hero-col">' +
         '<span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
         '<div class="hero-num">--<small>kg</small></div>' +
-        '<div class="hero-delta"><span class="delta flat">暂无记录</span></div>' +
+        '<div class="hero-delta"><span class="delta flat">还没有任何记录</span></div>' +
       '</div>';
     }
     const lk = lastKeyOf(p);
     const prev = prevRecord(lk, p);
     const start = firstKnown(p);
+    const latestTag = lk === todayKey() ? '最新：今天' : '最新：' + fmtMD(lk);
     return '<div class="hero-col">' +
-      '<span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+      '<span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '（最新体重）</span>' +
       '<div class="hero-num">' + cur.toFixed(1) + '<small>kg</small></div>' +
-      '<div class="hero-delta">' + deltaChip(prev ? cur - prev.value : null) + '</div>' +
+      '<div class="hero-delta">' + deltaChip(prev ? cur - prev.value : null, 1, '比上次(' + (prev ? fmtMD(prev.key) : '') + ') ') + '</div>' +
       '<div class="hero-sub">' +
-        (start && start.key !== lk ? '起点 ' + start.value.toFixed(1) + ' · ' : '') +
-        '已记 ' + countDays(p) + ' 天' +
+        latestTag +
+        (start && start.key !== lk ? ' · 从 ' + start.value.toFixed(1) + ' 开始' : '') +
+        ' · 共记 ' + countDays(p) + ' 天' +
       '</div>' +
     '</div>';
   }).join('');
@@ -744,7 +761,8 @@ function rangeSummaryHTML(days) {
     '</div>';
   }).filter(Boolean).join('');
   if (!rows) return '';
-  return '<div class="card"><h3 class="card-label">' + (trendRange === 0 ? '全部' : trendRange + '天') + '概览 · 期初 → 现在</h3>' + rows + '</div>';
+  return '<div class="card"><h3 class="card-label">' + (trendRange === 0 ? '全部' : trendRange + '天') + '概览 · 期初 → 现在</h3>' +
+    '<p class="sub" style="margin-bottom:6px">「起点 → 最新」这段总共的变化 · 箭头=瘦了↓ / 胖了↑ · 「均」= 这段平均</p>' + rows + '</div>';
 }
 
 /* ================= 统计页 ================= */
@@ -816,7 +834,8 @@ function historyHTML() {
   const keys = sortedKeys().reverse();
   if (!keys.length) return '<div class="card"><h3 class="card-label">全部记录</h3><p class="sub">还没有记录</p></div>';
   const tk = todayKey();
-  let html = '<div class="card list-card"><h3 class="card-label" style="padding:12px 0 4px">全部记录 · 点按可修改</h3>';
+  let html = '<div class="card list-card"><h3 class="card-label" style="padding:12px 0 4px">全部记录 · 点按可修改</h3>' +
+    '<p class="sub" style="padding:0 0 6px">每行是一天的体重；行内小箭头 = 和上一次记录比的变化（↓瘦 ↑胖）</p>';
   let lastYM = '';
   keys.forEach(k => {
     const r = state.records[k], d = parseKey(k);
