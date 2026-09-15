@@ -586,6 +586,78 @@ function saveAll() {
   renderAll();
 }
 
+/* ================= 目标进度卡 ================= */
+function goalRate(p) { /* 最近14天斜率 kg/天，用最小二乘 */
+  const days = lastNDays(14);
+  const pts = [];
+  days.forEach((k, i) => {
+    const r = state.records[k];
+    if (r && typeof r[p] === 'number') pts.push({ t: parseKey(k).getTime() / 86400000, v: r[p] });
+  });
+  if (pts.length < 3) return null;
+  const n = pts.length;
+  const mt = pts.reduce((s, x) => s + x.t, 0) / n;
+  const mv = pts.reduce((s, x) => s + x.v, 0) / n;
+  let num = 0, den = 0;
+  pts.forEach(x => { num += (x.t - mt) * (x.v - mv); den += (x.t - mt) * (x.t - mt); });
+  if (den === 0) return null;
+  return num / den; /* 正=在涨，负=在瘦 */
+}
+
+function goalProgressHTML() {
+  const anyGoal = PERSON_IDS.some(p => state.goals && typeof state.goals[p] === 'number');
+
+  /* 都没设目标 → 引导卡，直接在这设定 */
+  if (!anyGoal) {
+    return '<div class="card goal-card">' +
+      '<h3 class="card-label">定个目标 · 进步看得见</h3>' +
+      '<p class="sub">填上各自的理想体重，这里会显示进度条、还差多少、按最近速度多久能到</p>' +
+      '<div class="goal-inline">' +
+        PERSON_IDS.map(p =>
+          '<label class="field"><span><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '的目标 kg</span>' +
+          '<input class="text-input" id="qgoal-' + p + '" type="number" step="0.1" inputmode="decimal" placeholder="如 70.0"></label>'
+        ).join('') +
+      '</div>' +
+      '<button class="btn" data-action="save-goals-inline">保存目标，开始倒计时</button>' +
+    '</div>';
+  }
+
+  /* 有人设了目标 → 进度卡 */
+  const rows = PERSON_IDS.map(p => {
+    const g = state.goals[p];
+    if (g === null || g === undefined) return '';
+    const start = firstKnown(p), cur = lastKnown(p);
+    if (!start || !cur) return '<div class="gp-row"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">记一笔体重后开始算进度</span></div>';
+
+    const done = start.value - cur;       /* 已减（正=瘦了） */
+    const need = start.value - g;         /* 总任务 */
+    if (need <= 0) return '<div class="gp-row"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">目标应低于起点，回设置里改一下</span></div>';
+
+    const pct = Math.max(0, Math.min(100, done / need * 100));
+    const remain = cur - g;
+    let eta = '';
+    const rate = goalRate(p);
+    if (remain <= 0.05) {
+      eta = '<span class="gp-hit">目标已达成，保持住</span>';
+    } else if (rate === null) {
+      eta = '<span class="s-dim">还差 ' + remain.toFixed(1) + ' kg · 多记几天就能预测达成时间</span>';
+    } else if (rate >= -0.005) {
+      eta = '<span class="s-dim">还差 ' + remain.toFixed(1) + ' kg · 最近体重没在降，先止涨再谈达成</span>';
+    } else {
+      const w = Math.ceil(remain / (-rate * 7));
+      eta = '<span class="gp-eta">还差 ' + remain.toFixed(1) + ' kg · 按最近速度约 ' + w + ' 周达成</span>';
+    }
+    return '<div class="gp-row">' +
+      '<div class="gp-head"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+      '<span class="gp-num">已减 ' + Math.max(0, done).toFixed(1) + ' / 共需减 ' + need.toFixed(1) + ' kg</span></div>' +
+      '<div class="gbar"><div class="gfill" style="width:' + pct.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
+      '<div class="gp-foot">' + eta + ' <span class="s-dim">目标 ' + g.toFixed(1) + ' kg</span></div>' +
+    '</div>';
+  }).join('');
+
+  return '<div class="card goal-card"><h3 class="card-label">目标进度</h3>' + rows + '</div>';
+}
+
 /* ================= 趋势页 ================= */
 function rangeDays() {
   if (trendRange > 0) return lastNDays(trendRange);
@@ -610,6 +682,72 @@ function smoothPath(pts) {
     d += ' C ' + c1x + ' ' + c1y + ', ' + c2x + ' ' + c2y + ', ' + f(p2.x) + ' ' + f(p2.y);
   }
   return d;
+}
+
+/* 双人对比图：一条图两条线，直观看差距与走势 */
+function buildDualChart(days) {
+  const W = 350, H = 172, L = 40, R = 12, T = 16, B = 26;
+  const iw = W - L - R, ih = H - T - B;
+  const series = PERSON_IDS.map(p => {
+    const pts = [];
+    days.forEach((k, i) => {
+      const r = state.records[k];
+      if (r && typeof r[p] === 'number') pts.push({ i, v: r[p] });
+    });
+    return { p, pts };
+  });
+
+  const vals = [];
+  series.forEach(s => s.pts.forEach(x => vals.push(x.v)));
+  PERSON_IDS.forEach(p => { const g = state.goals[p]; if (typeof g === 'number') vals.push(g); });
+  if (!vals.length) return { empty: true };
+  let min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+  if (max - min < 0.8) { min -= 0.5; max += 0.5; }
+  else { const pp = (max - min) * 0.18; min -= pp; max += pp; }
+
+  const n = days.length;
+  const X = i => +(L + (n === 1 ? iw / 2 : iw * i / (n - 1))).toFixed(1);
+  const Y = v => +(T + ih * (1 - (v - min) / (max - min))).toFixed(1);
+
+  let grid = '';
+  [0, 0.5, 1].forEach(t => {
+    const v = min + (max - min) * t, y = Y(v);
+    grid += '<line x1="' + L + '" y1="' + y + '" x2="' + (W - R) + '" y2="' + y + '" stroke="var(--sep)" stroke-width="1"/>';
+    grid += '<text x="' + (L - 6) + '" y="' + (y + 3.5) + '" text-anchor="end">' + v.toFixed(1) + '</text>';
+  });
+  const idxs = [...new Set([0, Math.round((n - 1) / 3), Math.round((n - 1) * 2 / 3), n - 1])];
+  idxs.forEach(i => {
+    const k = days[i];
+    const lab = n > 120 ? ('' + parseKey(k).getFullYear()).slice(2) + '/' + (parseKey(k).getMonth() + 1) : fmtMD(k);
+    grid += '<text x="' + X(i) + '" y="' + (H - 6) + '" text-anchor="middle">' + lab + '</text>';
+  });
+
+  let paths = '';
+  const goalsDrawn = [];
+  series.forEach(s => {
+    const cpts = s.pts.map(pt => ({ x: X(pt.i), y: Y(pt.v) }));
+    if (cpts.length) {
+      const d = smoothPath(cpts);
+      if (d) paths += '<path d="' + d + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
+      const last = cpts[cpts.length - 1];
+      paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--bg)" stroke="' + COLORS[s.p] + '" stroke-width="2.5"/>';
+    }
+    const g = state.goals[s.p];
+    if (typeof g === 'number' && goalsDrawn.indexOf(g.toFixed(1)) === -1) {
+      goalsDrawn.push(g.toFixed(1));
+      paths += '<line x1="' + L + '" y1="' + Y(g) + '" x2="' + (W - R) + '" y2="' + Y(g) + '" stroke="var(--text3)" stroke-width="1" stroke-dasharray="4 4" opacity="0.7"/>';
+      paths += '<text x="' + (W - R - 2) + '" y="' + (Y(g) - 4) + '" text-anchor="end" style="font-size:10px;fill:var(--text3)">目标 ' + g.toFixed(1) + '</text>';
+    }
+  });
+
+  const svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img">' +
+    grid +
+    '<line class="scrub-line" x1="0" y1="' + T + '" x2="0" y2="' + (T + ih) + '" stroke="var(--text3)" stroke-width="1" stroke-dasharray="3 3" style="display:none"/>' +
+    paths +
+    '<rect class="scrub-zone" x="' + L + '" y="' + T + '" width="' + iw + '" height="' + ih + '" fill="transparent" pointer-events="all"/>' +
+  '</svg>';
+
+  return { empty: false, svg, series, days, X, Y, W };
 }
 
 function buildPersonChart(days, who) {
@@ -675,8 +813,11 @@ function attachScrub(wrap, chart) {
   function onMove(e) {
     const rect = svg.getBoundingClientRect();
     const px = (e.clientX - rect.left) * (chart.W / rect.width);
+    const allPts = [];
+    chart.series.forEach(s => s.pts.forEach(pt => allPts.push(pt)));
+    if (!allPts.length) { hide(); return; }
     let best = null, bestD = 1e9;
-    chart.pts.forEach(pt => {
+    allPts.forEach(pt => {
       const d = Math.abs(chart.X(pt.i) - px);
       if (d < bestD) { bestD = d; best = pt; }
     });
@@ -684,9 +825,15 @@ function attachScrub(wrap, chart) {
     const gx = chart.X(best.i);
     line.setAttribute('x1', gx); line.setAttribute('x2', gx);
     line.style.display = '';
-    tip.innerHTML = '<b>' + fmtMD(chart.days[best.i]) + '</b> · ' + best.v.toFixed(1) + ' kg';
+    const k = chart.days[best.i];
+    const parts = chart.series.map(s => {
+      const r = state.records[k];
+      const v = r && typeof r[s.p] === 'number' ? r[s.p].toFixed(1) : '—';
+      return '<span style="color:' + COLORS[s.p] + '">' + esc(state.names[s.p]) + ' ' + v + '</span>';
+    });
+    tip.innerHTML = '<b>' + fmtMD(k) + '</b> · ' + parts.join(' / ');
     tip.style.display = 'block';
-    const tipW = tip.offsetWidth || 110;
+    const tipW = tip.offsetWidth || 150;
     let cx = gx / chart.W * rect.width;
     cx = Math.max(tipW / 2 + 4, Math.min(rect.width - tipW / 2 - 4, cx));
     tip.style.left = cx + 'px';
@@ -703,6 +850,8 @@ function renderTrend() {
     b.classList.toggle('active', +b.dataset.range === trendRange);
   });
 
+  document.getElementById('goal-box').innerHTML = goalProgressHTML();
+
   const days = rangeDays();
   const anyData = PERSON_IDS.some(p => lastKnown(p) !== null);
   const box = document.getElementById('chart-box');
@@ -712,26 +861,26 @@ function renderTrend() {
     return;
   }
 
-  const cards = PERSON_IDS.map(p => ({ p, c: buildPersonChart(days, p) }));
-  box.innerHTML = cards.map(({ p, c }) => {
-    const g = state.goals && typeof state.goals[p] === 'number' ? state.goals[p] : null;
+  /* 一张图两条线 */
+  const c = buildDualChart(days);
+  const rangeName = trendRange === 0 ? '全部记录' : '最近 ' + trendRange + ' 天';
+  const legend = PERSON_IDS.map(p => {
     const cur = lastKnown(p);
-    const head = '<div class="chart-head">' +
-      '<i class="dotc" style="background:' + COLORS[p] + '"></i>' +
-      '<b>' + esc(state.names[p]) + '</b>' +
-      (g !== null ? '<span class="s-dim">目标 ' + g.toFixed(1) + '</span>' : '') +
-      '<span class="chart-latest">' + (cur !== null ? cur.toFixed(1) + ' kg' : '') + '</span>' +
-    '</div>';
-    if (c.empty) {
-      return '<div class="card chart-card">' + head + '<div class="chart-empty">该时间段暂无记录</div></div>';
-    }
-    return '<div class="card chart-card">' + head + '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div></div>';
+    return '<span class="lg-item"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) +
+      (cur !== null ? ' <b>' + cur.toFixed(1) + '</b> kg' : '') + '</span>';
   }).join('');
+  if (c.empty) {
+    box.innerHTML = '<div class="card chart-card"><div class="chart-empty">该时间段暂无记录</div></div>';
+  } else {
+    box.innerHTML = '<div class="card chart-card">' +
+      '<div class="chart-head2"><h3 class="card-label">体重走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
+      '<p class="sub">两条线一人一条 · 灰虚线是目标 · 手指按住曲线可看每一天的数</p>' +
+      '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
+    '</div>';
+    const wrap = box.querySelector('.chart-wrap');
+    attachScrub(wrap, c);
+  }
 
-  const nonEmpty = cards.filter(x => !x.c.empty);
-  box.querySelectorAll('.chart-wrap').forEach((wrap, idx) => {
-    attachScrub(wrap, nonEmpty[idx].c);
-  });
   document.getElementById('range-summary').innerHTML = rangeSummaryHTML(days);
 }
 
@@ -777,9 +926,76 @@ function periodRow(p, cur, prev, unitLabel) {
   return '<div class="s-row">' + name + curTxt + '<span class="s-right">' + prevTxt + delta + '</span></div>';
 }
 
+function weeklyTableHTML() {
+  const ws0 = weekStartOf(new Date());
+  const weeks = [];
+  for (let w = 0; w < 6; w++) {
+    const from = dateKey(addDays(ws0, -7 * w)), to = dateKey(addDays(ws0, -7 * w + 6));
+    const me = avgBetween(from, to, 'me'), pa = avgBetween(from, to, 'partner');
+    if (!me && !pa) continue;
+    weeks.push({ from, to, me, pa });
+  }
+  if (!weeks.length) return '';
+  /* 从旧到新排，方便逐周比 */
+  weeks.reverse();
+  return weeks.map((wk, idx) => {
+    const prev = idx > 0 ? weeks[idx - 1] : null;
+    const delta = (p, cur) => {
+      if (!cur || !prev || !prev[p]) return '<span class="s-dim">—</span>';
+      const d = cur.avg - prev[p].avg;
+      if (Math.abs(d) < 0.05) return '<span class="delta flat">持平</span>';
+      return d < 0 ? '<span class="delta down">↓' + Math.abs(d).toFixed(1) + '</span>' : '<span class="delta up">↑' + d.toFixed(1) + '</span>';
+    };
+    const cell = (p, v) => v
+      ? '<div class="wk-val"><b>' + v.avg.toFixed(1) + '</b>' + delta(p, v) + '</div>'
+      : '<div class="wk-val"><span class="s-dim">没记</span></div>';
+    const sameMonth = wk.from.slice(0, 7) === wk.to.slice(0, 7);
+    const label = fmtMD(wk.from) + '~' + (sameMonth ? wk.to.slice(8) : fmtMD(wk.to));
+    return '<div class="wk-row">' +
+      '<div class="wk-cell wk-date">' + label + (idx === weeks.length - 1 ? '<span class="s-dim">本周</span>' : '') + '</div>' +
+      cell('me', wk.me) + cell('partner', wk.pa) +
+    '</div>';
+  }).join('');
+}
+
 function renderStats() {
   const keys = sortedKeys();
   let html = '';
+
+  /* 俩人对比 · 横条图 */
+  const curMe = lastKnown('me'), curPa = lastKnown('partner');
+  if (curMe !== null || curPa !== null) {
+    const vals = [curMe, curPa].filter(v => v !== null);
+    if (vals.length) {
+      const lo = Math.min.apply(null, vals) - 0.6, hi = Math.max.apply(null, vals) + 0.6;
+      const bar = (p, v) => {
+        if (v === null) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">还没记</span></div>';
+        const w = Math.max(6, (v - lo) / (hi - lo) * 78);
+        return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+          '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '">' + v.toFixed(1) + ' kg</div></div></div>';
+      };
+      let diffLine = '';
+      if (curMe !== null && curPa !== null) {
+        const d = curMe - curPa;
+        const heavier = d > 0 ? state.names.me : state.names.partner;
+        const lighter = d > 0 ? state.names.partner : state.names.me;
+        diffLine = Math.abs(d) < 0.05
+          ? '<p class="cmp-diff">最新体重一模一样，齐头并进</p>'
+          : '<p class="cmp-diff">' + esc(lighter) + ' 比 ' + esc(heavier) + ' 轻 <b>' + Math.abs(d).toFixed(1) + '</b> kg</p>';
+      }
+      html += '<div class="card"><h3 class="card-label">俩人对比 · 最新一次体重</h3>' +
+        '<p class="sub">条越长 = 体重越大 · 对比的是最新一次记录</p>' +
+        bar('me', curMe) + bar('partner', curPa) + diffLine + '</div>';
+    }
+  }
+
+  /* 周报表 · 最近 6 周 */
+  const wkRows = weeklyTableHTML();
+  if (wkRows) {
+    html += '<div class="card"><h3 class="card-label">周报 · 每周平均</h3>' +
+      '<p class="sub">一人一列 · 「比上周」= 和上一周平均比（↓瘦 ↑胖）</p>' +
+      '<div class="wk-head"><span>周</span><span>' + esc(state.names.me) + '</span><span>' + esc(state.names.partner) + '</span></div>' + wkRows + '</div>';
+  }
 
   /* 本周 vs 上周 */
   const ws = weekStartOf(new Date());
@@ -948,6 +1164,16 @@ function saveGoals() {
   renderAll();
   toast('目标已保存');
 }
+function saveGoalsInline() {
+  state.goals = sanitizeGoals({
+    me: (document.getElementById('qgoal-me') || {}).value,
+    partner: (document.getElementById('qgoal-partner') || {}).value
+  });
+  if (state.goals.me === null && state.goals.partner === null) { toast('至少填一个人的目标'); return; }
+  persist();
+  renderAll();
+  toast('目标已保存，进度条长出来了');
+}
 
 function fallbackCopy(text) {
   const ta = document.createElement('textarea');
@@ -1063,6 +1289,7 @@ document.addEventListener('click', e => {
     else if (a === 'close-settings') closeSettings();
     else if (a === 'save-names') saveNames();
     else if (a === 'save-goals') saveGoals();
+    else if (a === 'save-goals-inline') saveGoalsInline();
     else if (a === 'copy-backup') copyBackup();
     else if (a === 'backup-now') oneClickBackup();
     else if (a === 'cloud-setup') setupCloud((document.querySelector('.cloud-area') || {}).value || '');
