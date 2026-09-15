@@ -279,3 +279,51 @@ main{ flex:1; min-height:0; position:relative; }
   pointer-events:none;
 }
 #toast.show{ opacity:1; transform:translate(-50%,0); }
+
+/* ===== v9 数据改版 ===== */
+/* 目标卡 */
+.goal-card .field span{ width:auto; font-size:13.5px; }
+.goal-inline{ display:flex; flex-direction:column; gap:4px; margin:6px 0 12px; }
+.gp-row{ padding:9px 0 4px; }
+.gp-row + .gp-row{ border-top:1px solid var(--sep); margin-top:4px; }
+.gp-head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.gp-name{ font-size:13.5px; font-weight:500; display:flex; align-items:center; gap:6px; }
+.gp-num{ font-size:12px; color:var(--text3); font-variant-numeric:tabular-nums; }
+.gbar{ height:10px; background:var(--chipbg); border-radius:6px; overflow:hidden; margin:7px 0 6px; }
+.gfill{ height:100%; border-radius:6px; transition:width .5s ease; }
+.gp-foot{ font-size:12px; display:flex; justify-content:space-between; gap:6px; flex-wrap:wrap; }
+.gp-eta{ color:var(--tint); font-weight:500; }
+.gp-hit{ color:var(--down); font-weight:500; }
+
+/* 俩人对比条 */
+.cmp-row{ display:flex; align-items:center; gap:10px; padding:7px 0; }
+.cmp-name{ font-size:13.5px; font-weight:500; display:flex; align-items:center; gap:6px; width:72px; flex:none; }
+.cmp-track{ flex:1; background:var(--chipbg); border-radius:8px; height:26px; overflow:hidden; }
+.cmp-fill{
+  height:100%; border-radius:8px; color:#fff; font-size:12.5px; font-weight:600;
+  display:flex; align-items:center; padding-left:10px; min-width:56px;
+  font-variant-numeric:tabular-nums; transition:width .5s ease;
+}
+.cmp-diff{ font-size:13px; color:var(--text2); text-align:center; margin-top:8px; }
+.cmp-diff b{ color:var(--tint); }
+
+/* 周报表 */
+.wk-head{
+  display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:4px;
+  font-size:12px; color:var(--text3); padding:8px 0 4px; border-bottom:1px solid var(--sep);
+}
+.wk-head span:nth-child(2), .wk-head span:nth-child(3){ text-align:right; }
+.wk-row{
+  display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:4px;
+  padding:8px 0; border-bottom:1px solid var(--sep); align-items:center;
+}
+.wk-row:last-child{ border-bottom:0; }
+.wk-date{ font-size:12.5px; color:var(--text2); display:flex; flex-direction:column; gap:2px; }
+.wk-val{ text-align:right; font-size:13.5px; display:flex; justify-content:flex-end; align-items:baseline; gap:6px; font-variant-numeric:tabular-nums; }
+
+/* 双人图 */
+.chart-head2{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
+.chart-head2 .card-label{ padding:12px 0 0; }
+.lg{ display:flex; gap:12px; font-size:12.5px; color:var(--text2); padding-bottom:2px; }
+.lg-item{ display:flex; align-items:center; gap:5px; }
+.lg-item b{ font-variant-numeric:tabular-nums; }
