@@ -969,10 +969,11 @@ function renderStats() {
     if (vals.length) {
       const lo = Math.min.apply(null, vals) - 0.6, hi = Math.max.apply(null, vals) + 0.6;
       const bar = (p, v) => {
-        if (v === null) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">还没记</span></div>';
-        const w = Math.max(6, (v - lo) / (hi - lo) * 78);
+        if (v === null) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><div class="cmp-track"></div><span class="cmp-val s-dim">还没记</span></div>';
+        const w = Math.max(6, (v - lo) / (hi - lo) * 100);
         return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-          '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '">' + v.toFixed(1) + ' kg</div></div></div>';
+          '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
+          '<span class="cmp-val">' + v.toFixed(1) + ' kg</span></div>';
       };
       let diffLine = '';
       if (curMe !== null && curPa !== null) {
