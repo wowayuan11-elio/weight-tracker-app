@@ -518,6 +518,14 @@ function renderRecord() {
 }
 
 function heroHTML() {
+  /* 上一次记录的相对说法：隔1天=昨天，隔2天=前天，再久直接报日期 */
+  const relPrev = (lk, prev) => {
+    if (!prev) return '';
+    const gap = Math.round((parseKey(lk) - parseKey(prev.key)) / 86400000);
+    if (gap === 1) return lk === todayKey() ? '比昨天 ' : '比前一天 ';
+    if (gap === 2) return '比前天 ';
+    return '比 ' + fmtMD(prev.key) + ' ';
+  };
   const cols = PERSON_IDS.map(p => {
     const cur = lastKnown(p);
     if (cur === null) {
@@ -534,7 +542,7 @@ function heroHTML() {
     return '<div class="hero-col">' +
       '<span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '（最新体重）</span>' +
       '<div class="hero-num">' + cur.toFixed(1) + '<small>kg</small></div>' +
-      '<div class="hero-delta">' + deltaChip(prev ? cur - prev.value : null, 1, '比上次(' + (prev ? fmtMD(prev.key) : '') + ') ') + '</div>' +
+      '<div class="hero-delta">' + deltaChip(prev ? cur - prev.value : null, 1, relPrev(lk, prev)) + '</div>' +
       '<div class="hero-sub">' +
         latestTag +
         (start && start.key !== lk ? ' · 从 ' + start.value.toFixed(1) + ' 开始' : '') +
