@@ -482,6 +482,7 @@ function renderRecord() {
   const when = currentDate === todayKey() ? '今天' : fmtMD(currentDate) + ' ' + WEEK_LABELS[parseKey(currentDate).getDay()];
   const both = r && typeof r.me === 'number' && typeof r.partner === 'number';
   const prevMe = prevRecord(currentDate, 'me');
+  document.getElementById('streak-box').innerHTML = streakBannerHTML();
 
   /* 这天是什么状态，一句话说清 */
   let recHint;
@@ -590,8 +591,45 @@ function saveAll() {
   if (!state.records[currentDate]) state.records[currentDate] = {};
   keys.forEach(p => { state.records[currentDate][p] = got[p]; drafts[p] = ''; });
   if (!persist()) return;
-  toast((currentDate === todayKey() ? '今晨' : fmtMD(currentDate)) + ' 已保存');
+  const st = Math.min(streakOf('me'), streakOf('partner')) > 0
+    ? Math.min(streakOf('me'), streakOf('partner'))
+    : Math.max(streakOf('me'), streakOf('partner'));
+  toast((currentDate === todayKey() ? '今晨' : fmtMD(currentDate)) + ' 已保存 · 连续打卡 ' + st + ' 天');
   renderAll();
+}
+
+/* ================= 连续打卡 ================= */
+function streakOf(who) {
+  let d = new Date();
+  let k = dateKey(d);
+  const has = kk => { const r = state.records[kk]; return r && typeof r[who] === 'number'; };
+  if (!has(k)) { d = addDays(d, -1); k = dateKey(d); } /* 今早还没称不断签 */
+  let n = 0;
+  while (has(k)) { n++; d = addDays(d, -1); k = dateKey(d); }
+  return n;
+}
+
+const STREAK_MARKS = [7, 14, 21, 30, 50, 100, 200];
+
+function streakBannerHTML() {
+  const sMe = streakOf('me'), sPa = streakOf('partner');
+  const best = Math.max(sMe, sPa);
+  if (best === 0) return '';
+  const together = Math.min(sMe, sPa);
+  const shown = together > 0 ? together : best;
+  const togetherTxt = together > 0 && sMe !== sPa
+    ? '（' + esc(state.names.me) + ' ' + sMe + ' 天 · ' + esc(state.names.partner) + ' ' + sPa + ' 天）'
+    : '';
+  let nextTxt = '';
+  const next = STREAK_MARKS.find(m => m > shown);
+  if (next) nextTxt = ' · 距 ' + next + ' 天里程碑还差 ' + (next - shown) + ' 天';
+  const last = STREAK_MARKS[STREAK_MARKS.length - 1];
+  if (shown >= last) nextTxt = ' · 传奇打卡，继续书写';
+  return '<div class="streak-banner">' +
+    '<span class="streak-flame">打卡</span>' +
+    '<span class="streak-num">连续 <b>' + shown + '</b> 天</span>' +
+    togetherTxt + nextTxt +
+  '</div>';
 }
 
 /* ================= 目标进度卡 ================= */
@@ -643,23 +681,42 @@ function goalProgressHTML() {
 
     const pct = Math.max(0, Math.min(100, done / need * 100));
     const remain = cur - g;
+
+    /* 第二行：本周均 vs 上周均，短周期反馈不吓人 */
+    let weekly = '';
+    const ws = weekStartOf(new Date());
+    const curW = avgBetween(dateKey(ws), dateKey(addDays(ws, 6)), p);
+    const prevW = avgBetween(dateKey(addDays(ws, -7)), dateKey(addDays(ws, -1)), p);
+    if (curW && prevW) {
+      const dw = curW.avg - prevW.avg;
+      weekly = Math.abs(dw) < 0.05
+        ? '本周和上周基本持平，稳住了'
+        : dw < 0
+          ? '本周均比上周 ↓' + Math.abs(dw).toFixed(1) + '，方向对了'
+          : '本周均比上周 ↑' + dw.toFixed(1) + '，波动很正常';
+    }
+
+    /* 预测：只在实际稳定下降且结果不荒谬时才说 */
     let eta = '';
-    const rate = goalRate(p);
     if (remain <= 0.05) {
       eta = '<span class="gp-hit">目标已达成，保持住</span>';
-    } else if (rate === null) {
-      eta = '<span class="s-dim">还差 ' + remain.toFixed(1) + ' kg · 多记几天就能预测达成时间</span>';
-    } else if (rate >= -0.005) {
-      eta = '<span class="s-dim">还差 ' + remain.toFixed(1) + ' kg · 最近体重没在降，先止涨再谈达成</span>';
     } else {
-      const w = Math.ceil(remain / (-rate * 7));
-      eta = '<span class="gp-eta">还差 ' + remain.toFixed(1) + ' kg · 按最近速度约 ' + w + ' 周达成</span>';
+      const rate = goalRate(p);
+      const rateW = rate !== null ? rate * 7 : null; /* kg/周 */
+      if (rateW !== null && rateW <= -0.15) {
+        const w = Math.ceil(remain / (-rateW));
+        if (w <= 26) eta = '按最近速度约 ' + w + ' 周达成';
+        else eta = weekly || '保持记录，让曲线说话';
+      } else {
+        eta = weekly || '保持记录，让曲线说话';
+      }
     }
+
     return '<div class="gp-row">' +
       '<div class="gp-head"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-      '<span class="gp-num">已减 ' + Math.max(0, done).toFixed(1) + ' / 共需减 ' + need.toFixed(1) + ' kg</span></div>' +
+      '<span class="gp-num">进度 ' + pct.toFixed(0) + '% · 已减 ' + Math.max(0, done).toFixed(1) + ' kg</span></div>' +
       '<div class="gbar"><div class="gfill" style="width:' + pct.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
-      '<div class="gp-foot">' + eta + ' <span class="s-dim">目标 ' + g.toFixed(1) + ' kg</span></div>' +
+      '<div class="gp-foot"><span class="gp-eta">' + eta + '</span> <span class="s-dim">还差 ' + remain.toFixed(1) + ' kg · 目标 ' + g.toFixed(1) + '</span></div>' +
     '</div>';
   }).join('');
 
