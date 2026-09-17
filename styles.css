@@ -321,7 +321,24 @@ main{ flex:1; min-height:0; position:relative; }
 .wk-date{ font-size:12.5px; color:var(--text2); display:flex; flex-direction:column; gap:2px; }
 .wk-val{ text-align:right; font-size:13.5px; display:flex; justify-content:flex-end; align-items:baseline; gap:6px; font-variant-numeric:tabular-nums; }
 
-/* 双人图 */
+/* ===== v10 打卡 + 目标卡升级 ===== */
+.streak-banner{
+  display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+  margin:2px 0 10px; padding:10px 14px;
+  background:linear-gradient(135deg, rgba(255,138,76,.14), rgba(255,90,120,.10));
+  border:1px solid rgba(255,138,76,.28);
+  border-radius:14px; font-size:13px; color:var(--text2);
+}
+.streak-flame{
+  font-size:11px; font-weight:700; letter-spacing:1px;
+  background:linear-gradient(135deg,#ff8a4c,#ff5a78); color:#fff;
+  padding:3px 9px; border-radius:999px;
+}
+.streak-num{ color:var(--text); }
+.streak-num b{ font-size:16px; color:#ff7a45; font-variant-numeric:tabular-nums; }
+
+.gp-head .gp-num{ font-weight:500; color:var(--text2); }
+.gp-foot{ align-items:baseline; }
 .chart-head2{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
 .chart-head2 .card-label{ padding:12px 0 0; }
 .lg{ display:flex; gap:12px; font-size:12.5px; color:var(--text2); padding-bottom:2px; }
