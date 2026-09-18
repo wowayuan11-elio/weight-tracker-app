@@ -17,7 +17,9 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 let state = loadState();
 let currentDate = todayKey();   // 记录页当前编辑的日期
 let trendRange = 30;            // 趋势图天数，0 = 全部
-let drafts = { me: '', partner: '' };
+let drafts = { me: '', partner: '', me_waist: '', partner_waist: '', me_bf: '', partner_bf: '' };
+function resetDrafts() { drafts = { me: '', partner: '', me_waist: '', partner_waist: '', me_bf: '', partner_bf: '' }; }
+let extraOpen = false; /* 记录页腰围/体脂折叠区 */
 let ghConf = loadGhConf();
 let ghTimer = null;
 
@@ -31,6 +33,11 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
 /* ---------- 存取 ---------- */
 function sanitizeRecords(recs) {
   const out = {};
+  /* 扩展字段白名单：腰围 cm / 体脂率 %（v11） */
+  const EXTRA = [
+    ['me_waist', 40, 200], ['partner_waist', 40, 200],
+    ['me_bf', 3, 70], ['partner_bf', 3, 70]
+  ];
   Object.keys(recs || {}).forEach(k => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) return;
     const r = recs[k];
@@ -40,6 +47,12 @@ function sanitizeRecords(recs) {
       const v = Number(r[p]);
       if (r[p] !== null && r[p] !== undefined && r[p] !== '' && isFinite(v) && v >= 20 && v <= 300) {
         clean[p] = Math.round(v * 10) / 10;
+      }
+    });
+    EXTRA.forEach(f => {
+      const v = Number(r[f[0]]);
+      if (r[f[0]] !== null && r[f[0]] !== undefined && r[f[0]] !== '' && isFinite(v) && v >= f[1] && v <= f[2]) {
+        clean[f[0]] = Math.round(v * 10) / 10;
       }
     });
     if (Object.keys(clean).length) out[k] = clean;
@@ -510,6 +523,29 @@ function renderRecord() {
           '<span class="unit">kg</span>' +
         '</div>';
       }).join('') +
+      /* 腰围/体脂折叠区：量了再填，没量不碍事 */
+      (function () {
+        const hasExtra = r && PERSON_IDS.some(p => typeof r[p + '_waist'] === 'number' || typeof r[p + '_bf'] === 'number');
+        if (!extraOpen && !hasExtra) {
+          return '<button class="linklike extra-toggle" data-action="toggle-extra">+ 记腰围 / 体脂（选填）</button>';
+        }
+        return '<div class="extra-zone">' +
+          '<p class="sub" style="margin:2px 0 6px">减肚子看腰围：软尺贴肚脐绕一圈，呼气末读数。没量就空着，填了才显示曲线</p>' +
+          PERSON_IDS.map(p => {
+            const wHas = r && typeof r[p + '_waist'] === 'number';
+            const bHas = r && typeof r[p + '_bf'] === 'number';
+            const wPrev = lastKnownField(p + '_waist'), bPrev = lastKnownField(p + '_bf');
+            return '<div class="in-row x-row">' +
+              '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+              '<input class="w-input x-input" type="number" step="0.5" inputmode="decimal" placeholder="' + (wPrev ? '腰围 · 上次 ' + wPrev : '腰围 cm') + '" data-person="' + p + '_waist" value="' + (wHas ? r[p + '_waist'] : esc(drafts[p + '_waist'] || '')) + '">' +
+              '<span class="unit">cm</span>' +
+              '<input class="w-input x-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (bPrev ? '体脂 · 上次 ' + bPrev : '体脂 %') + '" data-person="' + p + '_bf" value="' + (bHas ? r[p + '_bf'] : esc(drafts[p + '_bf'] || '')) + '">' +
+              '<span class="unit">%</span>' +
+            '</div>';
+          }).join('') +
+          '<button class="linklike extra-toggle" data-action="toggle-extra">收起</button>' +
+        '</div>';
+      })() +
       '<button class="btn" data-action="save-all">保存</button>' +
       (both ? '<div class="card-foot">这天的记录：你们俩相差 ' + Math.abs(r.me - r.partner).toFixed(1) + ' kg</div>' : '') +
     '</div>';
@@ -574,6 +610,24 @@ function recordExtraHTML() {
   return html;
 }
 
+function lastKnownField(f) {
+  const ks = sortedKeys();
+  for (let i = ks.length - 1; i >= 0; i--) {
+    const r = state.records[ks[i]];
+    if (r && typeof r[f] === 'number') return { key: ks[i], value: r[f] };
+  }
+  return null;
+}
+
+function firstKnownField(f) {
+  const ks = sortedKeys();
+  for (let i = 0; i < ks.length; i++) {
+    const r = state.records[ks[i]];
+    if (r && typeof r[f] === 'number') return { key: ks[i], value: r[f] };
+  }
+  return null;
+}
+
 function saveAll() {
   const got = {};
   let invalidName = null;
@@ -586,10 +640,32 @@ function saveAll() {
     got[p] = Math.round(v * 10) / 10;
   });
   if (invalidName) { toast(invalidName + ' 的体重请填 20 ~ 300 之间'); return; }
+
+  /* 腰围/体脂：填了才存，量错范围直接拦下（真实数据，不编不猜） */
+  const extraGot = {}, extraDel = [];
+  PERSON_IDS.forEach(p => {
+    [['waist', 40, 200, '腰围'], ['bf', 3, 70, '体脂率']].forEach(f => {
+      const field = p + '_' + f[0], lo = f[1], hi = f[2], cn = f[3];
+      const input = document.querySelector('.x-input[data-person="' + field + '"]');
+      if (!input) return;
+      const raw = input.value.trim();
+      if (raw === '') {
+        if (state.records[currentDate] && typeof state.records[currentDate][field] === 'number') extraDel.push(field);
+        return;
+      }
+      const v = parseFloat(raw);
+      if (isNaN(v) || v < lo || v > hi) { invalidName = state.names[p] + ' 的' + cn + '（' + raw + '）看着不对，应在 ' + lo + '~' + hi; return; }
+      extraGot[field] = Math.round(v * 10) / 10;
+    });
+  });
+  if (invalidName && invalidName.indexOf('看着不对') > -1) { toast(invalidName + ' 之间，检查一下再存'); return; }
+
   const keys = Object.keys(got);
-  if (!keys.length) { toast('先输入至少一位的体重'); return; }
+  if (!keys.length && !Object.keys(extraGot).length) { toast('先输入至少一位的体重'); return; }
   if (!state.records[currentDate]) state.records[currentDate] = {};
   keys.forEach(p => { state.records[currentDate][p] = got[p]; drafts[p] = ''; });
+  Object.keys(extraGot).forEach(f => { state.records[currentDate][f] = extraGot[f]; drafts[f] = ''; });
+  extraDel.forEach(f => { delete state.records[currentDate][f]; drafts[f] = ''; });
   if (!persist()) return;
   const st = Math.min(streakOf('me'), streakOf('partner')) > 0
     ? Math.min(streakOf('me'), streakOf('partner'))
@@ -750,21 +826,26 @@ function smoothPath(pts) {
 }
 
 /* 双人对比图：一条图两条线，直观看差距与走势 */
-function buildDualChart(days) {
+function buildDualChart(days, opts) {
+  opts = opts || {};
+  const read = opts.read || ((r, p) => (r ? r[p] : undefined));
+  const withGoals = opts.goals !== false;
+  const dec = opts.dec !== undefined ? opts.dec : 1;
   const W = 350, H = 172, L = 40, R = 12, T = 16, B = 26;
   const iw = W - L - R, ih = H - T - B;
   const series = PERSON_IDS.map(p => {
     const pts = [];
     days.forEach((k, i) => {
       const r = state.records[k];
-      if (r && typeof r[p] === 'number') pts.push({ i, v: r[p] });
+      const v = read(r, p);
+      if (typeof v === 'number') pts.push({ i, v });
     });
     return { p, pts };
   });
 
   const vals = [];
   series.forEach(s => s.pts.forEach(x => vals.push(x.v)));
-  PERSON_IDS.forEach(p => { const g = state.goals[p]; if (typeof g === 'number') vals.push(g); });
+  if (withGoals) PERSON_IDS.forEach(p => { const g = state.goals[p]; if (typeof g === 'number') vals.push(g); });
   if (!vals.length) return { empty: true };
   let min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
   if (max - min < 0.8) { min -= 0.5; max += 0.5; }
@@ -778,7 +859,7 @@ function buildDualChart(days) {
   [0, 0.5, 1].forEach(t => {
     const v = min + (max - min) * t, y = Y(v);
     grid += '<line x1="' + L + '" y1="' + y + '" x2="' + (W - R) + '" y2="' + y + '" stroke="var(--sep)" stroke-width="1"/>';
-    grid += '<text x="' + (L - 6) + '" y="' + (y + 3.5) + '" text-anchor="end">' + v.toFixed(1) + '</text>';
+    grid += '<text x="' + (L - 6) + '" y="' + (y + 3.5) + '" text-anchor="end">' + v.toFixed(dec) + '</text>';
   });
   const idxs = [...new Set([0, Math.round((n - 1) / 3), Math.round((n - 1) * 2 / 3), n - 1])];
   idxs.forEach(i => {
@@ -797,7 +878,7 @@ function buildDualChart(days) {
       const last = cpts[cpts.length - 1];
       paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--bg)" stroke="' + COLORS[s.p] + '" stroke-width="2.5"/>';
     }
-    const g = state.goals[s.p];
+    const g = withGoals ? state.goals[s.p] : undefined;
     if (typeof g === 'number' && goalsDrawn.indexOf(g.toFixed(1)) === -1) {
       goalsDrawn.push(g.toFixed(1));
       paths += '<line x1="' + L + '" y1="' + Y(g) + '" x2="' + (W - R) + '" y2="' + Y(g) + '" stroke="var(--text3)" stroke-width="1" stroke-dasharray="4 4" opacity="0.7"/>';
@@ -947,6 +1028,49 @@ function renderTrend() {
   }
 
   document.getElementById('range-summary').innerHTML = rangeSummaryHTML(days);
+
+  /* 腰围 / 体脂曲线：有数据才出现，没有就不占地方 */
+  const waistBox = document.getElementById('waist-chart-box');
+  const bfBox = document.getElementById('bf-chart-box');
+  const anyWaist = sortedKeys().some(k => { const r = state.records[k]; return r && PERSON_IDS.some(p => typeof r[p + '_waist'] === 'number'); });
+  const anyBf = sortedKeys().some(k => { const r = state.records[k]; return r && PERSON_IDS.some(p => typeof r[p + '_bf'] === 'number'); });
+
+  if (anyWaist) {
+    const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_waist'] : undefined), goals: false });
+    if (!c.empty) {
+      const legend = PERSON_IDS.map(p => {
+        const last = lastKnownField(p + '_waist');
+        return '<span class="lg-item"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) +
+          (last ? ' <b>' + last.value.toFixed(1) + '</b> cm' : '') + '</span>';
+      }).join('');
+      waistBox.innerHTML = '<div class="card chart-card">' +
+        '<div class="chart-head2"><h3 class="card-label">腰围走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
+        '<p class="sub">减肚子的硬指标：体重不动时，腰围缩小 = 脂肪真的在掉 · 建议每周量 1~2 次</p>' +
+        '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
+      '</div>';
+      attachScrub(waistBox.querySelector('.chart-wrap'), c);
+    } else waistBox.innerHTML = '';
+  } else {
+    waistBox.innerHTML = '<div class="card"><h3 class="card-label">腰围 · 减肚子的硬指标</h3>' +
+      '<p class="sub">体重包含水分和肌肉，波动大；腰围直接反映肚子上的脂肪。在记录页点「+ 记腰围 / 体脂」，一把软尺就够了，每周 1~2 次。</p></div>';
+  }
+
+  if (anyBf) {
+    const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1 });
+    if (!c.empty) {
+      const legend = PERSON_IDS.map(p => {
+        const last = lastKnownField(p + '_bf');
+        return '<span class="lg-item"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) +
+          (last ? ' <b>' + last.value.toFixed(1) + '</b> %' : '') + '</span>';
+      }).join('');
+      bfBox.innerHTML = '<div class="card chart-card">' +
+        '<div class="chart-head2"><h3 class="card-label">体脂率走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
+        '<p class="sub">来自你们的体脂秤数据 · 看趋势别看单日：早上空腹上秤最准</p>' +
+        '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
+      '</div>';
+      attachScrub(bfBox.querySelector('.chart-wrap'), c);
+    } else bfBox.innerHTML = '';
+  } else bfBox.innerHTML = '';
 }
 
 function rangeSummaryHTML(days) {
@@ -1053,6 +1177,31 @@ function renderStats() {
         '<p class="sub">条越长 = 体重越大 · 对比的是最新一次记录</p>' +
         bar('me', curMe) + bar('partner', curPa) + diffLine + '</div>';
     }
+  }
+
+  /* 腰围对比 · 最新一次测量（有腰围数据才出现） */
+  const wMe = lastKnownField('me_waist'), wPa = lastKnownField('partner_waist');
+  if (wMe || wPa) {
+    const vals = [wMe, wPa].filter(Boolean).map(x => x.value);
+    const lo = Math.min.apply(null, vals) - 4, hi = Math.max.apply(null, vals) + 4;
+    const wbar = (p, rec) => {
+      const who = esc(state.names[p]);
+      if (!rec) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + who + '</span><div class="cmp-track"></div><span class="cmp-val s-dim">还没量</span></div>';
+      const w = Math.max(6, (rec.value - lo) / (hi - lo) * 100);
+      const first = firstKnownField(p + '_waist');
+      let chg = '';
+      if (first && first.key !== rec.key) {
+        const d = rec.value - first.value;
+        chg = d <= -0.5 ? '（比首次 ↓' + Math.abs(d).toFixed(1) + '）' : d >= 0.5 ? '（比首次 ↑' + d.toFixed(1) + '）' : '（和首次基本持平）';
+      }
+      return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + who + '</span>' +
+        '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
+        '<span class="cmp-val">' + rec.value.toFixed(1) + ' cm</span></div>' +
+        '<div class="cmp-sub">' + fmtMD(rec.key) + '记录' + chg + ' · 腰围减小=肚子脂肪在掉</div>';
+    };
+    html += '<div class="card"><h3 class="card-label">腰围对比 · 最新一次测量</h3>' +
+      '<p class="sub">腰围是肚子脂肪的硬指标 · 健康参考：男性 &lt; 90cm，女性 &lt; 85cm</p>' +
+      wbar('me', wMe) + wbar('partner', wPa) + '</div>';
   }
 
   /* 周报表 · 最近 6 周 */
@@ -1350,7 +1499,8 @@ document.addEventListener('click', e => {
   if (act) {
     const a = act.dataset.action;
     if (a === 'save-all') saveAll();
-    else if (a === 'goto-today') { currentDate = todayKey(); drafts = { me: '', partner: '' }; renderAll(); }
+    else if (a === 'goto-today') { currentDate = todayKey(); resetDrafts(); renderAll(); }
+    else if (a === 'toggle-extra') { extraOpen = !extraOpen; renderRecord(); }
     else if (a === 'open-settings') openSettings();
     else if (a === 'close-settings') closeSettings();
     else if (a === 'save-names') saveNames();
@@ -1390,7 +1540,7 @@ document.addEventListener('click', e => {
   const row = e.target.closest('.h-row[data-key]');
   if (row) {
     currentDate = row.dataset.key;
-    drafts = { me: '', partner: '' };
+    resetDrafts();
     switchTab('record');
     renderAll();
     toast('正在编辑 ' + fmtMD(currentDate) + '，改完点保存');
@@ -1405,7 +1555,7 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   if (e.target.id === 'record-date') {
     currentDate = e.target.value || todayKey();
-    drafts = { me: '', partner: '' };
+    resetDrafts();
     renderAll();
   }
 });
