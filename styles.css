@@ -321,6 +321,18 @@ main{ flex:1; min-height:0; position:relative; }
 .wk-date{ font-size:12.5px; color:var(--text2); display:flex; flex-direction:column; gap:2px; }
 .wk-val{ text-align:right; font-size:13.5px; display:flex; justify-content:flex-end; align-items:baseline; gap:6px; font-variant-numeric:tabular-nums; }
 
+/* ===== v11 腰围/体脂 ===== */
+.extra-toggle{ display:block; margin:2px auto 8px; }
+.extra-zone{
+  border-top:1px dashed var(--sep); margin-top:4px; padding-top:8px; margin-bottom:8px;
+}
+.x-row{ display:flex; align-items:center; gap:8px; }
+.x-row .in-name{ width:64px; flex:none; }
+.x-row .w-input{ width:76px; flex:none; padding:10px 4px; }
+.x-row .unit{ width:22px; flex:none; font-size:12.5px; color:var(--text2); }
+.cmp-sub{ font-size:12px; color:var(--text2); padding:0 0 6px 82px; }
+.cmp-sub:last-child{ padding-bottom:2px; }
+
 /* ===== v10 打卡 + 目标卡升级 ===== */
 .streak-banner{
   display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
