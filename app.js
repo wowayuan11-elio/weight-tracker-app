@@ -527,7 +527,14 @@ function renderRecord() {
       (function () {
         const hasExtra = r && PERSON_IDS.some(p => typeof r[p + '_waist'] === 'number');
         if (!extraOpen && !hasExtra) {
-          return '<button class="linklike extra-toggle" data-action="toggle-extra">+ 记腰围（选填）</button>';
+          /* 超过 5 天没量腰围，按钮自己开口提醒 */
+          const lastW = latestWaistOf();
+          let btnTxt = '+ 记腰围（选填）';
+          if (lastW) {
+            const gap = Math.round((parseKey(todayKey()) - parseKey(lastW.key)) / 86400000);
+            if (gap >= 5) btnTxt = '+ 记腰围 · 距上次已 ' + gap + ' 天，该量了';
+          }
+          return '<button class="linklike extra-toggle" data-action="toggle-extra">' + btnTxt + '</button>';
         }
         return '<div class="extra-zone">' +
           '<p class="sub" style="margin:2px 0 6px">减肚子看腰围：软尺贴肚脐绕一圈，呼气末读数（cm）。每周量 1~2 次就够，没量就空着</p>' +
@@ -623,6 +630,32 @@ function firstKnownField(f) {
     if (r && typeof r[f] === 'number') return { key: ks[i], value: r[f] };
   }
   return null;
+}
+
+/* 两人中最近一次腰围测量（用于提醒） */
+function latestWaistOf() {
+  const cands = [lastKnownField('me_waist'), lastKnownField('partner_waist')].filter(Boolean);
+  if (!cands.length) return null;
+  cands.sort((a, b) => b.key.localeCompare(a.key));
+  return cands[0];
+}
+
+/* 腰围一句话解读：每人「最新值 vs 首次」，变化 ≥0.5cm 才报涨跌 */
+function waistInterpText() {
+  const parts = PERSON_IDS.map(p => {
+    const last = lastKnownField(p + '_waist');
+    if (!last) return null;
+    let txt = esc(state.names[p]) + ' 最新 ' + last.value.toFixed(1) + 'cm（' + fmtMD(last.key) + '）';
+    const first = firstKnownField(p + '_waist');
+    if (first && first.key !== last.key) {
+      const d = last.value - first.value;
+      if (d <= -0.5) txt += '，比首次 ↓' + Math.abs(d).toFixed(1) + '，肚子在缩小';
+      else if (d >= 0.5) txt += '，比首次 ↑' + d.toFixed(1) + '，最近留意饮食';
+      else txt += '，与首次基本持平';
+    }
+    return txt;
+  }).filter(Boolean);
+  return parts.join(' · ') || '量过第一次后，这里会自动出解读';
 }
 
 function saveAll() {
@@ -1040,6 +1073,7 @@ function renderTrend() {
       }).join('');
       waistBox.innerHTML = '<div class="card chart-card">' +
         '<div class="chart-head2"><h3 class="card-label">腰围走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
+        '<p class="sub">' + waistInterpText() + '</p>' +
         '<p class="sub">减肚子的硬指标：体重不动时，腰围缩小 = 脂肪真的在掉 · 建议每周量 1~2 次</p>' +
         '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
       '</div>';
@@ -1142,9 +1176,44 @@ function weeklyTableHTML() {
   }).join('');
 }
 
+/* 本月复盘卡：体重/腰围各「月初第一条 → 最新」+ 打卡天数，每个数字自带日期解释 */
+function monthlyReviewHTML() {
+  const mStr = todayKey().slice(0, 7);
+  const mKeys = sortedKeys().filter(k => k.slice(0, 7) === mStr);
+  if (!mKeys.length) return '';
+  const rows = PERSON_IDS.map(p => {
+    const w = mKeys.map(k => ({ k, v: state.records[k][p] })).filter(x => typeof x.v === 'number');
+    const ws = mKeys.map(k => ({ k, v: state.records[k][p + '_waist'] })).filter(x => typeof x.v === 'number');
+    const bits = [];
+    if (w.length >= 2) {
+      const d = w[w.length - 1].v - w[0].v;
+      const sym = d <= -0.05 ? '↓' : d >= 0.05 ? '↑' : '±';
+      bits.push('体重 ' + w[0].v.toFixed(1) + '（' + fmtMD(w[0].k) + '）→ ' + w[w.length - 1].v.toFixed(1) + '（' + fmtMD(w[w.length - 1].k) + '）kg，' + (Math.abs(d) < 0.05 ? '基本持平' : sym + Math.abs(d).toFixed(1)));
+    } else if (w.length === 1) bits.push('体重只记了 1 次（' + fmtMD(w[0].k) + '），暂没法对比');
+    else bits.push('本月体重还没记');
+    if (ws.length >= 2) {
+      const d = ws[ws.length - 1].v - ws[0].v;
+      const sym = d <= -0.5 ? '↓' : d >= 0.5 ? '↑' : '±';
+      bits.push('腰围 ' + ws[0].v.toFixed(1) + '（' + fmtMD(ws[0].k) + '）→ ' + ws[ws.length - 1].v.toFixed(1) + '（' + fmtMD(ws[ws.length - 1].k) + '）cm，' + (Math.abs(d) < 0.5 ? '基本持平' : sym + Math.abs(d).toFixed(1)));
+    } else if (ws.length === 1) bits.push('腰围只量了 1 次（' + fmtMD(ws[0].k) + '），每周量 1~2 次才能看出趋势');
+    else bits.push('本月腰围还没量');
+    return '<div class="rv-row"><span class="rv-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+      '<div class="rv-body">' + bits.map(b => '<div>' + b + '</div>').join('') + '</div></div>';
+  }).join('');
+  const weeks = (mKeys.length / 7).toFixed(1);
+  return '<div class="card"><h3 class="card-label">本月复盘 · ' + (+mStr.slice(5, 7)) + '月</h3>' +
+    '<p class="sub" style="margin-bottom:6px">本月第 1 次记录 → 最新 1 次 · 每个数字后面标了是哪天的</p>' +
+    rows +
+    '<div class="card-foot">本月已记录 ' + mKeys.length + ' 天（约每周 ' + weeks + ' 次）· 记录越全，复盘越准</div>' +
+  '</div>';
+}
+
 function renderStats() {
   const keys = sortedKeys();
   let html = '';
+
+  /* 本月复盘 · 顶部第一张卡（可复盘） */
+  html += monthlyReviewHTML();
 
   /* 俩人对比 · 横条图 */
   const curMe = lastKnown('me'), curPa = lastKnown('partner');
