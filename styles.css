@@ -321,6 +321,12 @@ main{ flex:1; min-height:0; position:relative; }
 .wk-date{ font-size:12.5px; color:var(--text2); display:flex; flex-direction:column; gap:2px; }
 .wk-val{ text-align:right; font-size:13.5px; display:flex; justify-content:flex-end; align-items:baseline; gap:6px; font-variant-numeric:tabular-nums; }
 
+/* ===== v13 月度复盘卡 ===== */
+.rv-row{ display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--sep); align-items:flex-start; }
+.rv-row:last-child{ border-bottom:0; }
+.rv-name{ width:64px; flex:none; font-size:13.5px; font-weight:600; padding-top:1px; }
+.rv-body{ flex:1; font-size:13px; color:var(--text); line-height:1.7; }
+
 /* ===== v11 腰围/体脂 ===== */
 .extra-toggle{ display:block; margin:2px auto 8px; }
 .extra-zone{
