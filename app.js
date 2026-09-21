@@ -523,24 +523,21 @@ function renderRecord() {
           '<span class="unit">kg</span>' +
         '</div>';
       }).join('') +
-      /* 腰围/体脂折叠区：量了再填，没量不碍事 */
+      /* 腰围折叠区：减肚子的核心指标，量了再填 */
       (function () {
-        const hasExtra = r && PERSON_IDS.some(p => typeof r[p + '_waist'] === 'number' || typeof r[p + '_bf'] === 'number');
+        const hasExtra = r && PERSON_IDS.some(p => typeof r[p + '_waist'] === 'number');
         if (!extraOpen && !hasExtra) {
-          return '<button class="linklike extra-toggle" data-action="toggle-extra">+ 记腰围 / 体脂（选填）</button>';
+          return '<button class="linklike extra-toggle" data-action="toggle-extra">+ 记腰围（选填）</button>';
         }
         return '<div class="extra-zone">' +
-          '<p class="sub" style="margin:2px 0 6px">减肚子看腰围：软尺贴肚脐绕一圈，呼气末读数。没量就空着，填了才显示曲线</p>' +
+          '<p class="sub" style="margin:2px 0 6px">减肚子看腰围：软尺贴肚脐绕一圈，呼气末读数（cm）。每周量 1~2 次就够，没量就空着</p>' +
           PERSON_IDS.map(p => {
             const wHas = r && typeof r[p + '_waist'] === 'number';
-            const bHas = r && typeof r[p + '_bf'] === 'number';
-            const wPrev = lastKnownField(p + '_waist'), bPrev = lastKnownField(p + '_bf');
+            const wPrev = lastKnownField(p + '_waist');
             return '<div class="in-row x-row">' +
               '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
               '<input class="w-input x-input" type="number" step="0.5" inputmode="decimal" placeholder="' + (wPrev ? '腰围 · 上次 ' + wPrev : '腰围 cm') + '" data-person="' + p + '_waist" value="' + (wHas ? r[p + '_waist'] : esc(drafts[p + '_waist'] || '')) + '">' +
               '<span class="unit">cm</span>' +
-              '<input class="w-input x-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (bPrev ? '体脂 · 上次 ' + bPrev : '体脂 %') + '" data-person="' + p + '_bf" value="' + (bHas ? r[p + '_bf'] : esc(drafts[p + '_bf'] || '')) + '">' +
-              '<span class="unit">%</span>' +
             '</div>';
           }).join('') +
           '<button class="linklike extra-toggle" data-action="toggle-extra">收起</button>' +
@@ -641,24 +638,22 @@ function saveAll() {
   });
   if (invalidName) { toast(invalidName + ' 的体重请填 20 ~ 300 之间'); return; }
 
-  /* 腰围/体脂：填了才存，量错范围直接拦下（真实数据，不编不猜） */
+  /* 腰围：填了才存，量错范围直接拦下（真实数据，不编不猜） */
   const extraGot = {}, extraDel = [];
   PERSON_IDS.forEach(p => {
-    [['waist', 40, 200, '腰围'], ['bf', 3, 70, '体脂率']].forEach(f => {
-      const field = p + '_' + f[0], lo = f[1], hi = f[2], cn = f[3];
-      const input = document.querySelector('.x-input[data-person="' + field + '"]');
-      if (!input) return;
-      const raw = input.value.trim();
-      if (raw === '') {
-        if (state.records[currentDate] && typeof state.records[currentDate][field] === 'number') extraDel.push(field);
-        return;
-      }
-      const v = parseFloat(raw);
-      if (isNaN(v) || v < lo || v > hi) { invalidName = state.names[p] + ' 的' + cn + '（' + raw + '）看着不对，应在 ' + lo + '~' + hi; return; }
-      extraGot[field] = Math.round(v * 10) / 10;
-    });
+    const field = p + '_waist';
+    const input = document.querySelector('.x-input[data-person="' + field + '"]');
+    if (!input) return;
+    const raw = input.value.trim();
+    if (raw === '') {
+      if (state.records[currentDate] && typeof state.records[currentDate][field] === 'number') extraDel.push(field);
+      return;
+    }
+    const v = parseFloat(raw);
+    if (isNaN(v) || v < 40 || v > 200) { invalidName = state.names[p] + ' 的腰围（' + raw + '）看着不对，应在 40~200 之间，检查一下再存'; return; }
+    extraGot[field] = Math.round(v * 10) / 10;
   });
-  if (invalidName && invalidName.indexOf('看着不对') > -1) { toast(invalidName + ' 之间，检查一下再存'); return; }
+  if (invalidName && invalidName.indexOf('看着不对') > -1) { toast(invalidName); return; }
 
   const keys = Object.keys(got);
   if (!keys.length && !Object.keys(extraGot).length) { toast('先输入至少一位的体重'); return; }
