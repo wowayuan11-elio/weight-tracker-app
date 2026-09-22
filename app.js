@@ -543,7 +543,7 @@ function renderRecord() {
             const wPrev = lastKnownField(p + '_waist');
             return '<div class="in-row x-row">' +
               '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-              '<input class="w-input x-input" type="number" step="0.5" inputmode="decimal" placeholder="' + (wPrev ? '腰围 · 上次 ' + wPrev : '腰围 cm') + '" data-person="' + p + '_waist" value="' + (wHas ? r[p + '_waist'] : esc(drafts[p + '_waist'] || '')) + '">' +
+              '<input class="w-input x-input" type="number" step="0.5" inputmode="decimal" placeholder="' + (wPrev ? '腰围 · 上次 ' + wPrev.value.toFixed(1) : '腰围 cm') + '" data-person="' + p + '_waist" value="' + (wHas ? r[p + '_waist'] : esc(drafts[p + '_waist'] || '')) + '">' +
               '<span class="unit">cm</span>' +
             '</div>';
           }).join('') +
@@ -559,12 +559,13 @@ function renderRecord() {
 }
 
 function heroHTML() {
-  /* 上一次记录的相对说法：隔1天=昨天，隔2天=前天，再久直接报日期 */
+  /* 上一次记录的相对说法：隔1天=昨天，隔2天=前天，再久直接报日期
+     「比前天」只有在最新记录是今/昨时才成立，否则观众对不上日期 */
   const relPrev = (lk, prev) => {
     if (!prev) return '';
     const gap = Math.round((parseKey(lk) - parseKey(prev.key)) / 86400000);
     if (gap === 1) return lk === todayKey() ? '比昨天 ' : '比前一天 ';
-    if (gap === 2) return '比前天 ';
+    if (gap === 2 && (lk === todayKey() || lk === dateKey(addDays(new Date(), -1)))) return '比前天 ';
     return '比 ' + fmtMD(prev.key) + ' ';
   };
   const cols = PERSON_IDS.map(p => {
@@ -660,16 +661,16 @@ function waistInterpText() {
 
 function saveAll() {
   const got = {};
-  let invalidName = null;
+  let weightErr = null, waistErr = null;
   PERSON_IDS.forEach(p => {
     const input = document.querySelector('.w-input[data-person="' + p + '"]');
     const raw = input ? input.value.trim() : '';
     if (raw === '') return;
     const v = parseFloat(raw);
-    if (isNaN(v) || v < 20 || v > 300) { invalidName = state.names[p]; return; }
+    if (isNaN(v) || v < 20 || v > 300) { weightErr = state.names[p]; return; }
     got[p] = Math.round(v * 10) / 10;
   });
-  if (invalidName) { toast(invalidName + ' 的体重请填 20 ~ 300 之间'); return; }
+  if (weightErr) { toast(weightErr + ' 的体重请填 20 ~ 300 之间'); return; }
 
   /* 腰围：填了才存，量错范围直接拦下（真实数据，不编不猜） */
   const extraGot = {}, extraDel = [];
@@ -683,10 +684,10 @@ function saveAll() {
       return;
     }
     const v = parseFloat(raw);
-    if (isNaN(v) || v < 40 || v > 200) { invalidName = state.names[p] + ' 的腰围（' + raw + '）看着不对，应在 40~200 之间，检查一下再存'; return; }
+    if (isNaN(v) || v < 40 || v > 200) { waistErr = state.names[p] + ' 的腰围（' + raw + '）看着不对，应在 40~200 之间，检查一下再存'; return; }
     extraGot[field] = Math.round(v * 10) / 10;
   });
-  if (invalidName && invalidName.indexOf('看着不对') > -1) { toast(invalidName); return; }
+  if (waistErr) { toast(waistErr); return; }
 
   const keys = Object.keys(got);
   if (!keys.length && !Object.keys(extraGot).length) { toast('先输入至少一位的体重'); return; }
@@ -921,61 +922,7 @@ function buildDualChart(days, opts) {
     '<rect class="scrub-zone" x="' + L + '" y="' + T + '" width="' + iw + '" height="' + ih + '" fill="transparent" pointer-events="all"/>' +
   '</svg>';
 
-  return { empty: false, svg, series, days, X, Y, W };
-}
-
-function buildPersonChart(days, who) {
-  const W = 350, H = 158, L = 40, R = 12, T = 14, B = 24;
-  const iw = W - L - R, ih = H - T - B;
-  const pts = [];
-  days.forEach((k, i) => {
-    const r = state.records[k];
-    if (r && typeof r[who] === 'number') pts.push({ i, v: r[who] });
-  });
-  if (!pts.length) return { empty: true };
-
-  const vals = pts.map(x => x.v);
-  const g = state.goals && typeof state.goals[who] === 'number' ? state.goals[who] : null;
-  if (g !== null) vals.push(g);
-  let min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
-  if (max - min < 0.8) { min -= 0.5; max += 0.5; }
-  else { const pp = (max - min) * 0.18; min -= pp; max += pp; }
-
-  const n = days.length;
-  const X = i => +(L + (n === 1 ? iw / 2 : iw * i / (n - 1))).toFixed(1);
-  const Y = v => +(T + ih * (1 - (v - min) / (max - min))).toFixed(1);
-
-  let grid = '';
-  [0, 0.5, 1].forEach(t => {
-    const v = min + (max - min) * t, y = Y(v);
-    grid += '<line x1="' + L + '" y1="' + y + '" x2="' + (W - R) + '" y2="' + y + '" stroke="var(--sep)" stroke-width="1"/>';
-    grid += '<text x="' + (L - 6) + '" y="' + (y + 3.5) + '" text-anchor="end">' + v.toFixed(1) + '</text>';
-  });
-
-  const idxs = [...new Set([0, Math.round((n - 1) / 3), Math.round((n - 1) * 2 / 3), n - 1])];
-  idxs.forEach(i => {
-    const k = days[i];
-    const lab = n > 120 ? ('' + parseKey(k).getFullYear()).slice(2) + '/' + (parseKey(k).getMonth() + 1) : fmtMD(k);
-    grid += '<text x="' + X(i) + '" y="' + (H - 6) + '" text-anchor="middle">' + lab + '</text>';
-  });
-
-  const cpts = pts.map(pt => ({ x: X(pt.i), y: Y(pt.v) }));
-  const d = smoothPath(cpts);
-  let paths = d ? '<path d="' + d + '" fill="none" stroke="' + COLORS[who] + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' : '';
-  const last = cpts[cpts.length - 1];
-  paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--bg)" stroke="' + COLORS[who] + '" stroke-width="2.5"/>';
-  if (g !== null) {
-    paths += '<line x1="' + L + '" y1="' + Y(g) + '" x2="' + (W - R) + '" y2="' + Y(g) + '" stroke="' + COLORS[who] + '" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>';
-  }
-
-  const svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img">' +
-    grid +
-    '<line class="scrub-line" x1="0" y1="' + T + '" x2="0" y2="' + (T + ih) + '" stroke="var(--text3)" stroke-width="1" stroke-dasharray="3 3" style="display:none"/>' +
-    paths +
-    '<rect class="scrub-zone" x="' + L + '" y="' + T + '" width="' + iw + '" height="' + ih + '" fill="transparent" pointer-events="all"/>' +
-  '</svg>';
-
-  return { empty: false, svg, pts, days, X, Y, W };
+  return { empty: false, svg, series, days, X, Y, W, read, unit: opts.unit || 'kg' };
 }
 
 function attachScrub(wrap, chart) {
@@ -1002,8 +949,9 @@ function attachScrub(wrap, chart) {
     const k = chart.days[best.i];
     const parts = chart.series.map(s => {
       const r = state.records[k];
-      const v = r && typeof r[s.p] === 'number' ? r[s.p].toFixed(1) : '—';
-      return '<span style="color:' + COLORS[s.p] + '">' + esc(state.names[s.p]) + ' ' + v + '</span>';
+      const v = r ? chart.read(r, s.p) : undefined;
+      return '<span style="color:' + COLORS[s.p] + '">' + esc(state.names[s.p]) + ' ' +
+        (typeof v === 'number' ? v.toFixed(1) : '—') + (typeof v === 'number' ? ' ' + chart.unit : '') + '</span>';
     });
     tip.innerHTML = '<b>' + fmtMD(k) + '</b> · ' + parts.join(' / ');
     tip.style.display = 'block';
@@ -1064,7 +1012,7 @@ function renderTrend() {
   const anyBf = sortedKeys().some(k => { const r = state.records[k]; return r && PERSON_IDS.some(p => typeof r[p + '_bf'] === 'number'); });
 
   if (anyWaist) {
-    const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_waist'] : undefined), goals: false });
+    const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_waist'] : undefined), goals: false, unit: 'cm' });
     if (!c.empty) {
       const legend = PERSON_IDS.map(p => {
         const last = lastKnownField(p + '_waist');
@@ -1085,7 +1033,7 @@ function renderTrend() {
   }
 
   if (anyBf) {
-    const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1 });
+    const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1, unit: '%' });
     if (!c.empty) {
       const legend = PERSON_IDS.map(p => {
         const last = lastKnownField(p + '_bf');
@@ -1151,7 +1099,7 @@ function weeklyTableHTML() {
     const from = dateKey(addDays(ws0, -7 * w)), to = dateKey(addDays(ws0, -7 * w + 6));
     const me = avgBetween(from, to, 'me'), pa = avgBetween(from, to, 'partner');
     if (!me && !pa) continue;
-    weeks.push({ from, to, me, pa });
+    weeks.push({ from, to, me, partner: pa });
   }
   if (!weeks.length) return '';
   /* 从旧到新排，方便逐周比 */
@@ -1171,7 +1119,7 @@ function weeklyTableHTML() {
     const label = fmtMD(wk.from) + '~' + (sameMonth ? wk.to.slice(8) : fmtMD(wk.to));
     return '<div class="wk-row">' +
       '<div class="wk-cell wk-date">' + label + (idx === weeks.length - 1 ? '<span class="s-dim">本周</span>' : '') + '</div>' +
-      cell('me', wk.me) + cell('partner', wk.pa) +
+      cell('me', wk.me) + cell('partner', wk.partner) +
     '</div>';
   }).join('');
 }
@@ -1200,11 +1148,11 @@ function monthlyReviewHTML() {
     return '<div class="rv-row"><span class="rv-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
       '<div class="rv-body">' + bits.map(b => '<div>' + b + '</div>').join('') + '</div></div>';
   }).join('');
-  const weeks = (mKeys.length / 7).toFixed(1);
+  const dom = +todayKey().slice(8, 10);
   return '<div class="card"><h3 class="card-label">本月复盘 · ' + (+mStr.slice(5, 7)) + '月</h3>' +
     '<p class="sub" style="margin-bottom:6px">本月第 1 次记录 → 最新 1 次 · 每个数字后面标了是哪天的</p>' +
     rows +
-    '<div class="card-foot">本月已记录 ' + mKeys.length + ' 天（约每周 ' + weeks + ' 次）· 记录越全，复盘越准</div>' +
+    '<div class="card-foot">本月已记录 ' + mKeys.length + ' 天（本月已过 ' + dom + ' 天）· 历史数据永久保留，随时在趋势页回看</div>' +
   '</div>';
 }
 
@@ -1272,7 +1220,7 @@ function renderStats() {
   const wkRows = weeklyTableHTML();
   if (wkRows) {
     html += '<div class="card"><h3 class="card-label">周报 · 每周平均</h3>' +
-      '<p class="sub">一人一列 · 「比上周」= 和上一周平均比（↓瘦 ↑胖）</p>' +
+      '<p class="sub">一人一列 · 「比上周」= 和上一个有记录的周平均比，中间没记的周自动跳过（↓瘦 ↑胖）</p>' +
       '<div class="wk-head"><span>周</span><span>' + esc(state.names.me) + '</span><span>' + esc(state.names.partner) + '</span></div>' + wkRows + '</div>';
   }
 
