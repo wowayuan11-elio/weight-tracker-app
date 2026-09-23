@@ -547,6 +547,16 @@ function renderRecord() {
               '<span class="unit">cm</span>' +
             '</div>';
           }).join('') +
+          '<p class="sub" style="margin:6px 0 2px">体脂率：小米秤测完直接抄数（%）。同秤自比才有意义，换了秤别跨秤比</p>' +
+          PERSON_IDS.map(p => {
+            const bHas = r && typeof r[p + '_bf'] === 'number';
+            const bPrev = lastKnownField(p + '_bf');
+            return '<div class="in-row x-row">' +
+              '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+              '<input class="w-input x-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (bPrev ? '体脂 · 上次 ' + bPrev.value.toFixed(1) : '体脂率 %') + '" data-person="' + p + '_bf" value="' + (bHas ? r[p + '_bf'] : esc(drafts[p + '_bf'] || '')) + '">' +
+              '<span class="unit">%</span>' +
+            '</div>';
+          }).join('') +
           '<button class="linklike extra-toggle" data-action="toggle-extra">收起</button>' +
         '</div>';
       })() +
@@ -689,12 +699,35 @@ function saveAll() {
   });
   if (waistErr) { toast(waistErr); return; }
 
+  /* 体脂率：小米秤抄数，填了才存（3~70 之外拦下） */
+  const bfGot = {}, bfDel = [];
+  let bfErr = null;
+  PERSON_IDS.forEach(p => {
+    const field = p + '_bf';
+    const input = document.querySelector('.x-input[data-person="' + field + '"]');
+    if (!input) return;
+    const raw = input.value.trim();
+    if (raw === '') {
+      if (state.records[currentDate] && typeof state.records[currentDate][field] === 'number') bfDel.push(field);
+      return;
+    }
+    const v = parseFloat(raw);
+    if (isNaN(v) || v < 3 || v > 70) { bfErr = state.names[p] + ' 的体脂率（' + raw + '）看着不对，应在 3~70 之间，检查一下再存'; return; }
+    bfGot[field] = Math.round(v * 10) / 10;
+  });
+  if (bfErr) { toast(bfErr); return; }
+
   const keys = Object.keys(got);
-  if (!keys.length && !Object.keys(extraGot).length) { toast('先输入至少一位的体重'); return; }
+  if (!keys.length && !Object.keys(extraGot).length && !Object.keys(bfGot).length) { toast('先输入至少一位的体重'); return; }
   if (!state.records[currentDate]) state.records[currentDate] = {};
   keys.forEach(p => { state.records[currentDate][p] = got[p]; drafts[p] = ''; });
   Object.keys(extraGot).forEach(f => { state.records[currentDate][f] = extraGot[f]; drafts[f] = ''; });
   extraDel.forEach(f => { delete state.records[currentDate][f]; drafts[f] = ''; });
+  Object.keys(bfGot).forEach(f => { state.records[currentDate][f] = bfGot[f]; drafts[f] = ''; });
+  bfDel.forEach(f => { delete state.records[currentDate][f]; drafts[f] = ''; });
+  /* 记录变空就整行删掉，不留幽灵日期 */
+  const cur = state.records[currentDate];
+  if (cur && !Object.keys(cur).length) delete state.records[currentDate];
   if (!persist()) return;
   const st = Math.min(streakOf('me'), streakOf('partner')) > 0
     ? Math.min(streakOf('me'), streakOf('partner'))
