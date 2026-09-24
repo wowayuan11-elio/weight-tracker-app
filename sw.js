@@ -1,6 +1,8 @@
 /* 双人体重小本本 - Service Worker
- * 发布新版本时必须把 CACHE 版本号 +1，否则老资源不会更新 */
-const CACHE = 'wt-static-v18';
+ * 发布新版本时必须把 CACHE 版本号 +1，否则老资源不会更新
+ * 策略（2026-09-25 改版）：HTML/JS/CSS 网络优先——用户每次打开都拿最新代码，
+ * 离线才用缓存兜底；图片等资源缓存优先。根治 iOS 主屏 App 更新卡旧版问题 */
+const CACHE = 'wt-static-v19';
 const ASSETS = [
   './',
   './index.html',
@@ -12,6 +14,7 @@ const ASSETS = [
   './apple-touch-icon.png',
   './favicon.png'
 ];
+const FRESH = ['index.html', 'app.js', 'styles.css', 'manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -44,7 +47,24 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  /* 静态资源缓存优先 */
+  const path = url.pathname.split('/').pop();
+  const isFresh = FRESH.indexOf(path) !== -1;
+
+  if (isFresh) {
+    /* 核心代码：网络优先，断了才用缓存——保证打开即最新 */
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request, { ignoreSearch: true }).then(h => h || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  /* 图片等：缓存优先 */
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then(hit => {
       if (hit) return hit;
