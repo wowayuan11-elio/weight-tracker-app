@@ -14,6 +14,28 @@ const DEFAULT_NAMES = { me: '我', partner: '对象' };
 const COLORS = { me: '#007aff', partner: '#ff9500' };
 const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
+/* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
+   作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
+const APP_VERSION = 'V16';
+const CHANGELOG = [
+  { v: 'V16', d: '9月24日', items: [
+    '设置页新增这个「版本与更新」卡片——以后每次优化都会在这里留痕',
+    '底部版本号从写死的「V8」改成自动跟随（以前一直是错的）'
+  ]},
+  { v: 'V15', d: '9月23日', items: [
+    '体脂率输入回归：记录页「+ 记腰围 / 体脂」展开后，体脂框直接抄小米秤的数'
+  ]},
+  { v: 'V13.1', d: '9月22日', items: [
+    '全面体检修了 7 处问题，大多是看不见的后台修正，所以界面看着没变：周报里 Tina 的周变化箭头（之前一直显示「—」）、本月复盘「已过天数」算错、腰围提示显示乱码、曲线悬浮数值单位等',
+    '本月复盘卡底部标明「历史数据永久保留」'
+  ]},
+  { v: 'V13', d: '9月22日', items: [
+    '统计页顶部新增「本月复盘」卡：每月 1 号新开一页，之前的记录一条不动',
+    '腰围超过 5 天没量，按钮自动改成提醒文案',
+    '腰围曲线下方新增一句话解读'
+  ]}
+];
+
 let state = loadState();
 let currentDate = todayKey();   // 记录页当前编辑的日期
 let trendRange = 30;            // 趋势图天数，0 = 全部
@@ -1403,8 +1425,18 @@ function renderSettings() {
       '<p class="sub">iPhone · Safari 打开本页 → 分享 → 添加到主屏幕<br>Android · Chrome → 右上角菜单 → 添加到主屏幕</p>' +
     '</div>' +
     '<div class="card">' +
+      '<h3 class="card-label">版本与更新</h3>' +
+      '<p class="sub">当前版本：<b>' + APP_VERSION + '</b>' + (CHANGELOG.length ? ' · 最近更新 ' + esc(CHANGELOG[0].d) : '') + '<br>更新后如果界面看着没变化，来这里核对版本号——修 bug 类的优化本来就不改变界面长相</p>' +
+      CHANGELOG.slice(0, 5).map(c =>
+        '<div class="divider">' + c.v + ' · ' + esc(c.d) + '</div>' +
+        '<ul class="changelog" style="margin:4px 0 8px;padding-left:18px">' +
+        c.items.map(t => '<li class="sub" style="margin-bottom:3px">' + esc(t) + '</li>').join('') +
+        '</ul>'
+      ).join('') +
+    '</div>' +
+    '<div class="card">' +
       '<button class="btn danger" data-action="clear-all">清空全部记录</button>' +
-      '<p class="sub" style="text-align:center;margin-top:10px">V8 极简版 · 本机存储 + GitHub 云备份 · 不上传任何第三方服务器</p>' +
+      '<p class="sub" style="text-align:center;margin-top:10px">' + APP_VERSION + ' · 本机存储 + GitHub 云备份 · 不上传任何第三方服务器</p>' +
     '</div>';
 }
 
