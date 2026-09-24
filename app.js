@@ -16,8 +16,14 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V16.1';
+const APP_VERSION = 'V17';
 const CHANGELOG = [
+  { v: 'V17', d: '9月25日', items: [
+    '对标 Withings / Renpho / Happy Scale：体成分报告可抄录（内脏脂肪·肌肉量·基础代谢），统计页新增「体成分」卡',
+    '体重曲线新增趋势虚线（滑动平均）：过滤单日波动，看真实走向——专业减重 App 的核心功能',
+    'BMI 自动算：设置里填一次身高，记录页体重旁自动显示，不用手填',
+    '深色模式补全：自动跟随手机系统明暗切换'
+  ]},
   { v: 'V16.1', d: '9月24日', items: [
     '设置页新增「指标怎么看」：体重/体脂/腰围/内脏脂肪等每个指标，多久看一次、什么标准、一句话意思'
   ]},
@@ -42,8 +48,8 @@ const CHANGELOG = [
 let state = loadState();
 let currentDate = todayKey();   // 记录页当前编辑的日期
 let trendRange = 30;            // 趋势图天数，0 = 全部
-let drafts = { me: '', partner: '', me_waist: '', partner_waist: '', me_bf: '', partner_bf: '' };
-function resetDrafts() { drafts = { me: '', partner: '', me_waist: '', partner_waist: '', me_bf: '', partner_bf: '' }; }
+let drafts = { me: '', partner: '', me_waist: '', partner_waist: '', me_bf: '', partner_bf: '', me_vf: '', partner_vf: '', me_mm: '', partner_mm: '', me_bmr: '', partner_bmr: '' };
+function resetDrafts() { drafts = { me: '', partner: '', me_waist: '', partner_waist: '', me_bf: '', partner_bf: '', me_vf: '', partner_vf: '', me_mm: '', partner_mm: '', me_bmr: '', partner_bmr: '' }; }
 let extraOpen = false; /* 记录页腰围/体脂折叠区 */
 let ghConf = loadGhConf();
 let ghTimer = null;
@@ -58,10 +64,13 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
 /* ---------- 存取 ---------- */
 function sanitizeRecords(recs) {
   const out = {};
-  /* 扩展字段白名单：腰围 cm / 体脂率 %（v11） */
+  /* 扩展字段白名单：腰围 cm / 体脂率 %（v11） / 体成分（v17，抄小米完整报告） */
   const EXTRA = [
     ['me_waist', 40, 200], ['partner_waist', 40, 200],
-    ['me_bf', 3, 70], ['partner_bf', 3, 70]
+    ['me_bf', 3, 70], ['partner_bf', 3, 70],
+    ['me_vf', 1, 30], ['partner_vf', 1, 30],
+    ['me_mm', 10, 90], ['partner_mm', 10, 90],
+    ['me_bmr', 800, 4000], ['partner_bmr', 800, 4000]
   ];
   Object.keys(recs || {}).forEach(k => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) return;
@@ -96,6 +105,23 @@ function sanitizeGoals(g) {
   return out;
 }
 
+function sanitizeHeights(h) {
+  const out = { me: null, partner: null };
+  PERSON_IDS.forEach(p => {
+    if (h && typeof h === 'object' && h[p] !== null && h[p] !== undefined && h[p] !== '') {
+      const v = Number(h[p]);
+      if (isFinite(v) && v >= 40 && v <= 250) out[p] = Math.round(v);
+    }
+  });
+  return out;
+}
+
+function bmiOf(p, weightKg) {
+  const h = state.heights && state.heights[p];
+  if (!h || typeof weightKg !== 'number') return null;
+  return weightKg / (h / 100 * h / 100);
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
@@ -108,12 +134,13 @@ function loadState() {
             partner: (parsed.names && typeof parsed.names.partner === 'string' && parsed.names.partner.trim()) || DEFAULT_NAMES.partner
           },
           records: sanitizeRecords(parsed.records),
-          goals: sanitizeGoals(parsed.goals)
+          goals: sanitizeGoals(parsed.goals),
+          heights: sanitizeHeights(parsed.heights)
         };
       }
     }
   } catch (e) { console.warn('读取存档失败', e); }
-  return { names: { ...DEFAULT_NAMES }, records: {}, goals: { me: null, partner: null } };
+  return { names: { ...DEFAULT_NAMES }, records: {}, goals: { me: null, partner: null }, heights: { me: null, partner: null } };
 }
 
 function persist() {
@@ -582,6 +609,16 @@ function renderRecord() {
               '<span class="unit">%</span>' +
             '</div>';
           }).join('') +
+          '<p class="sub" style="margin:6px 0 2px">体成分报告：测完整报告那天才填（秤上点「体成分」页抄），平时不用管</p>' +
+          PERSON_IDS.map(p => {
+            const vf = lastKnownField(p + '_vf'), mm = lastKnownField(p + '_mm'), bmr = lastKnownField(p + '_bmr');
+            return '<div class="in-row x-row">' +
+              '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+              '<input class="w-input x-input" type="number" step="1" inputmode="numeric" placeholder="' + (vf ? '内脏 · 上次 ' + vf.value.toFixed(0) : '内脏脂肪 级') + '" data-person="' + p + '_vf" value="' + (r && typeof r[p + '_vf'] === 'number' ? r[p + '_vf'] : esc(drafts[p + '_vf'] || '')) + '">' +
+              '<input class="w-input x-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (mm ? '肌肉 · 上次 ' + mm.value.toFixed(1) : '肌肉 kg') + '" data-person="' + p + '_mm" value="' + (r && typeof r[p + '_mm'] === 'number' ? r[p + '_mm'] : esc(drafts[p + '_mm'] || '')) + '">' +
+              '<input class="w-input x-input" type="number" step="1" inputmode="numeric" placeholder="' + (bmr ? '代谢 · 上次 ' + bmr.value.toFixed(0) : '代谢 千卡') + '" data-person="' + p + '_bmr" value="' + (r && typeof r[p + '_bmr'] === 'number' ? r[p + '_bmr'] : esc(drafts[p + '_bmr'] || '')) + '">' +
+            '</div>';
+          }).join('') +
           '<button class="linklike extra-toggle" data-action="toggle-extra">收起</button>' +
         '</div>';
       })() +
@@ -615,6 +652,7 @@ function heroHTML() {
     const lk = lastKeyOf(p);
     const prev = prevRecord(lk, p);
     const start = firstKnown(p);
+    const bmi = bmiOf(p, cur);
     const latestTag = lk === todayKey() ? '最新：今天' : '最新：' + fmtMD(lk);
     return '<div class="hero-col">' +
       '<span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '（最新体重）</span>' +
@@ -622,6 +660,7 @@ function heroHTML() {
       '<div class="hero-delta">' + deltaChip(prev ? cur - prev.value : null, 1, relPrev(lk, prev)) + '</div>' +
       '<div class="hero-sub">' +
         latestTag +
+        (bmi !== null ? ' · BMI ' + bmi.toFixed(1) : '') +
         (start && start.key !== lk ? ' · 从 ' + start.value.toFixed(1) + ' 开始' : '') +
         ' · 共记 ' + countDays(p) + ' 天' +
       '</div>' +
@@ -724,32 +763,40 @@ function saveAll() {
   });
   if (waistErr) { toast(waistErr); return; }
 
-  /* 体脂率：小米秤抄数，填了才存（3~70 之外拦下） */
-  const bfGot = {}, bfDel = [];
-  let bfErr = null;
-  PERSON_IDS.forEach(p => {
-    const field = p + '_bf';
-    const input = document.querySelector('.x-input[data-person="' + field + '"]');
-    if (!input) return;
-    const raw = input.value.trim();
-    if (raw === '') {
-      if (state.records[currentDate] && typeof state.records[currentDate][field] === 'number') bfDel.push(field);
-      return;
-    }
-    const v = parseFloat(raw);
-    if (isNaN(v) || v < 3 || v > 70) { bfErr = state.names[p] + ' 的体脂率（' + raw + '）看着不对，应在 3~70 之间，检查一下再存'; return; }
-    bfGot[field] = Math.round(v * 10) / 10;
+  /* 体成分四件套：体脂% / 内脏脂肪级 / 肌肉kg / 代谢千卡（小米秤抄数，填了才存） */
+  const BF_FIELDS = [
+    { suf: '_bf',  min: 3,   max: 70,   name: '体脂率',   step: 0.1 },
+    { suf: '_vf',  min: 1,   max: 30,   name: '内脏脂肪', step: 1 },
+    { suf: '_mm',  min: 10,  max: 90,   name: '肌肉量',   step: 0.1 },
+    { suf: '_bmr', min: 800, max: 4000, name: '基础代谢', step: 1 }
+  ];
+  const bodyGot = {}, bodyDel = [];
+  let bodyErr = null;
+  BF_FIELDS.forEach(f => {
+    PERSON_IDS.forEach(p => {
+      const field = p + f.suf;
+      const input = document.querySelector('.x-input[data-person="' + field + '"]');
+      if (!input) return;
+      const raw = input.value.trim();
+      if (raw === '') {
+        if (state.records[currentDate] && typeof state.records[currentDate][field] === 'number') bodyDel.push(field);
+        return;
+      }
+      const v = parseFloat(raw);
+      if (isNaN(v) || v < f.min || v > f.max) { bodyErr = state.names[p] + ' 的' + f.name + '（' + raw + '）看着不对，应在 ' + f.min + '~' + f.max + ' 之间，检查一下再存'; return; }
+      bodyGot[field] = Math.round(v * 10) / 10;
+    });
   });
-  if (bfErr) { toast(bfErr); return; }
+  if (bodyErr) { toast(bodyErr); return; }
 
   const keys = Object.keys(got);
-  if (!keys.length && !Object.keys(extraGot).length && !Object.keys(bfGot).length) { toast('先输入至少一位的体重'); return; }
+  if (!keys.length && !Object.keys(extraGot).length && !Object.keys(bodyGot).length) { toast('先输入至少一位的体重'); return; }
   if (!state.records[currentDate]) state.records[currentDate] = {};
   keys.forEach(p => { state.records[currentDate][p] = got[p]; drafts[p] = ''; });
   Object.keys(extraGot).forEach(f => { state.records[currentDate][f] = extraGot[f]; drafts[f] = ''; });
   extraDel.forEach(f => { delete state.records[currentDate][f]; drafts[f] = ''; });
-  Object.keys(bfGot).forEach(f => { state.records[currentDate][f] = bfGot[f]; drafts[f] = ''; });
-  bfDel.forEach(f => { delete state.records[currentDate][f]; drafts[f] = ''; });
+  Object.keys(bodyGot).forEach(f => { state.records[currentDate][f] = bodyGot[f]; drafts[f] = ''; });
+  bodyDel.forEach(f => { delete state.records[currentDate][f]; drafts[f] = ''; });
   /* 记录变空就整行删掉，不留幽灵日期 */
   const cur = state.records[currentDate];
   if (cur && !Object.keys(cur).length) delete state.records[currentDate];
@@ -962,6 +1009,16 @@ function buildDualChart(days, opts) {
     if (cpts.length) {
       const d = smoothPath(cpts);
       if (d) paths += '<path d="' + d + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
+      /* 趋势线：滑动平均（Happy Scale 式）——比单日数字诚实，窗口=min(序号+1,7) 个记录点 */
+      if (opts.trend && s.pts.length >= 4) {
+        const mpts = s.pts.map((pt, idx) => {
+          const from = Math.max(0, idx - 6);
+          const win = s.pts.slice(from, idx + 1);
+          return { x: X(pt.i), y: Y(win.reduce((a, b) => a + b.v, 0) / win.length) };
+        });
+        const dm = smoothPath(mpts);
+        if (dm) paths += '<path d="' + dm + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="1.8" stroke-linecap="round" opacity="0.55" stroke-dasharray="5 4"/>';
+      }
       const last = cpts[cpts.length - 1];
       paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--bg)" stroke="' + COLORS[s.p] + '" stroke-width="2.5"/>';
     }
@@ -1042,7 +1099,7 @@ function renderTrend() {
   }
 
   /* 一张图两条线 */
-  const c = buildDualChart(days);
+  const c = buildDualChart(days, { trend: true });
   const rangeName = trendRange === 0 ? '全部记录' : '最近 ' + trendRange + ' 天';
   const legend = PERSON_IDS.map(p => {
     const cur = lastKnown(p);
@@ -1054,7 +1111,7 @@ function renderTrend() {
   } else {
     box.innerHTML = '<div class="card chart-card">' +
       '<div class="chart-head2"><h3 class="card-label">体重走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
-      '<p class="sub">两条线一人一条 · 灰虚线是目标 · 手指按住曲线可看每一天的数</p>' +
+      '<p class="sub">实线=每天记录 · 虚线=趋势线（滑动平均，过滤单日波动，比单日数字诚实）· 灰虚线是目标 · 按住可看每天数值</p>' +
       '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
     '</div>';
     const wrap = box.querySelector('.chart-wrap');
@@ -1274,6 +1331,25 @@ function renderStats() {
       wbar('me', wMe) + wbar('partner', wPa) + '</div>';
   }
 
+  /* 体成分 · 最新报告（有完整报告数据才出现，来源：小米秤体成分页） */
+  const compRows = PERSON_IDS.map(p => {
+    const vf = lastKnownField(p + '_vf'), mm = lastKnownField(p + '_mm'), bmr = lastKnownField(p + '_bmr');
+    if (!vf && !mm && !bmr) return '';
+    const latest = [vf, mm, bmr].filter(Boolean).map(x => x.key).sort().pop();
+    const vfFlag = vf ? (vf.value < 5 ? '<span class="delta down">达标</span>' : '<span class="delta up">警戒 &lt;5</span>') : '';
+    const items = [];
+    if (vf) items.push('内脏脂肪 <b>' + vf.value.toFixed(0) + '</b> 级 ' + vfFlag);
+    if (mm) items.push('肌肉量 <b>' + mm.value.toFixed(1) + '</b> kg');
+    if (bmr) items.push('基础代谢 <b>' + bmr.value.toFixed(0) + '</b> 千卡/天');
+    return '<div class="rv-row"><span class="rv-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+      '<div class="rv-body">' + items.map(t => '<div>' + t + '</div>').join('') + '</div></div>';
+  }).filter(Boolean);
+  if (compRows.length) {
+    html += '<div class="card"><h3 class="card-label">体成分 · 最新报告</h3>' +
+      '<p class="sub">来自小米秤完整报告 · 记录页「+ 记腰围 / 体脂」最下面一栏抄数 · 内脏脂肪 &lt; 5 级算达标</p>' +
+      compRows.join('') + '</div>';
+  }
+
   /* 周报表 · 最近 6 周 */
   const wkRows = weeklyTableHTML();
   if (wkRows) {
@@ -1440,6 +1516,19 @@ function renderSettings() {
       '<p class="sub">全身底子的总评分。这个好说明问题在局部（肚子），不用全面节食</p>' +
     '</div>' +
     '<div class="card">' +
+      '<h3 class="card-label">身高 · BMI 自动算</h3>' +
+      '<p class="sub">填一次身高，记录页体重下面会自动显示 BMI（不用手填）。两个人各填各的</p>' +
+      PERSON_IDS.map(p => {
+        const h = state.heights && state.heights[p];
+        return '<div class="in-row x-row">' +
+          '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+          '<input class="w-input x-input" type="number" step="1" inputmode="numeric" placeholder="' + (h ? '上次 ' + h : '身高 cm') + '" data-height="' + p + '" value="' + (h || '') + '">' +
+          '<span class="unit">cm</span>' +
+        '</div>';
+      }).join('') +
+      '<button class="btn" data-action="save-heights" style="margin-top:8px">保存身高</button>' +
+    '</div>' +
+    '<div class="card">' +
       '<h3 class="card-label">安装到桌面</h3>' +
       '<p class="sub">iPhone · Safari 打开本页 → 分享 → 添加到主屏幕<br>Android · Chrome → 右上角菜单 → 添加到主屏幕</p>' +
     '</div>' +
@@ -1457,6 +1546,21 @@ function renderSettings() {
       '<button class="btn danger" data-action="clear-all">清空全部记录</button>' +
       '<p class="sub" style="text-align:center;margin-top:10px">' + APP_VERSION + ' · 本机存储 + GitHub 云备份 · 不上传任何第三方服务器</p>' +
     '</div>';
+}
+
+function saveHeights() {
+  let err = null;
+  PERSON_IDS.forEach(p => {
+    const input = document.querySelector('input[data-height="' + p + '"]');
+    if (!input) return;
+    const raw = input.value.trim();
+    if (raw === '') { state.heights[p] = null; return; }
+    const v = parseFloat(raw);
+    if (isNaN(v) || v < 40 || v > 250) { err = state.names[p] + ' 的身高（' + raw + '）看着不对，应在 40~250 之间'; return; }
+    state.heights[p] = Math.round(v);
+  });
+  if (err) { toast(err); return; }
+  if (persist()) { toast('身高已保存 · BMI 会自动出现在体重下面'); renderAll(); closeSettings(); }
 }
 
 function saveNames() {
@@ -1602,6 +1706,7 @@ document.addEventListener('click', e => {
     else if (a === 'save-names') saveNames();
     else if (a === 'save-goals') saveGoals();
     else if (a === 'save-goals-inline') saveGoalsInline();
+    else if (a === 'save-heights') saveHeights();
     else if (a === 'copy-backup') copyBackup();
     else if (a === 'backup-now') oneClickBackup();
     else if (a === 'cloud-setup') setupCloud((document.querySelector('.cloud-area') || {}).value || '');
