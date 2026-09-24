@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V16';
+const APP_VERSION = 'V16.1';
 const CHANGELOG = [
+  { v: 'V16.1', d: '9月24日', items: [
+    '设置页新增「指标怎么看」：体重/体脂/腰围/内脏脂肪等每个指标，多久看一次、什么标准、一句话意思'
+  ]},
   { v: 'V16', d: '9月24日', items: [
     '设置页新增这个「版本与更新」卡片——以后每次优化都会在这里留痕',
     '底部版本号从写死的「V8」改成自动跟随（以前一直是错的）'
@@ -1419,6 +1422,22 @@ function renderSettings() {
     '<div class="card">' +
       '<h3 class="card-label">数据状态</h3>' +
       '<p class="sub">共 ' + days + ' 天' + (earliest ? ' · 自 ' + fmtCN(earliest) : '') + ' · 约 ' + (size / 1024).toFixed(1) + ' KB<br>存储：' + (storeOk ? '正常' : '异常（检查是否无痕模式）') + ' · 上次备份：' + backupTxt + '</p>' +
+    '</div>' +
+    '<div class="card">' +
+      '<h3 class="card-label">指标怎么看</h3>' +
+      '<p class="sub" style="margin-bottom:6px">每个指标：多久看一次 · 什么标准 · 一句话意思。你的当前值在趋势页和复盘卡里</p>' +
+      '<div class="divider">体重 · 每天早上</div>' +
+      '<p class="sub">只看周趋势。单日 ±1kg 是水分和饭量，不是胖瘦，别较劲</p>' +
+      '<div class="divider">体脂率 · 每天早上（上秤顺手抄）</div>' +
+      '<p class="sub">男性 10~20% 正常。减肚子的第二证据：体重不动但体脂在降 = 脂肪真在走</p>' +
+      '<div class="divider">腰围 · 每周 1~2 次（软尺）</div>' +
+      '<p class="sub">男性 &lt; 90cm 健康。贴肚脐绕一圈，呼气末读数。减肚子最诚实的硬指标</p>' +
+      '<div class="divider">内脏脂肪 · 每月复测看一次</div>' +
+      '<p class="sub">秤的完整报告里看，&lt; 5 理想。它超标 = 肚子里的脂肪包着器官，是减肚子的核心理由</p>' +
+      '<div class="divider">基础代谢 · 吃饭时想起</div>' +
+      '<p class="sub">每天躺着也消耗的热量。减脂期每天吃的别低于这个数，否则掉肌肉、代谢跟着掉，越减越难</p>' +
+      '<div class="divider">身体年龄 / 身体得分 · 每月复测</div>' +
+      '<p class="sub">全身底子的总评分。这个好说明问题在局部（肚子），不用全面节食</p>' +
     '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">安装到桌面</h3>' +
