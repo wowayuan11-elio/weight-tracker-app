@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V17';
+const APP_VERSION = 'V18';
 const CHANGELOG = [
+  { v: 'V18', d: '9月26日', items: [
+    '界面全面升级为苹果设计语言：灰底白卡分组、大粗数字、涨跌徽章胶囊化——细节的格调和层次感',
+    '体成分报告改为指标瓦片：每个数字独立一块，一眼锁定（对标 Withings 的排版）',
+    '页面切换动效、按钮按压手感、弹窗圆角等微调，整体更顺滑'
+  ]},
   { v: 'V17', d: '9月25日', items: [
     '对标 Withings / Renpho / Happy Scale：体成分报告可抄录（内脏脂肪·肌肉量·基础代谢），统计页新增「体成分」卡',
     '体重曲线新增趋势虚线（滑动平均）：过滤单日波动，看真实走向——专业减重 App 的核心功能',
@@ -498,11 +503,12 @@ function esc(s) {
 function deltaChip(d, digits, label) {
   digits = digits || 1;
   label = label || '';
-  if (d === null || d === undefined || isNaN(d)) return '<span class="delta flat">—</span>';
-  if (Math.abs(d) < 0.05) return '<span class="delta flat">' + label + '持平</span>';
+  const lb = label ? '<span class="d-label">' + label + '</span>' : '';
+  if (d === null || d === undefined || isNaN(d)) return lb + '<span class="delta flat">—</span>';
+  if (Math.abs(d) < 0.05) return lb + '<span class="delta flat">持平</span>';
   return d < 0
-    ? '<span class="delta down">' + label + '↓' + Math.abs(d).toFixed(digits) + '</span>'
-    : '<span class="delta up">' + label + '↑' + d.toFixed(digits) + '</span>';
+    ? lb + '<span class="delta down">↓' + Math.abs(d).toFixed(digits) + '</span>'
+    : lb + '<span class="delta up">↑' + d.toFixed(digits) + '</span>';
 }
 
 /* ---------- Toast / 确认弹窗 ---------- */
@@ -1020,7 +1026,7 @@ function buildDualChart(days, opts) {
         if (dm) paths += '<path d="' + dm + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="1.8" stroke-linecap="round" opacity="0.55" stroke-dasharray="5 4"/>';
       }
       const last = cpts[cpts.length - 1];
-      paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--bg)" stroke="' + COLORS[s.p] + '" stroke-width="2.5"/>';
+      paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--card)" stroke="' + COLORS[s.p] + '" stroke-width="2.5"/>';
     }
     const g = withGoals ? state.goals[s.p] : undefined;
     if (typeof g === 'number' && goalsDrawn.indexOf(g.toFixed(1)) === -1) {
@@ -1332,22 +1338,37 @@ function renderStats() {
   }
 
   /* 体成分 · 最新报告（有完整报告数据才出现，来源：小米秤体成分页） */
-  const compRows = PERSON_IDS.map(p => {
+  const compTiles = [];
+  const VF_REF = '健康 <5级';
+  PERSON_IDS.forEach(p => {
     const vf = lastKnownField(p + '_vf'), mm = lastKnownField(p + '_mm'), bmr = lastKnownField(p + '_bmr');
-    if (!vf && !mm && !bmr) return '';
-    const latest = [vf, mm, bmr].filter(Boolean).map(x => x.key).sort().pop();
-    const vfFlag = vf ? (vf.value < 5 ? '<span class="delta down">达标</span>' : '<span class="delta up">警戒 &lt;5</span>') : '';
-    const items = [];
-    if (vf) items.push('内脏脂肪 <b>' + vf.value.toFixed(0) + '</b> 级 ' + vfFlag);
-    if (mm) items.push('肌肉量 <b>' + mm.value.toFixed(1) + '</b> kg');
-    if (bmr) items.push('基础代谢 <b>' + bmr.value.toFixed(0) + '</b> 千卡/天');
-    return '<div class="rv-row"><span class="rv-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-      '<div class="rv-body">' + items.map(t => '<div>' + t + '</div>').join('') + '</div></div>';
-  }).filter(Boolean);
-  if (compRows.length) {
+    if (!vf && !mm && !bmr) return;
+    const tileFoot = x => '<span class="tile-foot">' + x + '</span>';
+    if (vf) compTiles.push(
+      '<div class="tile">' +
+        '<span class="tile-label"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + ' · 内脏脂肪</span>' +
+        '<div class="tile-num">' + vf.value.toFixed(0) + '<small>级</small></div>' +
+        tileFoot((vf.value < 5
+          ? '<span class="delta down">达标</span>'
+          : '<span class="delta up">警戒</span>') + '<span>' + VF_REF + ' · ' + fmtMD(vf.key) + '</span>') +
+      '</div>');
+    if (mm) compTiles.push(
+      '<div class="tile">' +
+        '<span class="tile-label"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + ' · 肌肉量</span>' +
+        '<div class="tile-num">' + mm.value.toFixed(1) + '<small>kg</small></div>' +
+        tileFoot('<span>掉肌肉=代谢掉，减脂期守住它 · ' + fmtMD(mm.key) + '</span>') +
+      '</div>');
+    if (bmr) compTiles.push(
+      '<div class="tile">' +
+        '<span class="tile-label"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + ' · 基础代谢</span>' +
+        '<div class="tile-num">' + bmr.value.toFixed(0) + '<small>千卡/天</small></div>' +
+        tileFoot('<span>躺着也消耗的热量，每天吃别低于它 · ' + fmtMD(bmr.key) + '</span>') +
+      '</div>');
+  });
+  if (compTiles.length) {
     html += '<div class="card"><h3 class="card-label">体成分 · 最新报告</h3>' +
-      '<p class="sub">来自小米秤完整报告 · 记录页「+ 记腰围 / 体脂」最下面一栏抄数 · 内脏脂肪 &lt; 5 级算达标</p>' +
-      compRows.join('') + '</div>';
+      '<p class="sub">来自小米秤完整报告 · 记录页「+ 记腰围 / 体脂」最下面一栏抄数</p>' +
+      '<div class="tile-grid">' + compTiles.join('') + '</div></div>';
   }
 
   /* 周报表 · 最近 6 周 */
