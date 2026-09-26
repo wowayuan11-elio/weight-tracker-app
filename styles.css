@@ -1,21 +1,23 @@
-/* 双人体重小本本 V8 · 极简设计系统
-   参考 Apple Health / DJI：纯灰阶 + 单主色 + 大数字 + 图表为主角 */
+/* 双人体重小本本 V18 · 苹果设计系统
+   参考 Apple Health / iOS Settings：灰底白卡分组 + 大粗数字 + 克制灰阶
+   字体编排参考 Withings / Renpho：小标签·大数值·微注释三层结构 */
 
 :root{
-  --bg:#ffffff;
-  --card:#f5f5f7;
+  --bg:#f2f2f7;
+  --card:#ffffff;
   --segbg:#ffffff;
   --text:#1d1d1f;
   --text2:#6e6e73;
   --text3:#86868b;
   --sep:rgba(60,60,67,.12);
-  --chipbg:rgba(120,120,128,.10);
-  --bar:rgba(255,255,255,.86);
+  --chipbg:rgba(118,118,128,.10);
+  --bar:rgba(249,249,251,.88);
   --me:#007aff;
   --partner:#ff9500;
   --down:#34c759;
   --up:#ff3b30;
   --tint:#007aff;
+  --shadow:0 1px 2px rgba(23,23,40,.04), 0 6px 20px rgba(23,23,40,.05);
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -28,6 +30,7 @@
     --sep:rgba(84,84,88,.55);
     --chipbg:rgba(120,120,128,.22);
     --bar:rgba(18,18,20,.86);
+    --shadow:0 1px 2px rgba(0,0,0,.30);
   }
 }
 
@@ -39,6 +42,7 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","PingFang SC","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   overscroll-behavior:none;
   -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
 }
 button{ font-family:inherit; cursor:pointer; }
 input,textarea{ font-family:inherit; }
@@ -51,37 +55,67 @@ main{ flex:1; min-height:0; position:relative; }
   position:absolute; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
   padding:0 20px 46px; display:none;
 }
-.page.active{ display:block; animation:fadein .18s ease; }
-@keyframes fadein{ from{opacity:.4} to{opacity:1} }
+.page.active{ display:block; animation:fadein .22s ease; }
+@keyframes fadein{ from{opacity:.35; transform:translateY(4px)} to{opacity:1; transform:none} }
 
 .page-head{
   position:sticky; top:0; z-index:6; background:var(--bg);
   display:flex; align-items:center; justify-content:space-between;
-  padding:calc(14px + env(safe-area-inset-top)) 0 8px;
+  padding:calc(16px + env(safe-area-inset-top)) 0 10px;
 }
-.page-head h1{ font-size:29px; font-weight:700; letter-spacing:.2px; margin:0; }
+.page-head h1{
+  font-size:32px; font-weight:800; letter-spacing:-.4px; margin:0;
+}
 
 .icon-btn{
   background:var(--card); border:0; color:var(--text2);
-  width:38px; height:38px; border-radius:50%;
+  width:40px; height:40px; border-radius:50%;
   display:grid; place-items:center; flex:none;
+  box-shadow:var(--shadow);
 }
 .icon-btn svg{ width:20px; height:20px; }
 
 /* ---------- 通用卡片 ---------- */
-.card{ background:var(--card); border-radius:18px; padding:16px; margin-top:14px; }
-.card-label{ font-size:13px; font-weight:600; color:var(--text3); margin:0 0 10px; }
-.sub{ font-size:13px; color:var(--text2); line-height:1.55; margin:6px 0; }
-.divider{ margin:16px 0 8px; font-size:12.5px; font-weight:600; color:var(--text3); }
-.card-foot{ font-size:12.5px; color:var(--text3); text-align:center; margin-top:10px; }
+.card{
+  background:var(--card); border-radius:18px; padding:20px 18px; margin-top:16px;
+  box-shadow:var(--shadow);
+}
+.card-label{
+  font-size:12px; font-weight:600; color:var(--text3); margin:0 0 12px;
+  letter-spacing:.05em;
+}
+.sub{ font-size:12.5px; color:var(--text2); line-height:1.6; margin:6px 0; }
+.divider{ margin:18px 0 10px; font-size:12px; font-weight:600; color:var(--text3); letter-spacing:.05em; }
+.card-foot{ font-size:12px; color:var(--text3); text-align:center; margin-top:12px; }
 
-.delta{ font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
-.delta.down{ color:var(--down); }
-.delta.up{ color:var(--up); }
-.delta.flat{ color:var(--text3); font-weight:400; }
+/* 涨跌徽章：胶囊制（文字标签在胶囊外） */
+.delta{
+  display:inline-block; font-size:12.5px; font-weight:600;
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+  padding:3px 10px; border-radius:999px;
+}
+.delta.down{ color:#1f9d4a; background:rgba(52,199,89,.14); }
+.delta.up{ color:#e0342b; background:rgba(255,59,48,.13); }
+.delta.flat{ color:var(--text3); font-weight:500; background:var(--chipbg); }
+.d-label{ font-size:12px; color:var(--text3); margin-right:2px; font-weight:400; }
 .dim-label{ color:var(--text3); font-weight:400; }
 
 .dotc{ width:8px; height:8px; border-radius:50%; display:inline-block; flex:none; }
+
+/* ---------- 指标瓦片（Withings 式：小标签·大数值·微注释） ---------- */
+.tile-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+.tile{ background:var(--bg); border-radius:14px; padding:13px 14px 12px; min-width:0; }
+.tile-label{
+  font-size:11px; font-weight:600; color:var(--text3);
+  display:flex; align-items:center; gap:5px; letter-spacing:.02em;
+}
+.tile-num{
+  font-size:27px; font-weight:700; letter-spacing:-.02em; line-height:1.2;
+  margin:6px 0 3px; font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.tile-num small{ font-size:12px; font-weight:500; color:var(--text3); letter-spacing:0; margin-left:3px; }
+.tile-foot{ font-size:11px; color:var(--text3); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.tile-foot .delta{ font-size:10.5px; padding:2px 8px; font-weight:600; }
 
 /* ---------- 记录页 ---------- */
 .date-row{ display:flex; align-items:center; gap:12px; margin-top:6px; }
@@ -96,31 +130,32 @@ main{ flex:1; min-height:0; position:relative; }
 .in-name{ width:70px; font-size:15px; font-weight:600; display:flex; align-items:center; gap:7px; flex:none; }
 .w-input{
   flex:1; min-width:0; background:var(--bg); border:0; border-radius:12px;
-  padding:12px 14px; font-size:20px; font-weight:500; color:var(--text);
-  outline:none; font-variant-numeric:tabular-nums;
+  padding:12px 14px; font-size:21px; font-weight:600; color:var(--text);
+  outline:none; font-variant-numeric:tabular-nums; letter-spacing:-.01em;
 }
-.w-input:focus{ box-shadow:0 0 0 1.5px var(--tint); }
+.w-input:focus{ box-shadow:0 0 0 2px var(--tint); }
 .unit{ color:var(--text3); font-size:14px; width:20px; flex:none; }
 
 .btn{
-  width:100%; border:0; border-radius:14px; padding:14px;
-  font-size:16px; font-weight:600; background:var(--tint); color:#fff; margin-top:12px;
+  width:100%; border:0; border-radius:14px; padding:15px;
+  font-size:16px; font-weight:600; background:var(--tint); color:#fff; margin-top:14px;
+  transition:transform .12s ease, opacity .12s ease;
 }
-.btn:active{ opacity:.75; }
+.btn:active{ transform:scale(.97); opacity:.9; }
 .btn.ghost{ background:var(--chipbg); color:var(--tint); }
 .btn.danger{ background:transparent; color:var(--up); font-weight:500; }
 
-/* 最新数据（大数字） */
-.hero{ display:flex; gap:12px; margin-top:14px; }
-.hero-col{ flex:1; background:var(--card); border-radius:18px; padding:15px 16px; min-width:0; }
-.hero-name{ font-size:13px; color:var(--text2); display:flex; align-items:center; gap:6px; font-weight:500; }
+/* 最新数据（大数字 · SF Pro Display Bold） */
+.hero{ display:flex; gap:12px; margin-top:16px; }
+.hero-col{ flex:1; background:var(--card); border-radius:18px; padding:18px 16px 16px; min-width:0; box-shadow:var(--shadow); }
+.hero-name{ font-size:12px; color:var(--text2); display:flex; align-items:center; gap:6px; font-weight:600; letter-spacing:.02em; }
 .hero-num{
-  font-size:42px; font-weight:200; letter-spacing:-1.5px; line-height:1.15;
-  margin:7px 0 3px; font-variant-numeric:tabular-nums; white-space:nowrap;
+  font-size:52px; font-weight:700; letter-spacing:-.03em; line-height:1.1;
+  margin:10px 0 6px; font-variant-numeric:tabular-nums; white-space:nowrap;
 }
-.hero-num small{ font-size:14px; font-weight:400; color:var(--text3); letter-spacing:0; margin-left:2px; }
-.hero-sub{ font-size:12px; color:var(--text3); margin-top:4px; }
-.hero-delta{ margin-top:2px; }
+.hero-num small{ font-size:16px; font-weight:500; color:var(--text3); letter-spacing:0; margin-left:3px; }
+.hero-sub{ font-size:11.5px; color:var(--text3); margin-top:6px; line-height:1.5; }
+.hero-delta{ margin-top:4px; display:flex; align-items:center; flex-wrap:wrap; gap:2px; }
 
 .hint{
   margin-top:16px; font-size:12.5px; color:var(--text3);
@@ -129,12 +164,13 @@ main{ flex:1; min-height:0; position:relative; }
 .hint .linklike{ font-size:12.5px; padding:2px 4px; }
 
 /* ---------- 趋势页 ---------- */
-.seg{ display:flex; background:var(--chipbg); border-radius:12px; padding:3px; margin-top:8px; }
+.seg{ display:flex; background:var(--chipbg); border-radius:12px; padding:3px; margin-top:10px; }
 .seg button{
   flex:1; border:0; background:none; color:var(--text2);
-  font-size:13px; font-weight:500; padding:7px 0; border-radius:9px;
+  font-size:13px; font-weight:500; padding:8px 0; border-radius:10px;
+  transition:background .15s ease;
 }
-.seg button.active{ background:var(--segbg); color:var(--text); font-weight:600; box-shadow:0 1px 4px rgba(0,0,0,.10); }
+.seg button.active{ background:var(--card); color:var(--text); font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,.10); }
 
 .legend-row{ display:flex; align-items:center; gap:14px; margin-top:14px; font-size:13px; color:var(--text2); }
 .lg{ display:flex; align-items:center; gap:5px; font-weight:500; }
@@ -220,18 +256,18 @@ main{ flex:1; min-height:0; position:relative; }
 .mask.show{ opacity:1; pointer-events:auto; }
 .sheet{
   position:fixed; left:0; right:0; bottom:0; z-index:41;
-  background:var(--bg); border-radius:20px 20px 0 0;
+  background:var(--bg); border-radius:22px 22px 0 0;
   max-height:88dvh; display:flex; flex-direction:column;
   transform:translateY(105%); transition:transform .32s cubic-bezier(.32,.72,.33,1);
 }
 .sheet.show{ transform:none; }
 .sheet-head{
   display:flex; align-items:center; justify-content:space-between;
-  padding:16px 20px 8px; flex:none;
+  padding:18px 20px 8px; flex:none;
 }
-.sheet-title{ font-size:18px; font-weight:700; }
+.sheet-title{ font-size:20px; font-weight:700; letter-spacing:-.02em; }
 .sheet-body{ overflow-y:auto; padding:0 20px calc(34px + env(safe-area-inset-bottom)); }
-.sheet-body .card{ margin-top:12px; }
+.sheet-body .card{ margin-top:12px; box-shadow:none; }
 
 .field{ display:flex; align-items:center; gap:10px; padding:5px 0; }
 .field span{ font-size:14px; color:var(--text2); width:88px; flex:none; }
