@@ -2,7 +2,7 @@
  * 发布新版本时必须把 CACHE 版本号 +1，否则老资源不会更新
  * 策略（2026-09-25 改版）：HTML/JS/CSS 网络优先——用户每次打开都拿最新代码，
  * 离线才用缓存兜底；图片等资源缓存优先。根治 iOS 主屏 App 更新卡旧版问题 */
-const CACHE = 'wt-static-v19';
+const CACHE = 'wt-static-v20';
 const ASSETS = [
   './',
   './index.html',
