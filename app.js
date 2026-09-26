@@ -16,8 +16,14 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V18';
+const APP_VERSION = 'V19';
 const CHANGELOG = [
+  { v: 'V19', d: '9月27日', items: [
+    '打卡月历：趋势页顶部新增整月日历，彩点=记了，灰点=忘了，缺哪天一目了然；点任何一天直接去补录',
+    '补记提醒：打开 App 发现昨天没记，记录页顶部会出现提示条，点「去补记」一步到位',
+    '每天可以写备注了：吃火锅、熬夜、运动……保存后显示在历史记录里，方便回看体重波动的原因',
+    '没记录的日子不再是尴尬的空白，月历和提醒都会帮你把坑补上'
+  ]},
   { v: 'V18', d: '9月26日', items: [
     '界面全面升级为苹果设计语言：灰底白卡分组、大粗数字、涨跌徽章胶囊化——细节的格调和层次感',
     '体成分报告改为指标瓦片：每个数字独立一块，一眼锁定（对标 Withings 的排版）',
@@ -543,11 +549,36 @@ function switchTab(id) {
 }
 
 /* ================= 记录页 ================= */
+/* 最近缺勤日：从昨天往回找第一个「两人都没记」的日子（最多回看 7 天） */
+function lastGapDay() {
+  let d = addDays(new Date(), -1);
+  for (let i = 0; i < 7; i++) {
+    const k = dateKey(d);
+    const r = state.records[k];
+    const any = r && (typeof r.me === 'number' || typeof r.partner === 'number');
+    if (!any) return { key: k, gap: i };
+    d = addDays(d, -1);
+  }
+  return null;
+}
+
 function renderRecord() {
   const dateInput = document.getElementById('record-date');
   dateInput.value = currentDate;
   dateInput.max = todayKey();
   document.getElementById('btn-today').style.display = currentDate === todayKey() ? 'none' : '';
+
+  /* 补记提示：只在看今天时提示，不打扰编辑历史 */
+  document.getElementById('makeup-box').innerHTML = (function () {
+    if (currentDate !== todayKey()) return '';
+    const gap = lastGapDay();
+    if (!gap) return '';
+    const label = gap.gap === 1
+      ? '昨天（' + fmtMD(gap.key) + '）还没记体重'
+      : fmtMD(gap.key) + ' 起已连缺 ' + gap.gap + ' 天';
+    return '<div class="makeup-bar"><span>' + label + ' · 补上它，趋势线才不断</span>' +
+      '<button class="linklike" data-action="goto-makeup">去补记</button></div>';
+  })();
 
   const r = getRec(currentDate);
   const when = currentDate === todayKey() ? '今天' : fmtMD(currentDate) + ' ' + WEEK_LABELS[parseKey(currentDate).getDay()];
@@ -628,6 +659,8 @@ function renderRecord() {
           '<button class="linklike extra-toggle" data-action="toggle-extra">收起</button>' +
         '</div>';
       })() +
+      '<p class="sub" style="margin:12px 0 6px">备注（选填）：这天有什么想记的，一句话就行</p>' +
+      '<input class="note-input" type="text" maxlength="60" enterkeyhint="done" placeholder="如：昨晚吃火锅 / 熬夜了 / 开始力量训练" value="' + (r && r.note ? esc(r.note) : '') + '">' +
       '<button class="btn" data-action="save-all">保存</button>' +
       (both ? '<div class="card-foot">这天的记录：你们俩相差 ' + Math.abs(r.me - r.partner).toFixed(1) + ' kg</div>' : '') +
     '</div>';
@@ -795,9 +828,26 @@ function saveAll() {
   });
   if (bodyErr) { toast(bodyErr); return; }
 
+  /* 备注：跟当天记录一起存，只改备注也允许保存 */
+  const noteInput = document.querySelector('.note-input');
+  const noteRaw = noteInput ? noteInput.value.trim() : '';
+  const noteChanged = noteRaw !== ((state.records[currentDate] || {}).note || '');
+
   const keys = Object.keys(got);
-  if (!keys.length && !Object.keys(extraGot).length && !Object.keys(bodyGot).length) { toast('先输入至少一位的体重'); return; }
+  if (!keys.length && !Object.keys(extraGot).length && !Object.keys(bodyGot).length) {
+    if (noteChanged) {
+      if (!state.records[currentDate]) state.records[currentDate] = {};
+      if (noteRaw) state.records[currentDate].note = noteRaw;
+      else delete state.records[currentDate].note;
+      if (!Object.keys(state.records[currentDate]).length) delete state.records[currentDate];
+      if (persist()) { toast('备注已保存'); renderAll(); }
+      return;
+    }
+    toast('先输入至少一位的体重'); return;
+  }
   if (!state.records[currentDate]) state.records[currentDate] = {};
+  if (noteRaw) state.records[currentDate].note = noteRaw;
+  else delete state.records[currentDate].note;
   keys.forEach(p => { state.records[currentDate][p] = got[p]; drafts[p] = ''; });
   Object.keys(extraGot).forEach(f => { state.records[currentDate][f] = extraGot[f]; drafts[f] = ''; });
   extraDel.forEach(f => { delete state.records[currentDate][f]; drafts[f] = ''; });
@@ -1088,7 +1138,53 @@ function attachScrub(wrap, chart) {
   svg.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hide(); });
 }
 
+/* ================= 打卡月历（趋势页顶部） =================
+   借鉴 Happy Scale / 薄荷健康：整月一览，缺哪天一目了然，点任何一天直接去补录 */
+let calYM = null;
+function calendarHTML() {
+  const now = parseKey(todayKey());
+  if (!calYM) calYM = { y: now.getFullYear(), m: now.getMonth() };
+  const first = new Date(calYM.y, calYM.m, 1);
+  const startPad = first.getDay();
+  const dim = new Date(calYM.y, calYM.m + 1, 0).getDate();
+  const tk = todayKey();
+  let counted = 0;
+  for (let d = 1; d <= dim; d++) {
+    const r = state.records[dateKey(new Date(calYM.y, calYM.m, d))];
+    if (r && (typeof r.me === 'number' || typeof r.partner === 'number')) counted++;
+  }
+  const monthTotal = (calYM.y === now.getFullYear() && calYM.m === now.getMonth()) ? now.getDate() : dim;
+  const e = sortedKeys()[0];
+  let prevOk = true, nextOk = true;
+  if (e) { const ed = parseKey(e); prevOk = !(calYM.y === ed.getFullYear() && calYM.m === ed.getMonth()); }
+  nextOk = !(calYM.y === now.getFullYear() && calYM.m === now.getMonth());
+  let cells = '';
+  for (let i = 0; i < startPad; i++) cells += '<span class="cal-cell cal-pad"></span>';
+  for (let d = 1; d <= dim; d++) {
+    const k = dateKey(new Date(calYM.y, calYM.m, d));
+    const r = state.records[k] || {};
+    const future = k > tk;
+    const cls = 'cal-cell' + (k === tk ? ' cal-today' : '') + (future ? ' cal-future' : '');
+    const dots = (typeof r.me === 'number' ? '<i style="background:' + COLORS.me + '"></i>' : '<i></i>') +
+      (typeof r.partner === 'number' ? '<i style="background:' + COLORS.partner + '"></i>' : '<i></i>');
+    cells += '<button class="' + cls + '" data-cal="' + k + '"' + (future ? ' disabled' : '') + '>' +
+      '<span class="cal-d">' + d + '</span><span class="cal-dots">' + dots + '</span></button>';
+  }
+  return '<div class="card">' +
+    '<div class="cal-head">' +
+      '<button class="cal-nav" data-action="cal-prev"' + (prevOk ? '' : ' disabled') + ' aria-label="上个月">‹</button>' +
+      '<b>' + calYM.y + ' 年 ' + (calYM.m + 1) + ' 月</b>' +
+      '<span class="cal-count">记了 ' + counted + '/' + monthTotal + ' 天</span>' +
+      '<button class="cal-nav" data-action="cal-next"' + (nextOk ? '' : ' disabled') + ' aria-label="下个月">›</button>' +
+    '</div>' +
+    '<div class="cal-week">' + ['日','一','二','三','四','五','六'].map(w => '<span>' + w + '</span>').join('') + '</div>' +
+    '<div class="cal-grid">' + cells + '</div>' +
+    '<p class="cal-legend">彩点 = 记了体重（<span style="color:' + COLORS.me + '">●</span> ' + esc(state.names.me) + ' / <span style="color:' + COLORS.partner + '">●</span> ' + esc(state.names.partner) + '）· 灰点 = 忘了 · 点任何一天去补录</p>' +
+  '</div>';
+}
+
 function renderTrend() {
+  document.getElementById('cal-box').innerHTML = calendarHTML();
   document.querySelectorAll('#range-seg button').forEach(b => {
     b.classList.toggle('active', +b.dataset.range === trendRange);
   });
@@ -1446,7 +1542,7 @@ function historyHTML() {
     }).join('');
     html += '<div class="h-row" data-key="' + k + '">' +
       '<div class="h-date"><div class="h-d1">' + fmtMD(k) + '</div><div class="h-d2">' + WEEK_LABELS[d.getDay()] + (k === tk ? ' · 今天' : '') + '</div></div>' +
-      '<div class="h-vals">' + vals + '</div>' +
+      '<div class="h-vals">' + vals + (r.note ? '<div class="h-note">' + esc(r.note) + '</div>' : '') + '</div>' +
       '<button class="h-del" data-action="del-day" data-key="' + k + '" aria-label="删除">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 7h14M10 7V5h4v2M8 7l1 12h6l1-12"/></svg>' +
       '</button>' +
@@ -1716,11 +1812,24 @@ document.addEventListener('click', e => {
   const seg = e.target.closest('#range-seg button');
   if (seg) { trendRange = +seg.dataset.range; renderTrend(); return; }
 
+  /* 月历：点某天 → 跳到记录页那天（补录/修改） */
+  const calCell = e.target.closest('[data-cal]');
+  if (calCell && !calCell.disabled) {
+    currentDate = calCell.dataset.cal;
+    resetDrafts();
+    switchTab('record');
+    renderAll();
+    return;
+  }
+
   const act = e.target.closest('[data-action]');
   if (act) {
     const a = act.dataset.action;
     if (a === 'save-all') saveAll();
     else if (a === 'goto-today') { currentDate = todayKey(); resetDrafts(); renderAll(); }
+    else if (a === 'goto-makeup') { const g = lastGapDay(); if (g) { currentDate = g.key; resetDrafts(); renderAll(); } }
+    else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } renderTrend(); }
+    else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } renderTrend(); }
     else if (a === 'toggle-extra') { extraOpen = !extraOpen; renderRecord(); }
     else if (a === 'open-settings') openSettings();
     else if (a === 'close-settings') closeSettings();
