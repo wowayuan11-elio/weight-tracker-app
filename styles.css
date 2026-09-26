@@ -117,6 +117,51 @@ main{ flex:1; min-height:0; position:relative; }
 .tile-foot{ font-size:11px; color:var(--text3); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .tile-foot .delta{ font-size:10.5px; padding:2px 8px; font-weight:600; }
 
+/* ---------- 记录体验 V19 ---------- */
+/* 补记提示条 */
+.makeup-bar{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin-top:16px; padding:12px 16px;
+  background:rgba(0,122,255,.10); border-radius:14px; font-size:13px; color:var(--text);
+  line-height:1.5;
+}
+.makeup-bar .linklike{ font-weight:600; padding:4px 2px; flex:none; }
+
+/* 当天备注 */
+.note-input{
+  width:100%; background:var(--bg); border:0; border-radius:12px;
+  padding:12px 14px; font-size:15px; color:var(--text); outline:none;
+}
+.note-input:focus{ box-shadow:0 0 0 2px var(--tint); }
+.h-note{ font-size:12px; color:var(--text2); padding-top:5px; line-height:1.5; }
+
+/* 打卡月历 */
+.cal-head{ display:flex; align-items:center; gap:10px; }
+.cal-head b{ font-size:16px; font-weight:700; letter-spacing:-.01em; }
+.cal-count{ margin-left:auto; font-size:12px; color:var(--text3); font-variant-numeric:tabular-nums; }
+.cal-nav{
+  border:0; background:var(--bg); color:var(--text2); width:30px; height:30px;
+  border-radius:9px; font-size:18px; line-height:1; display:grid; place-items:center;
+}
+.cal-nav:disabled{ opacity:.35; }
+.cal-week{ display:grid; grid-template-columns:repeat(7,1fr); margin-top:14px; }
+.cal-week span{ text-align:center; font-size:11px; color:var(--text3); font-weight:600; padding:2px 0; }
+.cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px 0; margin-top:2px; }
+.cal-cell{
+  border:0; background:none; padding:3px 0 5px; border-radius:10px;
+  display:flex; flex-direction:column; align-items:center; gap:2px; min-height:38px;
+}
+.cal-cell .cal-d{ font-size:14px; font-weight:500; color:var(--text2); line-height:1.5; }
+.cal-cell.cal-pad, .cal-cell.cal-future{ pointer-events:none; }
+.cal-cell.cal-future .cal-d{ color:var(--sep); }
+.cal-cell.cal-today .cal-d{
+  background:var(--tint); color:#fff; width:24px; height:24px;
+  border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:13px;
+}
+.cal-dots{ display:flex; gap:3px; height:4px; }
+.cal-dots i{ width:4px; height:4px; border-radius:50%; background:var(--sep); opacity:.55; }
+.cal-legend{ font-size:11px; color:var(--text3); margin:12px 0 0; line-height:1.6; }
+
 /* ---------- 记录页 ---------- */
 .date-row{ display:flex; align-items:center; gap:12px; margin-top:6px; }
 .date-input{
