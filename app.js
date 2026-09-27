@@ -570,15 +570,20 @@ function lastGapDay() {
 const DATE_CHIP_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="16" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
 
 function renderRecord() {
-  /* 日期胶囊（自绘日期选择器的入口） */
-  const chipD = parseKey(currentDate);
-  document.getElementById('date-chip').innerHTML = DATE_CHIP_SVG +
-    '<span>' + (chipD.getMonth() + 1) + ' 月 ' + chipD.getDate() + ' 日</span>' +
-    (currentDate === todayKey() ? '<span class="chip-today">今天</span>' : '');
-  document.getElementById('btn-today').style.display = currentDate === todayKey() ? 'none' : '';
+  /* 日期胶囊（自绘日期选择器的入口）——防御旧版缓存混装：容器不存在就跳过，绝不让整个页面崩掉 */
+  const chipEl = document.getElementById('date-chip');
+  if (chipEl) {
+    const chipD = parseKey(currentDate);
+    chipEl.innerHTML = DATE_CHIP_SVG +
+      '<span>' + (chipD.getMonth() + 1) + ' 月 ' + chipD.getDate() + ' 日</span>' +
+      (currentDate === todayKey() ? '<span class="chip-today">今天</span>' : '');
+  }
+  const btnToday = document.getElementById('btn-today');
+  if (btnToday) btnToday.style.display = currentDate === todayKey() ? 'none' : '';
 
   /* 补记提示：只在看今天时提示，不打扰编辑历史 */
-  document.getElementById('makeup-box').innerHTML = (function () {
+  const makeupEl = document.getElementById('makeup-box');
+  if (makeupEl) makeupEl.innerHTML = (function () {
     if (currentDate !== todayKey()) return '';
     const gap = lastGapDay();
     if (!gap) return '';
@@ -1192,7 +1197,8 @@ function calendarHTML() {
 }
 
 function renderTrend() {
-  document.getElementById('cal-box').innerHTML = calendarHTML();
+  const calBox = document.getElementById('cal-box');
+  if (calBox) calBox.innerHTML = calendarHTML();
   document.querySelectorAll('#range-seg button').forEach(b => {
     b.classList.toggle('active', +b.dataset.range === trendRange);
   });
@@ -1990,8 +1996,21 @@ document.addEventListener('input', e => {
 
 /* ---------- 启动 ---------- */
 function renderAll() {
-  renderRecord();
-  renderTrend();
-  renderStats();
+  try {
+    renderRecord();
+    renderTrend();
+    renderStats();
+  } catch (err) {
+    /* 更新瞬间新旧文件短暂混装的兜底：绝不让用户看到白屏 */
+    const pg = document.querySelector('.page.active') || document.getElementById('page-record');
+    if (pg) pg.innerHTML = '<div class="card" style="margin-top:40px;text-align:center;padding:30px 20px">' +
+      '<p style="font-size:44px;margin:0 0 10px">🔄</p>' +
+      '<p style="font-size:16px;font-weight:700;margin:0 0 6px">正在更新，请关掉本页重新打开</p>' +
+      '<p style="font-size:13px;color:var(--text3);margin:0">再开一次就好 · 你的所有记录都安全存在手机里</p></div>';
+    if (window.__wtErrLogged !== err.message) {
+      window.__wtErrLogged = err.message;
+      try { console.error('renderAll:', err); } catch (e) {}
+    }
+  }
 }
 renderAll();
