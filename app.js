@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V25';
+const APP_VERSION = 'V26';
 const CHANGELOG = [
+  { v: 'V26', d: '9月27日', items: [
+    '周报表看得懂了：每行先标「9月第1周」再加日期（8/31~9/6），最后一行挂蓝色「本周」标——不用再猜哪行是哪周'
+  ]},
   { v: 'V25', d: '9月27日', items: [
     '图表可读性重做：实线加粗、趋势虚线改碎点样式一眼区分；坐标数字加大加深、加横向参考线；图更高更透气',
     '线型说明改成三个徽章一行（实线·每天记录 / 虚线·趋势平滑 / 灰线·目标），长段落说明删掉，「按住看数值」移到图表下方',
@@ -1445,8 +1448,16 @@ function weeklyTableHTML() {
       : '<div class="wk-val"><span class="s-dim">没记</span></div>';
     const sameMonth = wk.from.slice(0, 7) === wk.to.slice(0, 7);
     const label = fmtMD(wk.from) + '~' + (sameMonth ? wk.to.slice(8) : fmtMD(wk.to));
+    /* 月内第几周：按结束日在当月的位置算，跨月的周归到天数多的那个月 */
+    const anchor = new Date(parseKey(wk.to).getFullYear(), parseKey(wk.to).getMonth(), 1);
+    const monthName = (anchor.getMonth() + 1) + '月';
+    const nth = Math.floor((parseKey(wk.to).getDate() - 1) / 7) + 1;
+    const isThis = idx === weeks.length - 1;
     return '<div class="wk-row">' +
-      '<div class="wk-cell wk-date">' + label + (idx === weeks.length - 1 ? '<span class="s-dim">本周</span>' : '') + '</div>' +
+      '<div class="wk-cell wk-date"><b class="wk-n">' + monthName + '第' + nth + '周</b>' +
+        '<span class="s-dim">' + label + '</span>' +
+        (isThis ? '<span class="wk-now">本周</span>' : '') +
+      '</div>' +
       cell('me', wk.me) + cell('partner', wk.partner) +
     '</div>';
   }).join('');
