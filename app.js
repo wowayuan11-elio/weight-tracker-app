@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V19';
+const APP_VERSION = 'V20';
 const CHANGELOG = [
+  { v: 'V20', d: '9月27日', items: [
+    '日期选择完全重做：扔掉 iPhone 系统自带的丑弹窗，换成和 App 一体的底部日历面板——点日期胶囊滑出，选中即关，顺滑跟手',
+    '日期面板里也标出了哪些天有记录（带彩点），补录更直观',
+    '修复补记提示显示「连缺 0 天」的文案错误'
+  ]},
   { v: 'V19', d: '9月27日', items: [
     '打卡月历：趋势页顶部新增整月日历，彩点=记了，灰点=忘了，缺哪天一目了然；点任何一天直接去补录',
     '补记提醒：打开 App 发现昨天没记，记录页顶部会出现提示条，点「去补记」一步到位',
@@ -562,10 +567,14 @@ function lastGapDay() {
   return null;
 }
 
+const DATE_CHIP_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="16" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+
 function renderRecord() {
-  const dateInput = document.getElementById('record-date');
-  dateInput.value = currentDate;
-  dateInput.max = todayKey();
+  /* 日期胶囊（自绘日期选择器的入口） */
+  const chipD = parseKey(currentDate);
+  document.getElementById('date-chip').innerHTML = DATE_CHIP_SVG +
+    '<span>' + (chipD.getMonth() + 1) + ' 月 ' + chipD.getDate() + ' 日</span>' +
+    (currentDate === todayKey() ? '<span class="chip-today">今天</span>' : '');
   document.getElementById('btn-today').style.display = currentDate === todayKey() ? 'none' : '';
 
   /* 补记提示：只在看今天时提示，不打扰编辑历史 */
@@ -573,9 +582,8 @@ function renderRecord() {
     if (currentDate !== todayKey()) return '';
     const gap = lastGapDay();
     if (!gap) return '';
-    const label = gap.gap === 1
-      ? '昨天（' + fmtMD(gap.key) + '）还没记体重'
-      : fmtMD(gap.key) + ' 起已连缺 ' + gap.gap + ' 天';
+    const gapD = parseKey(gap.key);
+    const label = (gap.gap === 0 ? '昨天' : fmtMD(gap.key)) + '（' + WEEK_LABELS[gapD.getDay()] + '）还没记体重';
     return '<div class="makeup-bar"><span>' + label + ' · 补上它，趋势线才不断</span>' +
       '<button class="linklike" data-action="goto-makeup">去补记</button></div>';
   })();
@@ -1552,6 +1560,52 @@ function historyHTML() {
   return html;
 }
 
+/* ================= 日期选择（自绘 sheet，替代系统日期控件） ================= */
+let dsYM = null;
+function openDateSheet() {
+  dsYM = null; /* 跟随当前编辑日期所在月 */
+  renderDateSheet();
+  document.getElementById('sheet-mask').classList.add('show');
+  document.getElementById('date-sheet').classList.add('show');
+}
+function closeDateSheet() {
+  document.getElementById('date-sheet').classList.remove('show');
+  if (!document.getElementById('settings-sheet').classList.contains('show')) {
+    document.getElementById('sheet-mask').classList.remove('show');
+  }
+}
+function renderDateSheet() {
+  const now = parseKey(todayKey());
+  const sel = parseKey(currentDate);
+  if (!dsYM) dsYM = { y: sel.getFullYear(), m: sel.getMonth() };
+  const startPad = new Date(dsYM.y, dsYM.m, 1).getDay();
+  const dim = new Date(dsYM.y, dsYM.m + 1, 0).getDate();
+  const tk = todayKey();
+  let cells = '';
+  for (let i = 0; i < startPad; i++) cells += '<span class="cal-cell cal-pad"></span>';
+  for (let d = 1; d <= dim; d++) {
+    const k = dateKey(new Date(dsYM.y, dsYM.m, d));
+    const r = state.records[k] || {};
+    const future = k > tk;
+    const cls = 'cal-cell ds-cell' + (k === tk ? ' cal-today' : '') + (k === currentDate ? ' cal-sel' : '') + (future ? ' cal-future' : '');
+    const hasAny = typeof r.me === 'number' || typeof r.partner === 'number';
+    const dotColor = typeof r.me === 'number' ? COLORS.me : COLORS.partner;
+    cells += '<button class="' + cls + '" data-dscal="' + k + '"' + (future ? ' disabled' : '') + '>' +
+      '<span class="cal-d">' + d + '</span>' +
+      '<span class="cal-dots">' + (hasAny ? '<i style="background:' + dotColor + '"></i>' : '') + '</span></button>';
+  }
+  document.getElementById('datesheet-body').innerHTML =
+    '<div class="cal-head">' +
+      '<button class="cal-nav" data-action="ds-prev" aria-label="上个月">‹</button>' +
+      '<b>' + dsYM.y + ' 年 ' + (dsYM.m + 1) + ' 月</b>' +
+      '<button class="cal-nav" data-action="ds-next" aria-label="下个月">›</button>' +
+    '</div>' +
+    '<div class="cal-week">' + ['日','一','二','三','四','五','六'].map(w => '<span>' + w + '</span>').join('') + '</div>' +
+    '<div class="cal-grid ds-grid">' + cells + '</div>' +
+    '<p class="cal-legend">带点 = 那天有记录 · 最多选到今天</p>' +
+    '<button class="btn ghost" data-action="goto-today" style="margin-top:8px">回到今天</button>';
+}
+
 /* ================= 设置 ================= */
 function openSettings() {
   renderSettings();
@@ -1822,12 +1876,27 @@ document.addEventListener('click', e => {
     return;
   }
 
+  /* 日期选择 sheet：点某天 → 选中并关闭 */
+  const dsCell = e.target.closest('[data-dscal]');
+  if (dsCell && !dsCell.disabled) {
+    currentDate = dsCell.dataset.dscal;
+    resetDrafts();
+    closeDateSheet();
+    renderAll();
+    return;
+  }
+
   const act = e.target.closest('[data-action]');
   if (act) {
     const a = act.dataset.action;
     if (a === 'save-all') saveAll();
-    else if (a === 'goto-today') { currentDate = todayKey(); resetDrafts(); renderAll(); }
-    else if (a === 'goto-makeup') { const g = lastGapDay(); if (g) { currentDate = g.key; resetDrafts(); renderAll(); } }
+    else if (a === 'goto-today') { currentDate = todayKey(); resetDrafts(); closeDateSheet(); renderAll(); }
+    else if (a === 'goto-makeup') { const g = lastGapDay(); if (g) { currentDate = g.key; resetDrafts(); closeDateSheet(); renderAll(); } }
+    else if (a === 'open-datesheet') openDateSheet();
+    else if (a === 'close-datesheet') closeDateSheet();
+    else if (a === 'close-sheets') { closeSettings(); closeDateSheet(); }
+    else if (a === 'ds-prev') { dsYM.m--; if (dsYM.m < 0) { dsYM.m = 11; dsYM.y--; } renderDateSheet(); }
+    else if (a === 'ds-next') { dsYM.m++; if (dsYM.m > 11) { dsYM.m = 0; dsYM.y++; } renderDateSheet(); }
     else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } renderTrend(); }
     else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } renderTrend(); }
     else if (a === 'toggle-extra') { extraOpen = !extraOpen; renderRecord(); }
@@ -1881,14 +1950,6 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => {
   const inp = e.target.closest('.w-input');
   if (inp) drafts[inp.dataset.person] = inp.value;
-});
-
-document.addEventListener('change', e => {
-  if (e.target.id === 'record-date') {
-    currentDate = e.target.value || todayKey();
-    resetDrafts();
-    renderAll();
-  }
 });
 
 /* ---------- 存档链接自动恢复 ---------- */
