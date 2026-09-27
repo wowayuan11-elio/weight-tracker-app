@@ -16,8 +16,14 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V23';
+const APP_VERSION = 'V24';
 const CHANGELOG = [
+  { v: 'V24', d: '9月27日', items: [
+    '趋势页大搬家：7/30/90天筛选器搬进「体重走势」卡里，紧贴图表——点一下图立刻变，再也不用在页顶瞎按；走势卡提到整页最上面',
+    '设置页全面整容：输入框有了边框和底色、聚焦变蓝，按钮从「一整条大蓝条」变成紧凑分组',
+    '清空数据上双保险：已开云备份的，清空前自动先备份一份到云端（误触也能一键找回）；没开云备份的会强提醒先备份；云备份失败时二次警告',
+    '新增「换新手机怎么迁移数据」3 步指引：设置 → 自动云备份卡里点开就看'
+  ]},
   { v: 'V23', d: '9月27日', items: [
     '「连续打卡」「里程碑」整组下架——你要的是数据不是鸡血，这类东西全删了',
     '没填过的字段不再玩失踪：卡片上显示虚线「＋」格，点它直接跳到记录页的填写区，填完回来数字就位',
@@ -1297,8 +1303,13 @@ function renderTrend() {
   if (c.empty) {
     box.innerHTML = '<div class="card chart-card"><div class="chart-empty">该时间段暂无记录</div></div>';
   } else {
+    /* 筛选器紧贴图表（V24：以前在页面顶上，图表在页底，按了没反应——反人性） */
+    const segHTML = '<div class="seg chart-seg" id="range-seg">' +
+      [7, 30, 90, 0].map(r => '<button data-range="' + r + '"' + (trendRange === r ? ' class="active"' : '') + '>' + (r === 0 ? '全部' : r + '天') + '</button>').join('') +
+    '</div>';
     box.innerHTML = '<div class="card chart-card">' +
       '<div class="chart-head2"><h3 class="card-label">体重走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
+      segHTML +
       '<p class="sub">实线=每天记录 · 虚线=趋势线（滑动平均，过滤单日波动，比单日数字诚实）· 灰虚线是目标 · 按住可看每天数值</p>' +
       '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
     '</div>';
@@ -1709,6 +1720,19 @@ function closeSettings() {
   document.getElementById('settings-sheet').classList.remove('show');
 }
 
+/* 换手机 / 数据迁移指引（V24） */
+function migrateGuideHTML() {
+  return '<details class="mig-guide">' +
+    '<summary>换新手机怎么把数据带过去？点开看 3 步</summary>' +
+    '<ol class="mig-steps">' +
+      '<li><b>新手机</b>用 Safari 打开本页网址（就是你现在这个地址），按设置里的「安装到桌面」把 App 装好</li>' +
+      '<li>在新手机上打开 App → 设置 → 自动云备份 → 开通（用你原来的授权码）</li>' +
+      '<li>设置 → 点「从云端恢复」→ 确认覆盖。全部记录、目标、卡片设置一步到位</li>' +
+    '</ol>' +
+    '<p class="mig-note">没开通云备份？旧手机上点「一键备份」把文本发到微信，新手机粘贴到「恢复数据」框里导入，效果一样</p>' +
+  '</details>';
+}
+
 function renderSettings() {
   const days = Object.keys(state.records).length;
   let size = 0;
@@ -1723,22 +1747,22 @@ function renderSettings() {
       '<h3 class="card-label">称呼</h3>' +
       '<label class="field"><span>我的称呼</span><input class="text-input" id="name-me" value="' + esc(state.names.me) + '" maxlength="8"></label>' +
       '<label class="field"><span>对方的称呼</span><input class="text-input" id="name-partner" value="' + esc(state.names.partner) + '" maxlength="8"></label>' +
-      '<button class="btn" data-action="save-names">保存称呼</button>' +
+      '<div class="settings-btns"><button class="btn" data-action="save-names">保存称呼</button></div>' +
     '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">目标体重（选填）</h3>' +
       '<p class="sub">设置后会以虚线显示在趋势图上。</p>' +
       '<label class="field"><span>' + esc(state.names.me) + '</span><input class="text-input" id="goal-me" type="number" step="0.1" inputmode="decimal" value="' + (state.goals.me !== null ? state.goals.me : '') + '" placeholder="选填"></label>' +
       '<label class="field"><span>' + esc(state.names.partner) + '</span><input class="text-input" id="goal-partner" type="number" step="0.1" inputmode="decimal" value="' + (state.goals.partner !== null ? state.goals.partner : '') + '" placeholder="选填"></label>' +
-      '<button class="btn" data-action="save-goals">保存目标</button>' +
+      '<div class="settings-btns"><button class="btn" data-action="save-goals">保存目标</button></div>' +
     '</div>' +
     (ghConf
       ? '<div class="card">' +
         '<h3 class="card-label">自动云备份</h3>' +
         '<p class="sub">已开通 · 每次记录后数据自动上云（' + (ghConf.provider === 'gitee' ? 'Gitee 国内通道' : 'GitHub') + ' · 私有仓库 ' + esc(ghConf.owner) + '/' + esc(ghConf.repo) + '，只有你能看）</p>' +
         '<p class="s-dim" style="margin-bottom:10px">上次同步：' + lastSyncText() + '</p>' +
-        '<button class="btn" data-action="cloud-sync">立即同步</button>' +
-        '<button class="btn ghost" data-action="cloud-restore">从云端恢复（换手机 / 误删时用）</button>' +
+        '<div class="settings-btns"><button class="btn" data-action="cloud-sync">立即同步</button><button class="btn ghost" data-action="cloud-restore">从云端恢复</button></div>' +
+        migrateGuideHTML() +
         '<button class="btn danger" data-action="cloud-off">关闭自动云备份</button>' +
       '</div>'
       : '<div class="card">' +
@@ -1746,6 +1770,7 @@ function renderSettings() {
         '<p class="sub">开通后数据自动上云，永不用手动备份。推荐用 Gitee 私人令牌（国内网络稳定）。粘贴令牌：</p>' +
         '<textarea class="json-area cloud-area" placeholder="粘贴配置链接或授权码" spellcheck="false"></textarea>' +
         '<button class="btn" data-action="cloud-setup">开通自动云备份</button>' +
+        migrateGuideHTML() +
         '<p class="s-dim" id="cloud-diag" style="display:none;margin-top:10px;color:#b91c1c;word-break:break-all">' + esc(diagFromStorage()) + '</p>' +
       '</div>') +
     '<div class="card">' +
@@ -1942,13 +1967,38 @@ function importBackup() {
 }
 
 function clearAll() {
-  askConfirm('将删除全部体重记录且无法恢复，确定吗？（建议先备份）').then(ok => {
-    if (!ok) return;
-    state.records = {};
-    persist();
-    renderAll();
-    toast('已清空');
-  });
+  /* V24 双保险：清空前自动留一份云端备份，误触也能一键找回 */
+  if (ghConf && ghConf.token) {
+    askConfirm('清空前会自动把全部数据备份到云端（私有仓库，只有你能看）。\n\n备份完成后手机上的记录会被清空，之后可在 设置 → 从云端恢复 一键找回。\n\n确定继续吗？').then(ok => {
+      if (!ok) return;
+      toast('正在先备份到云端…');
+      cloudBackup('manual').then(ok2 => {
+        if (ok2) {
+          markBackedUp();
+          state.records = {};
+          persist();
+          renderAll();
+          toast('已备份到云端并清空 · 可随时从云端恢复');
+        } else {
+          askConfirm('⚠️ 云备份失败！现在清空的话数据找不回来。\n\n建议：检查网络后再试，或先用「一键备份」存到微信/备忘录。\n\n仍要强 制清空吗？').then(ok3 => {
+            if (!ok3) return;
+            state.records = {};
+            persist();
+            renderAll();
+            toast('已清空（注意：本次没有云端备份）');
+          });
+        }
+      });
+    });
+  } else {
+    askConfirm('⚠️ 你还没开通自动云备份，清空后数据无法找回！\n\n建议：先点「一键备份」把备份文本存到微信/备忘录，或先开通云备份。\n\n确定还是要清空全部记录吗？').then(ok => {
+      if (!ok) return;
+      state.records = {};
+      persist();
+      renderAll();
+      toast('已清空（没有云端备份，无法恢复）');
+    });
+  }
 }
 
 /* ================= 事件绑定 ================= */
