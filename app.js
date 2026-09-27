@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V22';
+const APP_VERSION = 'V23';
 const CHANGELOG = [
+  { v: 'V23', d: '9月27日', items: [
+    '「连续打卡」「里程碑」整组下架——你要的是数据不是鸡血，这类东西全删了',
+    '没填过的字段不再玩失踪：卡片上显示虚线「＋」格，点它直接跳到记录页的填写区，填完回来数字就位',
+    '记录页入口写明白：按钮现在叫「+ 记体脂 / 腰围 / 内脏脂肪」，不再只写腰围'
+  ]},
   { v: 'V22', d: '9月27日', items: [
     '卡片字段扩容：新增「内脏脂肪」「肌肉量」两个可选格子（小米秤抄录的数据，有就显示），可选字段到 7 个',
     '每个数字自带人话：BMI → 「BMI 体重指数」，内脏脂肪 → 「级 内脏脂肪」；设置面板里每个指标都有一行解释（BMI 18.5~24 正常、内脏脂肪 5 级以下健康…）',
@@ -151,7 +156,7 @@ function bmiOf(p, weightKg) {
 
 /* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
 function sanitizeUI(u) {
-  const d = { heroLayout: 'grid', heroOrder: PERSON_IDS.slice(), heroMetrics: { goal: true, bmi: true, streak: true, bf: true, waist: true, vf: true, mm: true } };
+  const d = { heroLayout: 'grid', heroOrder: PERSON_IDS.slice(), heroMetrics: { goal: true, bmi: true, bf: true, waist: true, vf: true, mm: true } };
   if (!u || typeof u !== 'object') return d;
   if (u.heroLayout === 'stack' || u.heroLayout === 'grid') d.heroLayout = u.heroLayout;
   if (Array.isArray(u.heroOrder) && u.heroOrder.length === 2 && PERSON_IDS.includes(u.heroOrder[0]) && PERSON_IDS.includes(u.heroOrder[1]) && u.heroOrder[0] !== u.heroOrder[1]) d.heroOrder = u.heroOrder.slice();
@@ -623,7 +628,7 @@ function renderRecord() {
   const when = currentDate === todayKey() ? '今天' : fmtMD(currentDate) + ' ' + WEEK_LABELS[parseKey(currentDate).getDay()];
   const both = r && typeof r.me === 'number' && typeof r.partner === 'number';
   const prevMe = prevRecord(currentDate, 'me');
-  document.getElementById('streak-box').innerHTML = streakBannerHTML();
+
 
   /* 这天是什么状态，一句话说清 */
   let recHint;
@@ -657,7 +662,7 @@ function renderRecord() {
         if (!extraOpen && !hasExtra) {
           /* 超过 5 天没量腰围，按钮自己开口提醒 */
           const lastW = latestWaistOf();
-          let btnTxt = '+ 记腰围（选填）';
+          let btnTxt = '+ 记体脂 / 腰围 / 内脏脂肪';
           if (lastW) {
             const gap = Math.round((parseKey(todayKey()) - parseKey(lastW.key)) / 86400000);
             if (gap >= 5) btnTxt = '+ 记腰围 · 距上次已 ' + gap + ' 天，该量了';
@@ -747,7 +752,7 @@ function heroHTML() {
         '<div class="hprog-lab"><span>起点 ' + start.value.toFixed(1) + '</span><span>已走 ' + Math.round(pct) + '%</span><span>目标 ' + g.toFixed(1) + '</span></div>';
     }
 
-    /* 指标网格：每个数字都自带人话解释（V22） */
+    /* 指标网格：每个数字都自带人话解释；开关开着但没数据的字段 → 显示「＋」点击直达填写（V23） */
     const m = ui.heroMetrics;
     const cells = [];
     if (m.goal && typeof g === 'number') {
@@ -755,14 +760,15 @@ function heroHTML() {
       cells.push({ v: Math.abs(off).toFixed(1), u: off > 0.05 ? 'kg 距目标' : 'kg 已达标', ok: off <= 0.05 });
     }
     if (m.bmi && bmi !== null) cells.push({ v: bmi.toFixed(1), u: 'BMI 体重指数', ok: bmi >= 18.5 && bmi < 24 });
-    if (m.bf) { const bf = lastKnownField(p + '_bf'); if (bf) cells.push({ v: bf.value.toFixed(1), u: '% 体脂率', ok: null }); }
-    if (m.waist) { const w = lastKnownField(p + '_waist'); if (w) cells.push({ v: w.value.toFixed(1), u: 'cm 腰围', ok: null }); }
-    if (m.vf) { const vf = lastKnownField(p + '_vf'); if (vf) cells.push({ v: vf.value.toFixed(0), u: '级 内脏脂肪', ok: vf.value < 5 }); }
-    if (m.mm) { const mm = lastKnownField(p + '_mm'); if (mm) cells.push({ v: mm.value.toFixed(1), u: 'kg 肌肉量', ok: null }); }
-    if (m.streak) cells.push({ v: streakOf(p), u: '天 连续记', ok: null });
+    if (m.bf) { const bf = lastKnownField(p + '_bf'); cells.push(bf ? { v: bf.value.toFixed(1), u: '% 体脂率', ok: null } : { add: '体脂率', u: '没填 · 点这里' }); }
+    if (m.waist) { const w = lastKnownField(p + '_waist'); cells.push(w ? { v: w.value.toFixed(1), u: 'cm 腰围', ok: null } : { add: '腰围', u: '没填 · 点这里' }); }
+    if (m.vf) { const vf = lastKnownField(p + '_vf'); cells.push(vf ? { v: vf.value.toFixed(0), u: '级 内脏脂肪', ok: vf.value < 5 } : { add: '内脏脂肪', u: '没填 · 点这里' }); }
+    if (m.mm) { const mm = lastKnownField(p + '_mm'); cells.push(mm ? { v: mm.value.toFixed(1), u: 'kg 肌肉量', ok: null } : { add: '肌肉量', u: '没填 · 点这里' }); }
     const gridHTML = cells.length
       ? '<div class="hgrid">' + cells.map(c =>
-          '<div class="hcell">' + (c.ok === true ? '<b style="color:#34c759">' + c.v + '</b>' : '<b>' + c.v + '</b>') + '<span>' + c.u + '</span></div>'
+          c.add
+            ? '<button class="hcell hcell-add" data-action="goto-extra"><b>＋</b><span>' + c.add + ' · ' + c.u + '</span></button>'
+            : '<div class="hcell">' + (c.ok === true ? '<b style="color:#34c759">' + c.v + '</b>' : '<b>' + c.v + '</b>') + '<span>' + c.u + '</span></div>'
         ).join('') + '</div>'
       : '';
 
@@ -801,8 +807,7 @@ function renderHeroSet() {
     { k: 'bf',     n: '体脂率',   d: '脂肪占体重的比例，越低越精瘦' },
     { k: 'waist',  n: '腰围',     d: '肚子脂肪的硬指标 · 男<90 女<85' },
     { k: 'vf',     n: '内脏脂肪', d: '包在内脏上的脂肪 · 5级以下健康' },
-    { k: 'mm',     n: '肌肉量',   d: '减脂期守住它，代谢才不掉' },
-    { k: 'streak', n: '连续打卡', d: '没断过的记录天数' }
+    { k: 'mm',     n: '肌肉量',   d: '减脂期守住它，代谢才不掉' }
   ];
   body.innerHTML =
     '<p class="set-lab">卡片大小</p>' +
@@ -974,45 +979,8 @@ function saveAll() {
   const cur = state.records[currentDate];
   if (cur && !Object.keys(cur).length) delete state.records[currentDate];
   if (!persist()) return;
-  const st = Math.min(streakOf('me'), streakOf('partner')) > 0
-    ? Math.min(streakOf('me'), streakOf('partner'))
-    : Math.max(streakOf('me'), streakOf('partner'));
-  toast((currentDate === todayKey() ? '今晨' : fmtMD(currentDate)) + ' 已保存 · 连续打卡 ' + st + ' 天');
+  toast((currentDate === todayKey() ? '今晨' : fmtMD(currentDate)) + ' 已保存');
   renderAll();
-}
-
-/* ================= 连续打卡 ================= */
-function streakOf(who) {
-  let d = new Date();
-  let k = dateKey(d);
-  const has = kk => { const r = state.records[kk]; return r && typeof r[who] === 'number'; };
-  if (!has(k)) { d = addDays(d, -1); k = dateKey(d); } /* 今早还没称不断签 */
-  let n = 0;
-  while (has(k)) { n++; d = addDays(d, -1); k = dateKey(d); }
-  return n;
-}
-
-const STREAK_MARKS = [7, 14, 21, 30, 50, 100, 200];
-
-function streakBannerHTML() {
-  const sMe = streakOf('me'), sPa = streakOf('partner');
-  const best = Math.max(sMe, sPa);
-  if (best === 0) return '';
-  const together = Math.min(sMe, sPa);
-  const shown = together > 0 ? together : best;
-  const togetherTxt = together > 0 && sMe !== sPa
-    ? '（' + esc(state.names.me) + ' ' + sMe + ' 天 · ' + esc(state.names.partner) + ' ' + sPa + ' 天）'
-    : '';
-  let nextTxt = '';
-  const next = STREAK_MARKS.find(m => m > shown);
-  if (next) nextTxt = ' · 距 ' + next + ' 天里程碑还差 ' + (next - shown) + ' 天';
-  const last = STREAK_MARKS[STREAK_MARKS.length - 1];
-  if (shown >= last) nextTxt = ' · 传奇打卡，继续书写';
-  return '<div class="streak-banner">' +
-    '<span class="streak-flame">打卡</span>' +
-    '<span class="streak-num">连续 <b>' + shown + '</b> 天</span>' +
-    togetherTxt + nextTxt +
-  '</div>';
 }
 
 /* ================= 目标进度卡 ================= */
@@ -2036,6 +2004,16 @@ document.addEventListener('click', e => {
     else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } renderTrend(); }
     else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } renderTrend(); }
     else if (a === 'toggle-extra') { extraOpen = !extraOpen; renderRecord(); }
+    else if (a === 'goto-extra') {
+      /* 卡片空格子的「＋」：直达记录页展开体成分填写区并滚到位 */
+      extraOpen = true;
+      switchTab('record');
+      renderAll();
+      requestAnimationFrame(() => {
+        const z = document.querySelector('.extra-zone');
+        if (z) z.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
+    }
     else if (a === 'open-settings') openSettings();
     else if (a === 'close-settings') closeSettings();
     else if (a === 'save-names') saveNames();
