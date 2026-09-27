@@ -216,7 +216,54 @@ main{ flex:1; min-height:0; position:relative; }
 
 /* 最新数据（大数字 · SF Pro Display Bold） */
 .hero{ display:flex; gap:12px; margin-top:16px; }
-.hero-col{ flex:1; background:var(--card); border-radius:18px; padding:18px 16px 16px; min-width:0; box-shadow:var(--shadow); }
+.hero-col{ flex:1; background:var(--card); border-radius:18px; padding:18px 16px 16px; min-width:0; box-shadow:var(--shadow); position:relative; }
+.hero-top{ display:flex; align-items:center; gap:6px; }
+.hero-top .hero-name{ flex:none; }
+.hero-date{
+  margin-left:auto; font-size:10.5px; color:var(--tint); font-weight:600;
+  background:rgba(0,122,255,.10); padding:2px 8px; border-radius:999px;
+}
+.hero-gear{
+  border:0; background:var(--bg); width:26px; height:26px; border-radius:9px;
+  color:var(--text3); display:grid; place-items:center; flex:none;
+}
+.hero-gear svg{ width:14px; height:14px; }
+.hero-gear:active{ transform:scale(.92); }
+/* 进度条：起点→现在→目标 */
+.hprog{ height:8px; background:var(--bg); border-radius:999px; margin-top:14px; overflow:hidden; }
+.hprog-bar{ height:100%; background:linear-gradient(90deg, var(--tint), #5ac8fa); border-radius:999px; transition:width .5s ease; }
+.hprog-lab{
+  display:flex; justify-content:space-between; font-size:10.5px; color:var(--text3);
+  margin-top:5px; font-variant-numeric:tabular-nums;
+}
+/* 指标网格 */
+.hgrid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(66px, 1fr)); gap:8px; margin-top:14px; }
+.hcell{ background:var(--bg); border-radius:12px; padding:9px 4px 7px; text-align:center; min-width:0; }
+.hcell b{ display:block; font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+.hcell span{ display:block; font-size:10px; color:var(--text3); margin-top:2px; white-space:nowrap; }
+/* 大卡模式：整行一张，数字更大更舒展 */
+.hero-stack{ flex-direction:column; }
+.hero-stack .hero-col{ padding:20px 20px 18px; }
+.hero-stack .hero-num{ font-size:64px; }
+.hero-stack .hgrid{ grid-template-columns:repeat(auto-fit, minmax(88px, 1fr)); gap:10px; }
+.hero-stack .hcell{ padding:12px 6px 10px; }
+.hero-stack .hcell b{ font-size:20px; }
+/* 卡片设置面板 */
+.set-lab{ font-size:12px; color:var(--text3); font-weight:600; margin:16px 0 8px; }
+.set-lab:first-child{ margin-top:0; }
+.set-row{ display:flex; gap:8px; }
+.set-seg{
+  flex:1; border:0; background:var(--bg); border-radius:12px; padding:12px 8px;
+  font-size:13.5px; font-weight:600; color:var(--text2);
+}
+.set-seg.on{ background:var(--tint); color:#fff; }
+.set-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.set-chip{
+  border:0; background:var(--bg); border-radius:999px; padding:9px 16px;
+  font-size:13px; font-weight:600; color:var(--text2);
+}
+.set-chip.on{ background:rgba(0,122,255,.12); color:var(--tint); }
+.set-tip{ font-size:11px; color:var(--text3); margin:14px 0 4px; line-height:1.5; }
 .hero-name{ font-size:12px; color:var(--text2); display:flex; align-items:center; gap:6px; font-weight:600; letter-spacing:.02em; }
 .hero-num{
   font-size:52px; font-weight:700; letter-spacing:-.03em; line-height:1.1;
