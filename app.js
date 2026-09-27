@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V20';
+const APP_VERSION = 'V21';
 const CHANGELOG = [
+  { v: 'V21', d: '9月27日', items: [
+    '首页两张体重卡升级为仪表卡：起点→现在→目标的进度条一眼看到走了多远，距目标/BMI/体脂/腰围/连续打卡各占一格，不再挤成一行小字',
+    '卡片右上角新增 ⚙️ 设置：卡片大小（紧凑并排/大卡整行）、谁在前谁在后、显示哪些数据，全部自己定，自动保存',
+    '卡片顶部加了「今天」日期徽章，一眼确认数据新鲜度'
+  ]},
   { v: 'V20', d: '9月27日', items: [
     '日期选择完全重做：扔掉 iPhone 系统自带的丑弹窗，换成和 App 一体的底部日历面板——点日期胶囊滑出，选中即关，顺滑跟手',
     '日期面板里也标出了哪些天有记录（带彩点），补录更直观',
@@ -138,6 +143,16 @@ function bmiOf(p, weightKg) {
   return weightKg / (h / 100 * h / 100);
 }
 
+/* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
+function sanitizeUI(u) {
+  const d = { heroLayout: 'grid', heroOrder: PERSON_IDS.slice(), heroMetrics: { goal: true, bmi: true, streak: true, bf: true, waist: true } };
+  if (!u || typeof u !== 'object') return d;
+  if (u.heroLayout === 'stack' || u.heroLayout === 'grid') d.heroLayout = u.heroLayout;
+  if (Array.isArray(u.heroOrder) && u.heroOrder.length === 2 && PERSON_IDS.includes(u.heroOrder[0]) && PERSON_IDS.includes(u.heroOrder[1]) && u.heroOrder[0] !== u.heroOrder[1]) d.heroOrder = u.heroOrder.slice();
+  if (u.heroMetrics && typeof u.heroMetrics === 'object') Object.keys(d.heroMetrics).forEach(k => { if (typeof u.heroMetrics[k] === 'boolean') d.heroMetrics[k] = u.heroMetrics[k]; });
+  return d;
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
@@ -151,12 +166,13 @@ function loadState() {
           },
           records: sanitizeRecords(parsed.records),
           goals: sanitizeGoals(parsed.goals),
-          heights: sanitizeHeights(parsed.heights)
+          heights: sanitizeHeights(parsed.heights),
+          ui: sanitizeUI(parsed.ui)
         };
       }
     }
   } catch (e) { console.warn('读取存档失败', e); }
-  return { names: { ...DEFAULT_NAMES }, records: {}, goals: { me: null, partner: null }, heights: { me: null, partner: null } };
+  return { names: { ...DEFAULT_NAMES }, records: {}, goals: { me: null, partner: null }, heights: { me: null, partner: null }, ui: sanitizeUI(null) };
 }
 
 function persist() {
@@ -295,8 +311,10 @@ async function cloudRestore() {
     const count = Object.keys(remote.records).length;
     askConfirm('云端有 ' + count + ' 天记录，覆盖手机当前数据？').then(ok => {
       if (!ok) return;
-      state = remote;
-      persist();
+      remote.ui = sanitizeUI(remote.ui);
+      remote.ui = sanitizeUI(remote.ui);
+    state = remote;
+    persist();
       renderAll();
       toast('已从云端恢复 ' + count + ' 天');
     });
@@ -407,6 +425,7 @@ function backupJSON() {
     app: 'couples-weight', v: 1,
     names: state.names, records: state.records,
     goals: state.goals || { me: null, partner: null },
+    ui: state.ui || sanitizeUI(null),
     exportedAt: new Date().toISOString()
   });
 }
@@ -682,9 +701,10 @@ function renderRecord() {
   document.getElementById('record-extra').innerHTML = recordExtraHTML();
 }
 
+const GEAR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>';
+
 function heroHTML() {
-  /* 上一次记录的相对说法：隔1天=昨天，隔2天=前天，再久直接报日期
-     「比前天」只有在最新记录是今/昨时才成立，否则观众对不上日期 */
+  /* 上一次记录的相对说法：隔1天=昨天，隔2天=前天，再久直接报日期 */
   const relPrev = (lk, prev) => {
     if (!prev) return '';
     const gap = Math.round((parseKey(lk) - parseKey(prev.key)) / 86400000);
@@ -692,11 +712,13 @@ function heroHTML() {
     if (gap === 2 && (lk === todayKey() || lk === dateKey(addDays(new Date(), -1)))) return '比前天 ';
     return '比 ' + fmtMD(prev.key) + ' ';
   };
-  const cols = PERSON_IDS.map(p => {
+  const ui = state.ui;
+  const cols = ui.heroOrder.map(p => {
+    const gear = '<button class="hero-gear" data-action="open-heroset" aria-label="卡片设置">' + GEAR_SVG + '</button>';
     const cur = lastKnown(p);
     if (cur === null) {
       return '<div class="hero-col">' +
-        '<span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+        '<div class="hero-top"><span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' + gear + '</div>' +
         '<div class="hero-num">--<small>kg</small></div>' +
         '<div class="hero-delta"><span class="delta flat">还没有任何记录</span></div>' +
       '</div>';
@@ -704,21 +726,85 @@ function heroHTML() {
     const lk = lastKeyOf(p);
     const prev = prevRecord(lk, p);
     const start = firstKnown(p);
+    const g = state.goals && state.goals[p];
     const bmi = bmiOf(p, cur);
-    const latestTag = lk === todayKey() ? '最新：今天' : '最新：' + fmtMD(lk);
+    const latestTag = lk === todayKey() ? '今天' : fmtMD(lk);
+
+    /* 关键节点进度条：起点 → 现在 → 目标 */
+    let progHTML = '';
+    if (start && typeof g === 'number' && Math.abs(start.value - g) > 0.05) {
+      const total = start.value - g;
+      const done = start.value - cur;
+      const pct = Math.max(0, Math.min(100, done / total * 100));
+      progHTML = '<div class="hprog"><div class="hprog-bar" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+        '<div class="hprog-lab"><span>起点 ' + start.value.toFixed(1) + '</span><span>已走 ' + Math.round(pct) + '%</span><span>目标 ' + g.toFixed(1) + '</span></div>';
+    }
+
+    /* 指标网格：距目标 / BMI / 体脂 / 腰围 / 连续打卡 */
+    const m = ui.heroMetrics;
+    const cells = [];
+    if (m.goal && typeof g === 'number') {
+      const off = cur - g;
+      cells.push({ v: Math.abs(off).toFixed(1), u: off > 0.05 ? 'kg 距目标' : 'kg 已达标', ok: off <= 0.05 });
+    }
+    if (m.bmi && bmi !== null) cells.push({ v: bmi.toFixed(1), u: 'BMI', ok: bmi >= 18.5 && bmi < 24 });
+    if (m.bf) { const bf = lastKnownField(p + '_bf'); if (bf) cells.push({ v: bf.value.toFixed(1), u: '体脂%', ok: null }); }
+    if (m.waist) { const w = lastKnownField(p + '_waist'); if (w) cells.push({ v: w.value.toFixed(1), u: '腰围cm', ok: null }); }
+    if (m.streak) cells.push({ v: streakOf(p), u: '连续天', ok: null });
+    const gridHTML = cells.length
+      ? '<div class="hgrid">' + cells.map(c =>
+          '<div class="hcell">' + (c.ok === true ? '<b style="color:#34c759">' + c.v + '</b>' : '<b>' + c.v + '</b>') + '<span>' + c.u + '</span></div>'
+        ).join('') + '</div>'
+      : '';
+
     return '<div class="hero-col">' +
-      '<span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '（最新体重）</span>' +
+      '<div class="hero-top"><span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+      '<span class="hero-date">' + latestTag + '</span>' + gear + '</div>' +
       '<div class="hero-num">' + cur.toFixed(1) + '<small>kg</small></div>' +
       '<div class="hero-delta">' + deltaChip(prev ? cur - prev.value : null, 1, relPrev(lk, prev)) + '</div>' +
-      '<div class="hero-sub">' +
-        latestTag +
-        (bmi !== null ? ' · BMI ' + bmi.toFixed(1) : '') +
-        (start && start.key !== lk ? ' · 从 ' + start.value.toFixed(1) + ' 开始' : '') +
-        ' · 共记 ' + countDays(p) + ' 天' +
-      '</div>' +
+      progHTML + gridHTML +
     '</div>';
   }).join('');
-  return '<div class="hero">' + cols + '</div>';
+  return '<div class="hero' + (ui.heroLayout === 'stack' ? ' hero-stack' : '') + '">' + cols + '</div>';
+}
+
+/* ---------- 首页卡片设置 ---------- */
+function openHeroSet() {
+  renderHeroSet();
+  document.getElementById('sheet-mask').classList.add('show');
+  document.getElementById('hero-sheet').classList.add('show');
+}
+function closeHeroSet() {
+  document.getElementById('hero-sheet').classList.remove('show');
+  if (!document.getElementById('settings-sheet').classList.contains('show') &&
+      !document.getElementById('date-sheet').classList.contains('show')) {
+    document.getElementById('sheet-mask').classList.remove('show');
+  }
+}
+function renderHeroSet() {
+  const ui = state.ui;
+  const body = document.getElementById('heroset-body');
+  if (!body) return;
+  const METRICS = [ { k: 'goal', n: '距目标' }, { k: 'bmi', n: 'BMI' }, { k: 'bf', n: '体脂率' },
+    { k: 'waist', n: '腰围' }, { k: 'streak', n: '连续打卡' }
+  ];
+  body.innerHTML =
+    '<p class="set-lab">卡片大小</p>' +
+    '<div class="set-row">' +
+      '<button class="set-seg' + (ui.heroLayout === 'grid' ? ' on' : '') + '" data-action="hero-size" data-v="grid">紧凑 · 两张并排</button>' +
+      '<button class="set-seg' + (ui.heroLayout === 'stack' ? ' on' : '') + '" data-action="hero-size" data-v="stack">大卡 · 整行一张</button>' +
+    '</div>' +
+    '<p class="set-lab">谁在上面（大卡）/ 左边（紧凑）</p>' +
+    '<div class="set-row">' +
+      '<button class="set-seg' + (ui.heroOrder[0] === 'me' ? ' on' : '') + '" data-action="hero-order" data-v="me">' + esc(state.names.me) + '</button>' +
+      '<button class="set-seg' + (ui.heroOrder[0] === 'partner' ? ' on' : '') + '" data-action="hero-order" data-v="partner">' + esc(state.names.partner) + '</button>' +
+    '</div>' +
+    '<p class="set-lab">卡片上显示哪些数据</p>' +
+    '<div class="set-chips">' + METRICS.map(mk =>
+      '<button class="set-chip' + (ui.heroMetrics[mk.k] ? ' on' : '') + '" data-action="hm-toggle" data-key="' + mk.k + '">' +
+      (ui.heroMetrics[mk.k] ? '✓ ' : '') + mk.n + '</button>'
+    ).join('') + '</div>' +
+    '<p class="set-tip">体脂/腰围只在有测量记录后出现 · 设置自动保存</p>';
 }
 
 function recordExtraHTML() {
@@ -1846,6 +1932,7 @@ function importBackup() {
   const count = Object.keys(remote.records).length;
   askConfirm('将恢复 ' + count + ' 天的记录，并覆盖当前数据，确定吗？').then(ok => {
     if (!ok) return;
+    remote.ui = sanitizeUI(remote.ui);
     state = remote;
     persist();
     renderAll();
@@ -1900,7 +1987,12 @@ document.addEventListener('click', e => {
     else if (a === 'goto-makeup') { const g = lastGapDay(); if (g) { currentDate = g.key; resetDrafts(); closeDateSheet(); renderAll(); } }
     else if (a === 'open-datesheet') openDateSheet();
     else if (a === 'close-datesheet') closeDateSheet();
-    else if (a === 'close-sheets') { closeSettings(); closeDateSheet(); }
+    else if (a === 'open-heroset') openHeroSet();
+    else if (a === 'close-heroset') closeHeroSet();
+    else if (a === 'hero-size') { state.ui.heroLayout = act.dataset.v === 'stack' ? 'stack' : 'grid'; persist(); renderHeroSet(); renderAll(); }
+    else if (a === 'hero-order') { const v = act.dataset.v; if (PERSON_IDS.includes(v)) { state.ui.heroOrder = [v, PERSON_IDS.find(x => x !== v)]; persist(); renderHeroSet(); renderAll(); } }
+    else if (a === 'hm-toggle') { const k = act.dataset.key; if (state.ui.heroMetrics && k in state.ui.heroMetrics) { state.ui.heroMetrics[k] = !state.ui.heroMetrics[k]; persist(); renderHeroSet(); renderAll(); } }
+    else if (a === 'close-sheets') { closeSettings(); closeDateSheet(); closeHeroSet(); }
     else if (a === 'ds-prev') { dsYM.m--; if (dsYM.m < 0) { dsYM.m = 11; dsYM.y--; } renderDateSheet(); }
     else if (a === 'ds-next') { dsYM.m++; if (dsYM.m > 11) { dsYM.m = 0; dsYM.y++; } renderDateSheet(); }
     else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } renderTrend(); }
@@ -1970,13 +2062,16 @@ document.addEventListener('input', e => {
     if (!remote) return;
     const n = Object.keys(remote.records).length;
     if (!sortedKeys().length) {
-      state = remote;
-      persist();
+      remote.ui = sanitizeUI(remote.ui);
+      remote.ui = sanitizeUI(remote.ui);
+    state = remote;
+    persist();
       setTimeout(() => toast('已导入 ' + n + ' 天记录'), 400);
     } else {
       askConfirm('存档链接包含 ' + n + ' 天记录，覆盖当前数据并导入？').then(ok => {
         if (!ok) return;
-        state = remote;
+        remote.ui = sanitizeUI(remote.ui);
+      state = remote;
         persist();
         renderAll();
         toast('已导入 ' + n + ' 天记录');
