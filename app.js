@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V24';
+const APP_VERSION = 'V25';
 const CHANGELOG = [
+  { v: 'V25', d: '9月27日', items: [
+    '图表可读性重做：实线加粗、趋势虚线改碎点样式一眼区分；坐标数字加大加深、加横向参考线；图更高更透气',
+    '线型说明改成三个徽章一行（实线·每天记录 / 虚线·趋势平滑 / 灰线·目标），长段落说明删掉，「按住看数值」移到图表下方',
+    '设置页每张卡顶部加重点句：云备份卡一句「数据已自动上云，手机丢了记录都在」，不用再啃说明文字'
+  ]},
   { v: 'V24', d: '9月27日', items: [
     '趋势页大搬家：7/30/90天筛选器搬进「体重走势」卡里，紧贴图表——点一下图立刻变，再也不用在页顶瞎按；走势卡提到整页最上面',
     '设置页全面整容：输入框有了边框和底色、聚焦变蓝，按钮从「一整条大蓝条」变成紧凑分组',
@@ -1112,7 +1117,7 @@ function buildDualChart(days, opts) {
   const read = opts.read || ((r, p) => (r ? r[p] : undefined));
   const withGoals = opts.goals !== false;
   const dec = opts.dec !== undefined ? opts.dec : 1;
-  const W = 350, H = 172, L = 40, R = 12, T = 16, B = 26;
+  const W = 350, H = 200, L = 46, R = 12, T = 20, B = 28;
   const iw = W - L - R, ih = H - T - B;
   const series = PERSON_IDS.map(p => {
     const pts = [];
@@ -1137,10 +1142,10 @@ function buildDualChart(days, opts) {
   const Y = v => +(T + ih * (1 - (v - min) / (max - min))).toFixed(1);
 
   let grid = '';
-  [0, 0.5, 1].forEach(t => {
+  [0, 0.25, 0.5, 0.75, 1].forEach((t, idx) => {
     const v = min + (max - min) * t, y = Y(v);
-    grid += '<line x1="' + L + '" y1="' + y + '" x2="' + (W - R) + '" y2="' + y + '" stroke="var(--sep)" stroke-width="1"/>';
-    grid += '<text x="' + (L - 6) + '" y="' + (y + 3.5) + '" text-anchor="end">' + v.toFixed(dec) + '</text>';
+    grid += '<line x1="' + L + '" y1="' + y + '" x2="' + (W - R) + '" y2="' + y + '" stroke="var(--sep)" stroke-width="' + (idx === 0 || idx === 4 ? 1 : 0.6) + '" opacity="' + (idx === 0 || idx === 4 ? 1 : 0.6) + '"/>';
+    grid += '<text class="axis-y" x="' + (L - 7) + '" y="' + (y + 4) + '" text-anchor="end">' + v.toFixed(dec) + '</text>';
   });
   const idxs = [...new Set([0, Math.round((n - 1) / 3), Math.round((n - 1) * 2 / 3), n - 1])];
   idxs.forEach(i => {
@@ -1155,8 +1160,8 @@ function buildDualChart(days, opts) {
     const cpts = s.pts.map(pt => ({ x: X(pt.i), y: Y(pt.v) }));
     if (cpts.length) {
       const d = smoothPath(cpts);
-      if (d) paths += '<path d="' + d + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
-      /* 趋势线：滑动平均（Happy Scale 式）——比单日数字诚实，窗口=min(序号+1,7) 个记录点 */
+      if (d) paths += '<path d="' + d + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>';
+      /* 趋势线：滑动平均（Happy Scale 式）——碎虚线+降透明度，和实线一眼区分 */
       if (opts.trend && s.pts.length >= 4) {
         const mpts = s.pts.map((pt, idx) => {
           const from = Math.max(0, idx - 6);
@@ -1164,7 +1169,7 @@ function buildDualChart(days, opts) {
           return { x: X(pt.i), y: Y(win.reduce((a, b) => a + b.v, 0) / win.length) };
         });
         const dm = smoothPath(mpts);
-        if (dm) paths += '<path d="' + dm + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="1.8" stroke-linecap="round" opacity="0.55" stroke-dasharray="5 4"/>';
+        if (dm) paths += '<path d="' + dm + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="2" stroke-linecap="round" opacity="0.45" stroke-dasharray="2 6"/>';
       }
       const last = cpts[cpts.length - 1];
       paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--card)" stroke="' + COLORS[s.p] + '" stroke-width="2.5"/>';
@@ -1307,11 +1312,18 @@ function renderTrend() {
     const segHTML = '<div class="seg chart-seg" id="range-seg">' +
       [7, 30, 90, 0].map(r => '<button data-range="' + r + '"' + (trendRange === r ? ' class="active"' : '') + '>' + (r === 0 ? '全部' : r + '天') + '</button>').join('') +
     '</div>';
+    /* V25：线型图例做成徽章一行，长说明拆出去，告别文字糊成一坨 */
+    const chipsHTML = '<div class="chart-chips">' +
+      '<span class="chip-key"><i class="ln solid" style="background:var(--text)"></i>实线 · 每天记录</span>' +
+      '<span class="chip-key"><i class="ln dash"></i>虚线 · 趋势平滑</span>' +
+      '<span class="chip-key"><i class="ln goal"></i>灰线 · 目标</span>' +
+    '</div>';
     box.innerHTML = '<div class="card chart-card">' +
       '<div class="chart-head2"><h3 class="card-label">体重走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
       segHTML +
-      '<p class="sub">实线=每天记录 · 虚线=趋势线（滑动平均，过滤单日波动，比单日数字诚实）· 灰虚线是目标 · 按住可看每天数值</p>' +
+      chipsHTML +
       '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
+      '<p class="chart-hint">按住图表任意位置，可看那一天的数值</p>' +
     '</div>';
     const wrap = box.querySelector('.chart-wrap');
     attachScrub(wrap, c);
@@ -1759,7 +1771,8 @@ function renderSettings() {
     (ghConf
       ? '<div class="card">' +
         '<h3 class="card-label">自动云备份</h3>' +
-        '<p class="sub">已开通 · 每次记录后数据自动上云（' + (ghConf.provider === 'gitee' ? 'Gitee 国内通道' : 'GitHub') + ' · 私有仓库 ' + esc(ghConf.owner) + '/' + esc(ghConf.repo) + '，只有你能看）</p>' +
+        '<div class="key-line">✓ 数据已自动上云 —— 手机丢了、换新机，记录都在</div>' +
+        '<p class="sub">每次记录后自动备份（' + (ghConf.provider === 'gitee' ? 'Gitee 国内通道' : 'GitHub') + ' · 私有仓库 ' + esc(ghConf.owner) + '/' + esc(ghConf.repo) + '，只有你能看）</p>' +
         '<p class="s-dim" style="margin-bottom:10px">上次同步：' + lastSyncText() + '</p>' +
         '<div class="settings-btns"><button class="btn" data-action="cloud-sync">立即同步</button><button class="btn ghost" data-action="cloud-restore">从云端恢复</button></div>' +
         migrateGuideHTML() +
@@ -1774,8 +1787,8 @@ function renderSettings() {
         '<p class="s-dim" id="cloud-diag" style="display:none;margin-top:10px;color:#b91c1c;word-break:break-all">' + esc(diagFromStorage()) + '</p>' +
       '</div>') +
     '<div class="card">' +
-      '<h3 class="card-label">备份与恢复（手动）</h3>' +
-      '<p class="sub">开通云备份后这里一般用不上。备份文本可存到备忘录或微信。</p>' +
+      '<h3 class="card-label">手动备份 · 不依赖网络</h3>' +
+      '<div class="key-line">把数据变成一段文字，发到微信存着，随存随恢复</div>' +
       '<button class="btn" data-action="backup-now">一键备份（弹出分享面板）</button>' +
       '<button class="btn ghost" data-action="copy-link">复制存档链接</button>' +
       '<div class="divider">恢复数据 · 粘贴进来，点一下就导入</div>' +
@@ -1785,7 +1798,8 @@ function renderSettings() {
     '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">数据状态</h3>' +
-      '<p class="sub">共 ' + days + ' 天' + (earliest ? ' · 自 ' + fmtCN(earliest) : '') + ' · 约 ' + (size / 1024).toFixed(1) + ' KB<br>存储：' + (storeOk ? '正常' : '异常（检查是否无痕模式）') + ' · 上次备份：' + backupTxt + '</p>' +
+      '<div class="key-line">' + (storeOk ? '✓ 一切正常' : '⚠️ 存储异常，检查是否无痕模式') + '</div>' +
+      '<p class="sub">共 ' + days + ' 天' + (earliest ? ' · 自 ' + fmtCN(earliest) : '') + ' · 约 ' + (size / 1024).toFixed(1) + ' KB · 上次备份：' + backupTxt + '</p>' +
     '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">指标怎么看</h3>' +
