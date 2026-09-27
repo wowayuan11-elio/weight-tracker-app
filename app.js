@@ -16,8 +16,14 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V21';
+const APP_VERSION = 'V22';
 const CHANGELOG = [
+  { v: 'V22', d: '9月27日', items: [
+    '卡片字段扩容：新增「内脏脂肪」「肌肉量」两个可选格子（小米秤抄录的数据，有就显示），可选字段到 7 个',
+    '每个数字自带人话：BMI → 「BMI 体重指数」，内脏脂肪 → 「级 内脏脂肪」；设置面板里每个指标都有一行解释（BMI 18.5~24 正常、内脏脂肪 5 级以下健康…）',
+    '趋势页默认改 7 天（更直观），7/30/90 天随你切，选完记住——下次打开还是你上次选的',
+    '统计页大扫除：三张对比卡合并成一张「重点变化」——结论式大字（72.1 → 71.2 ↓0.9）+ 一句话判断（有效果/波动正常），「上期无数据 —」这类废话占位全部砍掉'
+  ]},
   { v: 'V21', d: '9月27日', items: [
     '首页两张体重卡升级为仪表卡：起点→现在→目标的进度条一眼看到走了多远，距目标/BMI/体脂/腰围/连续打卡各占一格，不再挤成一行小字',
     '卡片右上角新增 ⚙️ 设置：卡片大小（紧凑并排/大卡整行）、谁在前谁在后、显示哪些数据，全部自己定，自动保存',
@@ -68,7 +74,7 @@ const CHANGELOG = [
 
 let state = loadState();
 let currentDate = todayKey();   // 记录页当前编辑的日期
-let trendRange = 30;            // 趋势图天数，0 = 全部
+let trendRange = (state.ui && state.ui.trendRange) || 7;  // 趋势图天数，0 = 全部；默认 7 天（直观），记住上次选择
 let drafts = { me: '', partner: '', me_waist: '', partner_waist: '', me_bf: '', partner_bf: '', me_vf: '', partner_vf: '', me_mm: '', partner_mm: '', me_bmr: '', partner_bmr: '' };
 function resetDrafts() { drafts = { me: '', partner: '', me_waist: '', partner_waist: '', me_bf: '', partner_bf: '', me_vf: '', partner_vf: '', me_mm: '', partner_mm: '', me_bmr: '', partner_bmr: '' }; }
 let extraOpen = false; /* 记录页腰围/体脂折叠区 */
@@ -145,11 +151,12 @@ function bmiOf(p, weightKg) {
 
 /* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
 function sanitizeUI(u) {
-  const d = { heroLayout: 'grid', heroOrder: PERSON_IDS.slice(), heroMetrics: { goal: true, bmi: true, streak: true, bf: true, waist: true } };
+  const d = { heroLayout: 'grid', heroOrder: PERSON_IDS.slice(), heroMetrics: { goal: true, bmi: true, streak: true, bf: true, waist: true, vf: true, mm: true } };
   if (!u || typeof u !== 'object') return d;
   if (u.heroLayout === 'stack' || u.heroLayout === 'grid') d.heroLayout = u.heroLayout;
   if (Array.isArray(u.heroOrder) && u.heroOrder.length === 2 && PERSON_IDS.includes(u.heroOrder[0]) && PERSON_IDS.includes(u.heroOrder[1]) && u.heroOrder[0] !== u.heroOrder[1]) d.heroOrder = u.heroOrder.slice();
   if (u.heroMetrics && typeof u.heroMetrics === 'object') Object.keys(d.heroMetrics).forEach(k => { if (typeof u.heroMetrics[k] === 'boolean') d.heroMetrics[k] = u.heroMetrics[k]; });
+  if (typeof u.trendRange === 'number' && [0, 7, 30, 90].includes(u.trendRange)) d.trendRange = u.trendRange;
   return d;
 }
 
@@ -740,17 +747,19 @@ function heroHTML() {
         '<div class="hprog-lab"><span>起点 ' + start.value.toFixed(1) + '</span><span>已走 ' + Math.round(pct) + '%</span><span>目标 ' + g.toFixed(1) + '</span></div>';
     }
 
-    /* 指标网格：距目标 / BMI / 体脂 / 腰围 / 连续打卡 */
+    /* 指标网格：每个数字都自带人话解释（V22） */
     const m = ui.heroMetrics;
     const cells = [];
     if (m.goal && typeof g === 'number') {
       const off = cur - g;
       cells.push({ v: Math.abs(off).toFixed(1), u: off > 0.05 ? 'kg 距目标' : 'kg 已达标', ok: off <= 0.05 });
     }
-    if (m.bmi && bmi !== null) cells.push({ v: bmi.toFixed(1), u: 'BMI', ok: bmi >= 18.5 && bmi < 24 });
-    if (m.bf) { const bf = lastKnownField(p + '_bf'); if (bf) cells.push({ v: bf.value.toFixed(1), u: '体脂%', ok: null }); }
-    if (m.waist) { const w = lastKnownField(p + '_waist'); if (w) cells.push({ v: w.value.toFixed(1), u: '腰围cm', ok: null }); }
-    if (m.streak) cells.push({ v: streakOf(p), u: '连续天', ok: null });
+    if (m.bmi && bmi !== null) cells.push({ v: bmi.toFixed(1), u: 'BMI 体重指数', ok: bmi >= 18.5 && bmi < 24 });
+    if (m.bf) { const bf = lastKnownField(p + '_bf'); if (bf) cells.push({ v: bf.value.toFixed(1), u: '% 体脂率', ok: null }); }
+    if (m.waist) { const w = lastKnownField(p + '_waist'); if (w) cells.push({ v: w.value.toFixed(1), u: 'cm 腰围', ok: null }); }
+    if (m.vf) { const vf = lastKnownField(p + '_vf'); if (vf) cells.push({ v: vf.value.toFixed(0), u: '级 内脏脂肪', ok: vf.value < 5 }); }
+    if (m.mm) { const mm = lastKnownField(p + '_mm'); if (mm) cells.push({ v: mm.value.toFixed(1), u: 'kg 肌肉量', ok: null }); }
+    if (m.streak) cells.push({ v: streakOf(p), u: '天 连续记', ok: null });
     const gridHTML = cells.length
       ? '<div class="hgrid">' + cells.map(c =>
           '<div class="hcell">' + (c.ok === true ? '<b style="color:#34c759">' + c.v + '</b>' : '<b>' + c.v + '</b>') + '<span>' + c.u + '</span></div>'
@@ -785,8 +794,15 @@ function renderHeroSet() {
   const ui = state.ui;
   const body = document.getElementById('heroset-body');
   if (!body) return;
-  const METRICS = [ { k: 'goal', n: '距目标' }, { k: 'bmi', n: 'BMI' }, { k: 'bf', n: '体脂率' },
-    { k: 'waist', n: '腰围' }, { k: 'streak', n: '连续打卡' }
+  /* 每个指标一行：人话解释 + 开关（V22：字段含义必须写明白） */
+  const METRICS = [
+    { k: 'goal',   n: '距目标',   d: '还差多少公斤到你的目标' },
+    { k: 'bmi',    n: 'BMI',      d: '体重指数 · 18.5~24 属正常' },
+    { k: 'bf',     n: '体脂率',   d: '脂肪占体重的比例，越低越精瘦' },
+    { k: 'waist',  n: '腰围',     d: '肚子脂肪的硬指标 · 男<90 女<85' },
+    { k: 'vf',     n: '内脏脂肪', d: '包在内脏上的脂肪 · 5级以下健康' },
+    { k: 'mm',     n: '肌肉量',   d: '减脂期守住它，代谢才不掉' },
+    { k: 'streak', n: '连续打卡', d: '没断过的记录天数' }
   ];
   body.innerHTML =
     '<p class="set-lab">卡片大小</p>' +
@@ -800,11 +816,13 @@ function renderHeroSet() {
       '<button class="set-seg' + (ui.heroOrder[0] === 'partner' ? ' on' : '') + '" data-action="hero-order" data-v="partner">' + esc(state.names.partner) + '</button>' +
     '</div>' +
     '<p class="set-lab">卡片上显示哪些数据</p>' +
-    '<div class="set-chips">' + METRICS.map(mk =>
-      '<button class="set-chip' + (ui.heroMetrics[mk.k] ? ' on' : '') + '" data-action="hm-toggle" data-key="' + mk.k + '">' +
-      (ui.heroMetrics[mk.k] ? '✓ ' : '') + mk.n + '</button>'
-    ).join('') + '</div>' +
-    '<p class="set-tip">体脂/腰围只在有测量记录后出现 · 设置自动保存</p>';
+    METRICS.map(mk =>
+      '<button class="set-line' + (ui.heroMetrics[mk.k] ? ' on' : '') + '" data-action="hm-toggle" data-key="' + mk.k + '">' +
+        '<span class="set-line-txt"><b>' + mk.n + '</b><i>' + mk.d + '</i></span>' +
+        '<span class="tgl"></span>' +
+      '</button>'
+    ).join('') +
+    '<p class="set-tip">体脂/腰围/内脏脂肪/肌肉量：有测量记录才会出现在卡片上 · 设置自动保存</p>';
 }
 
 function recordExtraHTML() {
@@ -1403,9 +1421,11 @@ function periodRow(p, cur, prev, unitLabel) {
   if (!cur && !prev) {
     return '<div class="s-row">' + name + '<span class="s-dim">暂无记录</span></div>';
   }
-  const curTxt = cur ? '<span class="s-val">' + cur.avg.toFixed(1) + '</span><span class="s-dim"> ' + cur.count + '天</span>' : '<span class="s-dim">' + unitLabel + '未记录</span>';
-  const delta = (cur && prev) ? deltaChip(cur.avg - prev.avg) : '<span class="delta flat">—</span>';
-  const prevTxt = prev ? '<span class="s-dim">上期 ' + prev.avg.toFixed(1) + '</span>' : '<span class="s-dim">上期无数据</span>';
+  /* 只显示真正有对比意义的行：本期没记→跳过；上期没数据→不显示占位（V22：砍废话） */
+  if (!cur) return '';
+  const curTxt = '<span class="s-val">' + cur.avg.toFixed(1) + '</span><span class="s-dim"> ' + cur.count + '天</span>';
+  const delta = prev ? deltaChip(cur.avg - prev.avg) : '';
+  const prevTxt = prev ? '<span class="s-dim">上期 ' + prev.avg.toFixed(1) + '</span>' : '';
   return '<div class="s-row">' + name + curTxt + '<span class="s-right">' + prevTxt + delta + '</span></div>';
 }
 
@@ -1575,49 +1595,61 @@ function renderStats() {
       '<div class="wk-head"><span>周</span><span>' + esc(state.names.me) + '</span><span>' + esc(state.names.partner) + '</span></div>' + wkRows + '</div>';
   }
 
-  /* 本周 vs 上周 */
-  const ws = weekStartOf(new Date());
-  const we = dateKey(addDays(ws, 6));
-  const ps = dateKey(addDays(ws, -7)), pe = dateKey(addDays(ws, -1));
-  html += '<div class="card"><h3 class="card-label">本周 vs 上周 · 平均体重</h3>';
-  html += PERSON_IDS.map(p =>
-    periodRow(p, avgBetween(dateKey(ws), we, p), avgBetween(ps, pe, p), '本周')
-  ).join('');
-  html += '</div>';
-
-  /* 本月 vs 上月 */
-  const m0 = monthRange(0), m1 = monthRange(1);
-  html += '<div class="card"><h3 class="card-label">本月 vs 上月 · 平均体重</h3>';
-  html += PERSON_IDS.map(p =>
-    periodRow(p, avgBetween(m0.from, m0.to, p), avgBetween(m1.from, m1.to, p), '本月')
-  ).join('');
-  html += '</div>';
-
-  /* 累计变化 */
+  /* 重点变化 · 一张结论卡（V22：合并周/月/累计三张卡，砍掉无对比意义的行，结论式大字） */
   if (keys.length) {
-    html += '<div class="card"><h3 class="card-label">累计变化 · 从第一条记录起</h3>';
-    html += PERSON_IDS.map(p => {
+    const ws = weekStartOf(new Date());
+    const we = dateKey(addDays(ws, 6));
+    const ps = dateKey(addDays(ws, -7)), pe = dateKey(addDays(ws, -1));
+    const m0 = monthRange(0), m1 = monthRange(1);
+    const blocks = PERSON_IDS.map(p => {
       const first = firstKnown(p);
-      if (!first) return '<div class="s-row"><span class="s-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">暂无记录</span></div>';
+      if (!first) return '';
       const lk = lastKeyOf(p);
       const cur = state.records[lk][p];
       const delta = cur - first.value;
-      const spanDays = (parseKey(lk) - parseKey(first.key)) / 86400000;
+      const spanDays = Math.max(1, Math.round((parseKey(lk) - parseKey(first.key)) / 86400000));
       const weeks = spanDays / 7;
       const rate = weeks >= 1 ? (delta / weeks) : null;
+      /* 一句话结论：这个数字意味着什么 */
+      const verdict = delta <= -0.5 ? '有效果，照这个劲头继续'
+        : delta >= 0.5 ? '比起点高了，先看趋势线别慌'
+        : '基本持平，身体在适应期';
+      const verdictCls = delta <= -0.5 ? ' good' : delta >= 0.5 ? ' warn' : '';
       const rateTxt = rate !== null && Math.abs(rate) >= 0.005
-        ? '<span class="s-dim">约 ' + (rate < 0 ? '↓' : '↑') + Math.abs(rate).toFixed(2) + ' kg/周</span>'
-        : '<span class="s-dim">—</span>';
-      return '<div class="s-row">' +
-        '<span class="s-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-        '<span class="s-val">' + first.value.toFixed(1) + ' → ' + cur.toFixed(1) + '</span>' +
-        '<span class="s-right">' + rateTxt + deltaChip(delta) + '</span>' +
-      '</div>' +
-      '<div class="s-row" style="border:0;padding-top:0">' +
-        '<span class="s-dim" style="margin-left:26px">起点 ' + fmtCN(first.key) + ' · 已记 ' + countDays(p) + ' 天 · 跨度 ' + Math.max(1, Math.round(spanDays)) + ' 天</span>' +
+        ? ' · 约 <b>' + (rate < 0 ? '↓' : '↑') + Math.abs(rate).toFixed(2) + '</b> kg/周'
+        : '';
+      /* 本周 vs 上周：有上期数据才有意义，没有就不显示这行 */
+      const wkCur = avgBetween(dateKey(ws), we, p), wkPrev = avgBetween(ps, pe, p);
+      let wkLine = '';
+      if (wkCur && wkPrev) {
+        const d = wkCur.avg - wkPrev.avg;
+        const arrow = d > 0.05 ? '↑' : d < -0.05 ? '↓' : '≈';
+        wkLine = '本周平均 <b>' + wkCur.avg.toFixed(1) + '</b>，比上周 ' + arrow + Math.abs(d).toFixed(1) +
+          ' —— ' + (Math.abs(d) < 0.3 ? '波动正常，稳住' : Math.abs(d) < 0.8 ? '小变化，在正常范围' : '变化有点大，看下周走向');
+      }
+      const moCur = avgBetween(m0.from, m0.to, p), moPrev = avgBetween(m1.from, m1.to, p);
+      let moLine = '';
+      if (moCur && moPrev) {
+        const d = moCur.avg - moPrev.avg;
+        const arrow = d > 0.05 ? '↑' : d < -0.05 ? '↓' : '≈';
+        moLine = '本月平均 ' + moCur.avg.toFixed(1) + '，比上月 ' + arrow + Math.abs(d).toFixed(1);
+      }
+      return '<div class="sum-blk">' +
+        '<div class="sum-head">' +
+          '<span class="s-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+          '<span class="s-dim">' + fmtCN(first.key) + ' 起</span>' +
+          deltaChip(delta) +
+        '</div>' +
+        '<p class="sum-big">' + first.value.toFixed(1) + ' <i>→</i> <b>' + cur.toFixed(1) + '</b> <small>kg</small></p>' +
+        '<p class="sum-verdict' + verdictCls + '">' + verdict + rateTxt + '</p>' +
+        (wkLine ? '<p class="sum-line">' + wkLine + '</p>' : '') +
+        (moLine ? '<p class="sum-line dim">' + moLine + '</p>' : '') +
       '</div>';
-    }).join('');
-    html += '</div>';
+    }).filter(Boolean).join('<div class="divider"></div>');
+    if (blocks) {
+      html += '<div class="card"><h3 class="card-label">重点变化</h3>' +
+        '<p class="sub">从第一天记到现在 · 只说有意义的结论</p>' + blocks + '</div>';
+    }
   }
 
   html += historyHTML();
@@ -1957,7 +1989,13 @@ document.addEventListener('click', e => {
   if (tab) { switchTab(tab.dataset.page); return; }
 
   const seg = e.target.closest('#range-seg button');
-  if (seg) { trendRange = +seg.dataset.range; renderTrend(); return; }
+  if (seg) {
+    trendRange = +seg.dataset.range;
+    state.ui.trendRange = trendRange;  /* 记住选择，下次打开还是它 */
+    persist();
+    renderTrend();
+    return;
+  }
 
   /* 月历：点某天 → 跳到记录页那天（补录/修改） */
   const calCell = e.target.closest('[data-cal]');
