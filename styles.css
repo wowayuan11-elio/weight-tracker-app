@@ -162,6 +162,30 @@ main{ flex:1; min-height:0; position:relative; }
 .cal-dots i{ width:4px; height:4px; border-radius:50%; background:var(--sep); opacity:.55; }
 .cal-legend{ font-size:11px; color:var(--text3); margin:12px 0 0; line-height:1.6; }
 
+/* ---------- 日期选择 V20（自绘，替代系统日期控件） ---------- */
+.date-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--card); border:0; border-radius:999px;
+  padding:11px 18px; font-size:15px; font-weight:600; color:var(--text);
+  box-shadow:var(--shadow); transition:transform .12s ease;
+  font-variant-numeric:tabular-nums; letter-spacing:-.01em;
+}
+.date-chip:active{ transform:scale(.96); }
+.date-chip svg{ width:15px; height:15px; color:var(--tint); flex:none; }
+.chip-today{
+  font-size:11px; font-weight:700; color:var(--tint);
+  background:rgba(0,122,255,.12); padding:2px 8px; border-radius:999px; margin-left:2px;
+}
+/* 日期 sheet 里的月历：格子更大更好点 */
+.ds-grid{ margin-top:6px; }
+.ds-cell{ min-height:46px; border-radius:12px; }
+.ds-cell:active{ background:var(--chipbg); }
+.ds-cell .cal-d{ font-size:15.5px; }
+.cal-cell.cal-sel .cal-d{
+  background:var(--tint); color:#fff; width:34px; height:34px;
+  border-radius:50%; display:grid; place-items:center; font-weight:700;
+}
+
 /* ---------- 记录页 ---------- */
 .date-row{ display:flex; align-items:center; gap:12px; margin-top:6px; }
 .date-input{
