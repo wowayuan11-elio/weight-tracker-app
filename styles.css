@@ -241,6 +241,14 @@ main{ flex:1; min-height:0; position:relative; }
 .hcell{ background:var(--bg); border-radius:12px; padding:9px 4px 7px; text-align:center; min-width:0; }
 .hcell b{ display:block; font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
 .hcell span{ display:block; font-size:10px; color:var(--text3); margin-top:2px; white-space:nowrap; }
+/* 空字段的「＋填写」格：虚线框，点了直达记录页填写区（V23） */
+.hcell-add{
+  border:1.5px dashed rgba(0,122,255,.4); background:rgba(0,122,255,.05);
+  border-radius:12px; padding:9px 4px 7px; text-align:center; min-width:0;
+}
+.hcell-add b{ color:var(--tint); font-size:19px; line-height:1; }
+.hcell-add span{ color:var(--tint); opacity:.85; }
+.hcell-add:active{ background:rgba(0,122,255,.14); }
 /* 大卡模式：整行一张，数字更大更舒展 */
 .hero-stack{ flex-direction:column; }
 .hero-stack .hero-col{ padding:20px 20px 18px; }
@@ -518,22 +526,6 @@ main{ flex:1; min-height:0; position:relative; }
 .x-row .unit{ width:22px; flex:none; font-size:12.5px; color:var(--text2); }
 .cmp-sub{ font-size:12px; color:var(--text2); padding:0 0 6px 82px; }
 .cmp-sub:last-child{ padding-bottom:2px; }
-
-/* ===== v10 打卡 + 目标卡升级 ===== */
-.streak-banner{
-  display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
-  margin:2px 0 10px; padding:10px 14px;
-  background:linear-gradient(135deg, rgba(255,138,76,.14), rgba(255,90,120,.10));
-  border:1px solid rgba(255,138,76,.28);
-  border-radius:14px; font-size:13px; color:var(--text2);
-}
-.streak-flame{
-  font-size:11px; font-weight:700; letter-spacing:1px;
-  background:linear-gradient(135deg,#ff8a4c,#ff5a78); color:#fff;
-  padding:3px 9px; border-radius:999px;
-}
-.streak-num{ color:var(--text); }
-.streak-num b{ font-size:16px; color:#ff7a45; font-variant-numeric:tabular-nums; }
 
 .gp-head .gp-num{ font-weight:500; color:var(--text2); }
 .gp-foot{ align-items:baseline; }
