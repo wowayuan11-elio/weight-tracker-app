@@ -420,13 +420,34 @@ main{ flex:1; min-height:0; position:relative; }
 .sheet-body{ overflow-y:auto; padding:0 20px calc(34px + env(safe-area-inset-bottom)); }
 .sheet-body .card{ margin-top:12px; box-shadow:none; }
 
-.field{ display:flex; align-items:center; gap:10px; padding:5px 0; }
-.field span{ font-size:14px; color:var(--text2); width:88px; flex:none; }
-.text-input{
-  flex:1; min-width:0; background:var(--card); border:0; border-radius:12px;
-  padding:11px 13px; font-size:16px; color:var(--text); outline:none;
+/* 设置页 V24：行分组 + 有边框输入 + 按钮收敛，告别"文本堆" */
+.field{
+  display:flex; align-items:center; gap:12px;
+  padding:10px 12px; margin-top:8px;
+  background:var(--bg); border:1px solid var(--sep); border-radius:14px;
 }
-.text-input:focus{ box-shadow:0 0 0 1.5px var(--tint); }
+.field span{ font-size:13.5px; color:var(--text2); width:92px; flex:none; font-weight:500; }
+.text-input{
+  flex:1; min-width:0; background:transparent; border:0; border-radius:0;
+  padding:2px 0; font-size:16px; font-weight:600; color:var(--text); outline:none;
+  font-variant-numeric:tabular-nums;
+}
+.field:focus-within{ border-color:var(--tint); background:rgba(0,122,255,.04); }
+.text-input:focus{ box-shadow:none; }
+/* 设置页按钮：不再全宽大蓝条 */
+.settings-btns{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.settings-btns .btn{ width:auto; flex:none; padding:10px 24px; font-size:13.5px; margin-top:0; }
+/* 换手机迁移指引（V24） */
+.mig-guide{
+  margin-top:10px; background:var(--bg); border:1px solid var(--sep);
+  border-radius:14px; padding:12px 14px; font-size:13px;
+}
+.mig-guide summary{ font-weight:600; color:var(--tint); cursor:pointer; list-style:none; }
+.mig-guide summary::before{ content:'▸ '; }
+.mig-guide[open] summary::before{ content:'▾ '; }
+.mig-steps{ margin:10px 0 6px; padding-left:20px; color:var(--text2); line-height:1.7; }
+.mig-steps b{ color:var(--text); }
+.mig-note{ font-size:11.5px; color:var(--text3); line-height:1.6; margin:0; }
 
 .json-area{
   width:100%; background:var(--card); border:0; border-radius:12px;
