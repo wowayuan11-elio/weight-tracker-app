@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V26';
+const APP_VERSION = 'V27';
 const CHANGELOG = [
+  { v: 'V27', d: '9月28日', items: [
+    '保存终于有感觉了：点保存 → 按钮立刻变绿色「✓ 已保存」1.6 秒后恢复；底部同时弹出加粗的确认提示「✓ 今天已保存，数据记上了」——双保险，不成功不吭声',
+    '所有提示气泡加大加粗加深影，一眼能看见'
+  ]},
   { v: 'V26', d: '9月27日', items: [
     '周报表看得懂了：每行先标「9月第1周」再加日期（8/31~9/6），最后一行挂蓝色「本周」标——不用再猜哪行是哪周'
   ]},
@@ -569,6 +573,7 @@ function deltaChip(d, digits, label) {
 
 /* ---------- Toast / 确认弹窗 ---------- */
 let toastTimer = null;
+let saveFlashTimer = null;
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -719,7 +724,8 @@ function renderRecord() {
       })() +
       '<p class="sub" style="margin:12px 0 6px">备注（选填）：这天有什么想记的，一句话就行</p>' +
       '<input class="note-input" type="text" maxlength="60" enterkeyhint="done" placeholder="如：昨晚吃火锅 / 熬夜了 / 开始力量训练" value="' + (r && r.note ? esc(r.note) : '') + '">' +
-      '<button class="btn" data-action="save-all">保存</button>' +
+      '<button class="btn save-btn' + (Date.now() - (window.__savedFlashAt || 0) < 1600 ? ' saved' : '') + '" data-action="save-all">' +
+        (Date.now() - (window.__savedFlashAt || 0) < 1600 ? '✓ 已保存' : '保存') + '</button>' +
       (both ? '<div class="card-foot">这天的记录：你们俩相差 ' + Math.abs(r.me - r.partner).toFixed(1) + ' kg</div>' : '') +
     '</div>';
 
@@ -909,6 +915,9 @@ function waistInterpText() {
 }
 
 function saveAll() {
+  window.__savedFlashAt = Date.now(); /* 按钮即时变「✓ 已保存」，1.6 秒后由定时器恢复 */
+  clearTimeout(saveFlashTimer);
+  saveFlashTimer = setTimeout(() => { if (document.querySelector('.save-btn')) renderRecord(); }, 1650);
   const got = {};
   let weightErr = null, waistErr = null;
   PERSON_IDS.forEach(p => {
@@ -993,7 +1002,7 @@ function saveAll() {
   const cur = state.records[currentDate];
   if (cur && !Object.keys(cur).length) delete state.records[currentDate];
   if (!persist()) return;
-  toast((currentDate === todayKey() ? '今晨' : fmtMD(currentDate)) + ' 已保存');
+  toast('✓ ' + (currentDate === todayKey() ? '今晨' : fmtMD(currentDate)) + ' 已保存，数据记上了');
   renderAll();
 }
 
