@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V29';
+const APP_VERSION = 'V30';
 const CHANGELOG = [
+  { v: 'V30', d: '9月28日', items: [
+    '全部记录按月折叠：默认只展开本月，历史月份收起成一行（「2026年8月 · 2 天」），点月份头展开/收起——不用再无限下滑'
+  ]},
   { v: 'V29', d: '9月28日', items: [
     '月历的「记了 28/28 天」说人话了：本月显示「截至 9/28，28 天全记了」（没记全会显示 差几天），历史月份显示「这个月记了 X/30 天」——不再像“9月只有28天”'
   ]},
@@ -1706,29 +1709,57 @@ function renderStats() {
   document.getElementById('stats-body').innerHTML = html;
 }
 
+/* 月份折叠状态（V30）：默认只展开当月，历史月收起 */
+let expandedMonths = {};
+let historyMonthSeeded = false;
+
 function historyHTML() {
   const keys = sortedKeys().reverse();
   if (!keys.length) return '<div class="card"><h3 class="card-label">全部记录</h3><p class="sub">还没有记录</p></div>';
   const tk = todayKey();
-  let html = '<div class="card list-card"><h3 class="card-label" style="padding:12px 0 4px">全部记录 · 点按可修改</h3>' +
-    '<p class="sub" style="padding:0 0 6px">每行是一天的体重；行内小箭头 = 和上一次记录比的变化（↓瘦 ↑胖）</p>';
-  let lastYM = '';
+  /* 先按月分组，每组带天数摘要 */
+  const months = [];
+  let curM = null;
   keys.forEach(k => {
-    const r = state.records[k], d = parseKey(k);
-    const ym = d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
-    if (ym !== lastYM) { html += '<div class="m-sep">' + ym + '</div>'; lastYM = ym; }
-    const vals = PERSON_IDS.map(p => {
-      if (typeof r[p] !== 'number') return '<div class="h-v"><span class="hv-name" style="color:' + COLORS[p] + '">' + esc(state.names[p]) + '</span><span class="s-dim">未记录</span></div>';
-      const prev = prevRecord(k, p);
-      return '<div class="h-v"><span class="hv-name" style="color:' + COLORS[p] + '">' + esc(state.names[p]) + '</span><b>' + r[p].toFixed(1) + '</b>' + deltaChip(prev ? r[p] - prev.value : null) + '</div>';
-    }).join('');
-    html += '<div class="h-row" data-key="' + k + '">' +
-      '<div class="h-date"><div class="h-d1">' + fmtMD(k) + '</div><div class="h-d2">' + WEEK_LABELS[d.getDay()] + (k === tk ? ' · 今天' : '') + '</div></div>' +
-      '<div class="h-vals">' + vals + (r.note ? '<div class="h-note">' + esc(r.note) + '</div>' : '') + '</div>' +
-      '<button class="h-del" data-action="del-day" data-key="' + k + '" aria-label="删除">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 7h14M10 7V5h4v2M8 7l1 12h6l1-12"/></svg>' +
-      '</button>' +
-    '</div>';
+    const d = parseKey(k);
+    const ymKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    const ymLabel = d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
+    if (!curM || curM.key !== ymKey) { curM = { key: ymKey, label: ymLabel, days: [] }; months.push(curM); }
+    curM.days.push(k);
+  });
+  if (!historyMonthSeeded) {
+    months.forEach(m => { expandedMonths[m.key] = (m.key === tk.slice(0, 7)); });
+    historyMonthSeeded = true;
+  }
+  let html = '<div class="card list-card"><h3 class="card-label" style="padding:12px 0 4px">全部记录 · 点按可修改</h3>' +
+    '<p class="sub" style="padding:0 0 6px">点月份头展开 / 收起 · 每行是一天的体重，行内小箭头 = 和上一次记录比（↓瘦 ↑胖）</p>';
+  months.forEach(m => {
+    const open = !!expandedMonths[m.key];
+    const mLabel = m.label + (m.key === tk.slice(0, 7) ? '（本月）' : '');
+    html += '<button class="m-toggle" data-action="toggle-month" data-mkey="' + m.key + '">' +
+      '<span class="m-arrow">' + (open ? '▾' : '▸') + '</span>' +
+      '<b>' + mLabel + '</b>' +
+      '<span class="m-days">' + m.days.length + ' 天</span>' +
+    '</button>';
+    if (open) {
+      html += '<div class="m-body">';
+      m.days.forEach(k => {
+        const r = state.records[k], d = parseKey(k);
+        const vals = PERSON_IDS.map(p => {
+          if (typeof r[p] !== 'number') return '<div class="h-v"><span class="hv-name" style="color:' + COLORS[p] + '">' + esc(state.names[p]) + '</span><span class="s-dim">未记录</span></div>';
+          const prev = prevRecord(k, p);
+          return '<div class="h-v"><span class="hv-name" style="color:' + COLORS[p] + '">' + esc(state.names[p]) + '</span><b>' + r[p].toFixed(1) + '</b>' + deltaChip(prev ? r[p] - prev.value : null) + '</div>';
+        }).join('');
+        html += '<div class="h-row" data-key="' + k + '">' +
+          '<div class="h-date"><div class="h-d1">' + fmtMD(k) + '</div><div class="h-d2">' + WEEK_LABELS[d.getDay()] + (k === tk ? ' · 今天' : '') + '</div></div>' +
+          '<div class="h-vals">' + vals + (r.note ? '<div class="h-note">' + esc(r.note) + '</div>' : '') + '</div>' +
+          '<button class="h-del" data-action="del-day" data-key="' + k + '" aria-label="删除">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 7h14M10 7V5h4v2M8 7l1 12h6l1-12"/></svg>' +
+          '</button>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
   });
   html += '</div>';
   return html;
@@ -2128,6 +2159,7 @@ document.addEventListener('click', e => {
     }
     else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } selectedCalDay = null; renderTrend(); }
     else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } selectedCalDay = null; renderTrend(); }
+    else if (a === 'toggle-month') { const mk = act.dataset.mkey; expandedMonths[mk] = !expandedMonths[mk]; renderStats(); }
     else if (a === 'toggle-extra') { extraOpen = !extraOpen; renderRecord(); }
     else if (a === 'goto-extra') {
       /* 卡片空格子的「＋」：直达记录页展开体成分填写区并滚到位 */
