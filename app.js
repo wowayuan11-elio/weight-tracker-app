@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V31';
+const APP_VERSION = 'V32';
 const CHANGELOG = [
+  { v: 'V32', d: '9月28日', items: [
+    '新增 5 套主题配色：经典蓝 / 暖阳橙 / 薄荷绿 / 海盐蓝 / 暗夜黑——设置页色块一点全 App 换装，暗夜模式晚上看数据不刺眼',
+    '设置页新增「我的运动与器械」：勾上你会的和家里有的（快走/慢跑/跳绳/跑步机/游泳/骑行/哑铃/弹力带/瑜伽垫/徒手），一键按器械重排周计划，没勾的绝不出现'
+  ]},
   { v: 'V31', d: '9月28日', items: [
     '全部记录的月份头右侧新增「📅 日历」切换：点一下，这个月变成日历缩略图（彩点=两人记录），再点切回列表——明细和全月一览两种看法随便换',
     '统计页新增「每周减脂安排」：周一到周日每天练什么一目了然（默认快走/力量/有氧轮休模板），点任何一天换成你要的运动，自动保存'
@@ -195,6 +199,8 @@ function sanitizeUI(u) {
   if (u.heroMetrics && typeof u.heroMetrics === 'object') Object.keys(d.heroMetrics).forEach(k => { if (typeof u.heroMetrics[k] === 'boolean') d.heroMetrics[k] = u.heroMetrics[k]; });
   if (typeof u.trendRange === 'number' && [0, 7, 30, 90].includes(u.trendRange)) d.trendRange = u.trendRange;
   if (Array.isArray(u.weekPlan)) d.weekPlan = WEEK_PLAN_DEFAULT.map((def, i) => (typeof u.weekPlan[i] === 'string' && u.weekPlan[i].trim()) ? u.weekPlan[i].trim().slice(0, 20) : def);
+  if (typeof u.theme === 'string' && ['classic', 'warm', 'mint', 'ocean', 'dark'].includes(u.theme)) d.theme = u.theme;
+  if (Array.isArray(u.equip)) d.equip = u.equip.filter(x => typeof x === 'string' && EQUIP_LIST.some(e => e.k === x)).slice(0, 12);
   return d;
 }
 
@@ -1724,6 +1730,56 @@ let planEditDow = -1; /* 正在改周几的运动（0=周一…6=周日） */
 const WEEK_PLAN_DEFAULT = ['快走 40 分钟', '休息', '力量训练 30 分钟', '休息', '有氧运动 40 分钟', '拉伸散步', '休息'];
 const PLAN_PRESETS = ['快走 40 分钟', '慢跑 30 分钟', '力量训练 30 分钟', '有氧运动 40 分钟', '瑜伽 20 分钟', '拉伸散步', '休息'];
 
+/* 我的运动与器械（V32）：勾完自动重排周计划 */
+const EQUIP_LIST = [
+  { k: 'walk',   n: '快走/散步',   type: 'cardio' },
+  { k: 'run',    n: '慢跑',        type: 'cardio' },
+  { k: 'jump',   n: '跳绳',        type: 'cardio' },
+  { k: 'tread',  n: '跑步机',      type: 'cardio' },
+  { k: 'swim',   n: '游泳',        type: 'cardio' },
+  { k: 'ride',   n: '骑行',        type: 'cardio' },
+  { k: 'body',   n: '徒手力量',    type: 'strength' },
+  { k: 'dumb',   n: '哑铃',        type: 'strength' },
+  { k: 'band',   n: '弹力带',      type: 'strength' },
+  { k: 'yoga',   n: '瑜伽垫',      type: 'soft' }
+];
+
+function applyTheme() {
+  const t = state.ui && state.ui.theme;
+  if (t && t !== 'classic') document.body.setAttribute('data-theme', t);
+  else document.body.removeAttribute('data-theme');
+}
+
+/* 按勾选的装备生成一周安排：力量隔天、有氧穿插、至少两个休息日 */
+function generateWeekPlan() {
+  const eq = (state.ui && state.ui.equip) || [];
+  const has = k => eq.indexOf(k) > -1;
+  let strength = has('dumb') ? '哑铃力量 30 分钟'
+    : has('band') ? '弹力带力量 30 分钟'
+    : has('body') ? '徒手力量 30 分钟' : null;
+  const cardios = [];
+  if (has('tread')) cardios.push('跑步机快走 40 分钟');
+  if (has('walk')) cardios.push('快走 40 分钟');
+  if (has('run')) cardios.push('慢跑 30 分钟');
+  if (has('jump')) cardios.push('跳绳 15 分钟×3 组');
+  if (has('swim')) cardios.push('游泳 30 分钟');
+  if (has('ride')) cardios.push('骑行 40 分钟');
+  if (!cardios.length) cardios.push('快走 40 分钟');
+  const soft = has('yoga') ? '瑜伽/垫上拉伸 20 分钟' : '拉伸散步';
+  if (!strength) strength = has('body') ? '徒手力量 30 分钟' : null;
+  /* 模板：1力量 2休 3有氧 4休/拉伸 5力量 6有氧 7休 */
+  const c0 = cardios[0], c1 = cardios[1] || cardios[0];
+  return [
+    strength || c0,
+    soft,
+    c0,
+    strength ? soft : c1,
+    strength || c1,
+    strength ? c1 : (has('yoga') ? soft : c0),
+    '休息'
+  ];
+}
+
 function weekPlanArr() {
   const p = (state.ui && state.ui.weekPlan) || [];
   return WEEK_PLAN_DEFAULT.map((d, i) => (typeof p[i] === 'string' && p[i]) ? p[i] : d);
@@ -1931,6 +1987,29 @@ function renderSettings() {
   const backupTxt = age === null ? '从未备份' : (age === 0 ? '今天刚备份过' : age + ' 天前');
 
   document.getElementById('settings-body').innerHTML =
+    '<div class="card">' +
+      '<h3 class="card-label">主题外观</h3>' +
+      '<div class="theme-row">' +
+        [{ k: 'classic', n: '经典', c: '#007aff' }, { k: 'warm', n: '暖阳', c: '#d97a2b' }, { k: 'mint', n: '薄荷', c: '#1e9e6a' }, { k: 'ocean', n: '海盐', c: '#2d6cdf' }, { k: 'dark', n: '暗夜', c: '#1c1c22' }].map(t =>
+          '<button class="theme-swatch' + ((state.ui.theme || 'classic') === t.k ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '">' +
+            '<span class="sw-dot" style="background:' + t.c + '"></span>' + t.n +
+          '</button>'
+        ).join('') +
+      '</div>' +
+      '<p class="set-tip">暗夜主题夜间看数据不刺眼 · 选完立即生效</p>' +
+    '</div>' +
+    '<div class="card">' +
+      '<h3 class="card-label">我的运动与器械</h3>' +
+      '<p class="sub">勾上你会做的和家里有的，周计划按这个排</p>' +
+      '<div class="equip-grid">' +
+        EQUIP_LIST.map(t =>
+          '<button class="set-chip' + ((state.ui.equip || []).indexOf(t.k) > -1 ? ' on' : '') + '" data-action="toggle-equip" data-v="' + t.k + '">' +
+          ((state.ui.equip || []).indexOf(t.k) > -1 ? '✓ ' : '') + t.n + '</button>'
+        ).join('') +
+      '</div>' +
+      '<button class="btn" data-action="regen-plan">按我的器械重排周计划</button>' +
+      '<p class="set-tip">重排后仍可去统计页逐天微调 · 没勾的器械不会出现在安排里</p>' +
+    '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">称呼</h3>' +
       '<label class="field"><span>我的称呼</span><input class="text-input" id="name-me" value="' + esc(state.names.me) + '" maxlength="8"></label>' +
@@ -2245,6 +2324,26 @@ document.addEventListener('click', e => {
     }
     else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } selectedCalDay = null; renderTrend(); }
     else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } selectedCalDay = null; renderTrend(); }
+    else if (a === 'set-theme') {
+      state.ui.theme = act.dataset.v;
+      persist();
+      applyTheme();
+      renderSettings();
+    }
+    else if (a === 'toggle-equip') {
+      const v = act.dataset.v;
+      state.ui.equip = state.ui.equip || [];
+      const i = state.ui.equip.indexOf(v);
+      if (i > -1) state.ui.equip.splice(i, 1); else state.ui.equip.push(v);
+      persist();
+      renderSettings();
+    }
+    else if (a === 'regen-plan') {
+      state.ui.weekPlan = generateWeekPlan();
+      persist();
+      renderStats();
+      toast('✓ 周计划已按你的器械重排');
+    }
     else if (a === 'toggle-month') { const mk = act.dataset.mkey; expandedMonths[mk] = !expandedMonths[mk]; renderStats(); }
     else if (a === 'month-view') { const mk = act.dataset.mkey; monthView[mk] = monthView[mk] === 'cal' ? 'list' : 'cal'; if (!expandedMonths[mk]) expandedMonths[mk] = true; renderStats(); }
     else if (a === 'plan-day') { planEditDow = +act.dataset.dow; renderPlanSheet(); document.getElementById('sheet-mask').classList.add('show'); document.getElementById('plan-sheet').classList.add('show'); }
@@ -2383,4 +2482,5 @@ function renderAll() {
     }
   }
 }
+applyTheme();
 renderAll();
