@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V32';
+const APP_VERSION = 'V33';
 const CHANGELOG = [
+  { v: 'V33', d: '9月29日', items: [
+    '「＋」格文字重叠修好了：紧凑卡片里只显示「＋ 填体脂率」短文案，大卡模式才显示完整说明——再也不会挤成一团乱码',
+    '日历缩略图里直接带每天体重数字（蓝字=你的、橙字=Tina），一眼看完一整月，不用再点进去看'
+  ]},
   { v: 'V32', d: '9月28日', items: [
     '新增 5 套主题配色：经典蓝 / 暖阳橙 / 薄荷绿 / 海盐蓝 / 暗夜黑——设置页色块一点全 App 换装，暗夜模式晚上看数据不刺眼',
     '设置页新增「我的运动与器械」：勾上你会的和家里有的（快走/慢跑/跳绳/跑步机/游泳/骑行/哑铃/弹力带/瑜伽垫/徒手），一键按器械重排周计划，没勾的绝不出现'
@@ -801,14 +805,14 @@ function heroHTML() {
       cells.push({ v: Math.abs(off).toFixed(1), u: off > 0.05 ? 'kg 距目标' : 'kg 已达标', ok: off <= 0.05 });
     }
     if (m.bmi && bmi !== null) cells.push({ v: bmi.toFixed(1), u: 'BMI 体重指数', ok: bmi >= 18.5 && bmi < 24 });
-    if (m.bf) { const bf = lastKnownField(p + '_bf'); cells.push(bf ? { v: bf.value.toFixed(1), u: '% 体脂率', ok: null } : { add: '体脂率', u: '没填 · 点这里' }); }
-    if (m.waist) { const w = lastKnownField(p + '_waist'); cells.push(w ? { v: w.value.toFixed(1), u: 'cm 腰围', ok: null } : { add: '腰围', u: '没填 · 点这里' }); }
-    if (m.vf) { const vf = lastKnownField(p + '_vf'); cells.push(vf ? { v: vf.value.toFixed(0), u: '级 内脏脂肪', ok: vf.value < 5 } : { add: '内脏脂肪', u: '没填 · 点这里' }); }
-    if (m.mm) { const mm = lastKnownField(p + '_mm'); cells.push(mm ? { v: mm.value.toFixed(1), u: 'kg 肌肉量', ok: null } : { add: '肌肉量', u: '没填 · 点这里' }); }
+    if (m.bf) { const bf = lastKnownField(p + '_bf'); cells.push(bf ? { v: bf.value.toFixed(1), u: '% 体脂率', ok: null } : { add: '体脂率', u: '没填 · 点这里', short: '体脂率' }); }
+    if (m.waist) { const w = lastKnownField(p + '_waist'); cells.push(w ? { v: w.value.toFixed(1), u: 'cm 腰围', ok: null } : { add: '腰围', u: '没填 · 点这里', short: '腰围' }); }
+    if (m.vf) { const vf = lastKnownField(p + '_vf'); cells.push(vf ? { v: vf.value.toFixed(0), u: '级 内脏脂肪', ok: vf.value < 5 } : { add: '内脏脂肪', u: '没填 · 点这里', short: '内脏脂肪' }); }
+    if (m.mm) { const mm = lastKnownField(p + '_mm'); cells.push(mm ? { v: mm.value.toFixed(1), u: 'kg 肌肉量', ok: null } : { add: '肌肉量', u: '没填 · 点这里', short: '肌肉量' }); }
     const gridHTML = cells.length
       ? '<div class="hgrid">' + cells.map(c =>
           c.add
-            ? '<button class="hcell hcell-add" data-action="goto-extra"><b>＋</b><span>' + c.add + ' · ' + c.u + '</span></button>'
+            ? '<button class="hcell hcell-add" data-action="goto-extra"><b>＋</b><span>' + (ui.heroLayout === 'stack' ? c.add + ' · ' + c.u : '填' + c.short) + '</span></button>'
             : '<div class="hcell">' + (c.ok === true ? '<b style="color:#34c759">' + c.v + '</b>' : '<b>' + c.v + '</b>') + '<span>' + c.u + '</span></div>'
         ).join('') + '</div>'
       : '';
@@ -1801,7 +1805,11 @@ function miniMonthHTML(mkey) {
     const cls = 'cal-cell' + (k === tk ? ' cal-today' : '') + (future ? ' cal-future' : '');
     const dots = (typeof r.me === 'number' ? '<i style="background:' + COLORS.me + '"></i>' : '<i></i>') +
       (typeof r.partner === 'number' ? '<i style="background:' + COLORS.partner + '"></i>' : '<i></i>');
-    cells += '<span class="' + cls + '"><span class="cal-d">' + d + '</span><span class="cal-dots">' + dots + '</span></span>';
+    /* V33：格子里直接带当天体重数字（有记录的那人），数字+彩点都有含义 */
+    let wt = '';
+    if (typeof r.me === 'number') wt = '<span class="cal-w" style="color:' + COLORS.me + '">' + r.me.toFixed(1) + '</span>';
+    else if (typeof r.partner === 'number') wt = '<span class="cal-w" style="color:' + COLORS.partner + '">' + r.partner.toFixed(1) + '</span>';
+    cells += '<span class="' + cls + '"><span class="cal-d">' + d + '</span>' + (wt || '<span class="cal-dots">' + dots + '</span>') + '</span>';
   }
   return '<div class="mini-cal">' +
     '<div class="cal-week">' + ['日','一','二','三','四','五','六'].map(w => '<span>' + w + '</span>').join('') + '</div>' +
