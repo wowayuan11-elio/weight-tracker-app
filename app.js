@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V28';
+const APP_VERSION = 'V29';
 const CHANGELOG = [
+  { v: 'V29', d: '9月28日', items: [
+    '月历的「记了 28/28 天」说人话了：本月显示「截至 9/28，28 天全记了」（没记全会显示 差几天），历史月份显示「这个月记了 X/30 天」——不再像“9月只有28天”'
+  ]},
   { v: 'V28', d: '9月28日', items: [
     '月历点日期不再跳转：点某天就地展开「当天详情」——两人体重、体脂/腰围/内脏脂肪/肌肉、备注，一看全知道；想改再点「修改这天的记录」',
     '翻月按钮修好了（之前被「记了28/28天」挤没了）：现在左右箭头常驻，任何年份任何月份随便翻'
@@ -1268,6 +1271,12 @@ function calendarHTML() {
     if (r && (typeof r.me === 'number' || typeof r.partner === 'number')) counted++;
   }
   const monthTotal = (calYM.y === now.getFullYear() && calYM.m === now.getMonth()) ? now.getDate() : dim;
+  /* V29：分母语义必须说人话——本月=截至今天，历史月=全月，不再出现「28/28」这种让人以为9月只有28天的写法 */
+  const cntTxt = (calYM.y === now.getFullYear() && calYM.m === now.getMonth())
+    ? (counted >= monthTotal
+        ? '截至 ' + fmtMD(tk) + '，' + counted + ' 天全记了'
+        : '记了 ' + counted + '/' + monthTotal + ' 天（截至 ' + fmtMD(tk) + '）')
+    : '这个月记了 ' + counted + '/' + dim + ' 天';
   let cells = '';
   for (let i = 0; i < startPad; i++) cells += '<span class="cal-cell cal-pad"></span>';
   for (let d = 1; d <= dim; d++) {
@@ -1311,7 +1320,7 @@ function calendarHTML() {
     '<div class="cal-head">' +
       '<button class="cal-nav" data-action="cal-prev" aria-label="上个月">‹</button>' +
       '<div class="cal-title"><b>' + calYM.y + ' 年 ' + (calYM.m + 1) + ' 月</b>' +
-      '<span class="cal-count">记了 ' + counted + '/' + monthTotal + ' 天</span></div>' +
+      '<span class="cal-count">' + cntTxt + '</span></div>' +
       '<button class="cal-nav" data-action="cal-next" aria-label="下个月">›</button>' +
     '</div>' +
     '<div class="cal-week">' + ['日','一','二','三','四','五','六'].map(w => '<span>' + w + '</span>').join('') + '</div>' +
