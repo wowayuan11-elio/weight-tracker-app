@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V35';
+const APP_VERSION = 'V36';
 const CHANGELOG = [
+  { v: 'V36', d: '9月29日', items: [
+    '多重备份落地：每次记录/修改后，除了主备份外再存一份按日期命名的「每日快照」到云端 history 目录——任何一天的数据都可回退，误覆盖也能找回那天的原样',
+    '备份补齐身高数据（之前漏了，恢复后 BMI 才准）',
+    '日历缩略图两人数字都显示：蓝字=你、橙字=Tina，上下两行'
+  ]},
   { v: 'V35', d: '9月29日', items: [
     '自动找回数据：打开 App 时如果发现本地是空的，而云端有备份——自动把记录拉回来，不用点任何东西'
   ]},
@@ -314,6 +319,7 @@ async function cloudBackup(reason) {
     });
     if (p.ok) {
       markBackedUp();
+      pushHistorySnapshot('每日快照 ' + todayKey());
       try { localStorage.setItem(GH_SYNC_KEY, String(Date.now())); } catch (e) {}
       if (document.getElementById('settings-body') && document.getElementById('settings-sheet').classList.contains('show')) {
         renderSettings();
@@ -351,6 +357,7 @@ async function giteeBackup(reason) {
   });
   if (p.ok) {
     markBackedUp();
+    pushHistorySnapshot('每日快照 ' + todayKey());
     try { localStorage.setItem(GH_SYNC_KEY, String(Date.now())); } catch (e) {}
     if (document.getElementById('settings-body') && document.getElementById('settings-sheet') && document.getElementById('settings-sheet').classList.contains('show')) {
       renderSettings();
@@ -544,9 +551,42 @@ function backupJSON() {
     app: 'couples-weight', v: 1,
     names: state.names, records: state.records,
     goals: state.goals || { me: null, partner: null },
+    heights: state.heights || { me: null, partner: null },
     ui: state.ui || sanitizeUI(null),
     exportedAt: new Date().toISOString()
   });
+}
+
+/* V36 历史档：每次推送同时存一份按日期命名的快照到 data/history/，误覆盖可回退到任意过去的一天 */
+async function pushHistorySnapshot(msg) {
+  try {
+    const d = new Date();
+    const stamp = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const path = 'data/history/' + stamp + '.json';
+    const content = btoa(unescape(encodeURIComponent(backupJSON())));
+    if (ghConf.provider === 'gitee') {
+      const base = 'https://api.gitee.com/api/v5/repos/' + ghConf.owner + '/' + ghConf.repo + '/contents/' + path;
+      let sha = null;
+      const g = await fetch(base + '?access_token=' + encodeURIComponent(ghConf.token));
+      if (g.status === 200) sha = (await g.json()).sha;
+      await fetch(base, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: content, message: msg, sha: sha })
+      });
+    } else {
+      let sha = null;
+      const g = await fetch('https://api.github.com/repos/' + ghConf.owner + '/' + ghConf.repo + '/contents/' + path, {
+        headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json' }
+      });
+      if (g.status === 200) sha = (await g.json()).sha;
+      await fetch('https://api.github.com/repos/' + ghConf.owner + '/' + ghConf.repo + '/contents/' + path, {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, content: content, sha: sha })
+      });
+    }
+  } catch (e) { /* 历史档失败不影响主备份 */ }
 }
 
 function markBackedUp() {
@@ -1857,8 +1897,14 @@ function miniMonthHTML(mkey) {
       (typeof r.partner === 'number' ? '<i style="background:' + COLORS.partner + '"></i>' : '<i></i>');
     /* V33：格子里直接带当天体重数字（有记录的那人），数字+彩点都有含义 */
     let wt = '';
-    if (typeof r.me === 'number') wt = '<span class="cal-w" style="color:' + COLORS.me + '">' + r.me.toFixed(1) + '</span>';
-    else if (typeof r.partner === 'number') wt = '<span class="cal-w" style="color:' + COLORS.partner + '">' + r.partner.toFixed(1) + '</span>';
+    if (typeof r.me === 'number' && typeof r.partner === 'number') {
+      wt = '<span class="cal-w" style="color:' + COLORS.me + '">' + r.me.toFixed(1) + '</span>' +
+           '<span class="cal-w" style="color:' + COLORS.partner + '">' + r.partner.toFixed(1) + '</span>';
+    } else if (typeof r.me === 'number') {
+      wt = '<span class="cal-w" style="color:' + COLORS.me + '">' + r.me.toFixed(1) + '</span>';
+    } else if (typeof r.partner === 'number') {
+      wt = '<span class="cal-w" style="color:' + COLORS.partner + '">' + r.partner.toFixed(1) + '</span>';
+    }
     cells += '<span class="' + cls + '"><span class="cal-d">' + d + '</span>' + (wt || '<span class="cal-dots">' + dots + '</span>') + '</span>';
   }
   return '<div class="mini-cal">' +
