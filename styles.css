@@ -172,6 +172,11 @@ main{ flex:1; min-height:0; position:relative; }
 .m-toggle b{ font-size:14.5px; color:var(--text); letter-spacing:-.01em; }
 .m-arrow{ font-size:12px; color:var(--text3); width:14px; flex:none; }
 .m-days{ margin-left:auto; font-size:12px; color:var(--text3); font-variant-numeric:tabular-nums; }
+/* 迷你月历每日体重数字（V33） */
+.cal-w{ font-size:10px; font-weight:600; line-height:1.2; font-variant-numeric:tabular-nums; white-space:nowrap; }
+/* 指标格文字防重叠（V33）：绝不溢出到隔壁格 */
+.hcell span{ display:block; font-size:10px; color:var(--text3); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.hcell b{ max-width:100%; }
 /* 月视图切换按钮（V31） */
 .m-viewbtn{
   margin-left:auto; border:0; background:var(--card); color:var(--tint);
