@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V34';
+const APP_VERSION = 'V35';
 const CHANGELOG = [
+  { v: 'V35', d: '9月29日', items: [
+    '自动找回数据：打开 App 时如果发现本地是空的，而云端有备份——自动把记录拉回来，不用点任何东西'
+  ]},
   { v: 'V34', d: '9月29日', items: [
     '紧急修复：重开 App 显示空数据（记录其实都在手机里没丢）——器械功能的一个定义顺序错误导致数据读取中断，已修正，重开即恢复全部记录'
   ]},
@@ -360,6 +363,50 @@ async function giteeBackup(reason) {
   return p.ok;
 }
 
+/* V35 自动恢复：本地空 + 云端有备份 → 启动时自动拉回，零点击
+   安全论证：仅当本地 0 条记录时触发，云端数据进来不覆盖任何本地内容（本地没东西可覆盖） */
+async function autoRestore() {
+  try {
+    if (sortedKeys().length > 0) return; /* 本地有数据，绝不碰 */
+    if (!ghConf || !ghConf.token) return; /* 没开云备份，无从恢复 */
+    let j;
+    if (ghConf.provider === 'gitee') {
+      const g = await fetch('https://api.gitee.com/api/v5/repos/' + ghConf.owner + '/' + ghConf.repo + '/contents/data/backup.json?access_token=' + encodeURIComponent(ghConf.token));
+      if (!g.ok) return;
+      j = await g.json();
+    } else {
+      const g = await fetch(ghBase(), { headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json' } });
+      if (!g.ok) return;
+      j = await g.json();
+    }
+    const txt = decodeURIComponent(escape(atob(String(j.content).replace(/\n/g, ''))));
+    const remote = parseBackupText(txt);
+    const count = remote ? Object.keys(remote.records).length : 0;
+    if (!remote || !count) return;
+    remote.ui = sanitizeUI(remote.ui);
+    state = remote;
+    persist();
+    renderAll();
+    applyTheme();
+    toast('✓ 检测到本地无数据，已自动从云端恢复 ' + count + ' 天记录');
+  } catch (e) { /* 静默：网络不好下次重开再试 */ }
+}
+
+/* V35 手动恢复入口（设置页）——自动恢复失败时的兜底 */
+async function cloudPullText() {
+  let j;
+  if (ghConf.provider === 'gitee') {
+    const g = await fetch('https://api.gitee.com/api/v5/repos/' + ghConf.owner + '/' + ghConf.repo + '/contents/data/backup.json?access_token=' + encodeURIComponent(ghConf.token));
+    if (!g.ok) return null;
+    j = await g.json();
+  } else {
+    const g = await fetch(ghBase(), { headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json' } });
+    if (!g.ok) return null;
+    j = await g.json();
+  }
+  return decodeURIComponent(escape(atob(String(j.content).replace(/\n/g, ''))));
+}
+
 async function cloudRestore() {
   if (!ghConf) { toast('先开通自动云备份'); return; }
   toast('正在从云端读取…');
@@ -384,7 +431,6 @@ async function cloudRestore() {
     const count = Object.keys(remote.records).length;
     askConfirm('云端有 ' + count + ' 天记录，覆盖手机当前数据？').then(ok => {
       if (!ok) return;
-      remote.ui = sanitizeUI(remote.ui);
       remote.ui = sanitizeUI(remote.ui);
     state = remote;
     persist();
@@ -2449,7 +2495,6 @@ document.addEventListener('input', e => {
     const n = Object.keys(remote.records).length;
     if (!sortedKeys().length) {
       remote.ui = sanitizeUI(remote.ui);
-      remote.ui = sanitizeUI(remote.ui);
     state = remote;
     persist();
       setTimeout(() => toast('已导入 ' + n + ' 天记录'), 400);
@@ -2496,3 +2541,4 @@ function renderAll() {
 }
 applyTheme();
 renderAll();
+autoRestore();
