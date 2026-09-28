@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V36';
+const APP_VERSION = 'V37';
 const CHANGELOG = [
+  { v: 'V37', d: '9月29日', items: [
+    '器械/运动全部可自定义：设置页新增「＋ 自定义」，你的健身棒、任何家里有的器材都能加进去参与周计划',
+    '每日安排的选项也开放自定义：改成任何一天时，除了预设（已加入俯卧撑/仰卧起坐/健身棒练胸）还能自己写',
+    '按器械重排升级：健身棒 → 力量日变「健身棒练胸」；勾「每天俯卧撑」则全周每天自动附加「俯卧撑 30 个」'
+  ]},
   { v: 'V36', d: '9月29日', items: [
     '多重备份落地：每次记录/修改后，除了主备份外再存一份按日期命名的「每日快照」到云端 history 目录——任何一天的数据都可回退，误覆盖也能找回那天的原样',
     '备份补齐身高数据（之前漏了，恢复后 BMI 才准）',
@@ -214,6 +219,8 @@ const EQUIP_LIST = [
   { k: 'swim',   n: '游泳',        type: 'cardio' },
   { k: 'ride',   n: '骑行',        type: 'cardio' },
   { k: 'body',   n: '徒手力量',    type: 'strength' },
+  { k: 'bar',    n: '健身棒',      type: 'strength' },
+  { k: 'pushup', n: '每天俯卧撑',  type: 'daily' },
   { k: 'dumb',   n: '哑铃',        type: 'strength' },
   { k: 'band',   n: '弹力带',      type: 'strength' },
   { k: 'yoga',   n: '瑜伽垫',      type: 'soft' }
@@ -230,7 +237,7 @@ function sanitizeUI(u) {
   if (typeof u.trendRange === 'number' && [0, 7, 30, 90].includes(u.trendRange)) d.trendRange = u.trendRange;
   if (Array.isArray(u.weekPlan)) d.weekPlan = WEEK_PLAN_DEFAULT.map((def, i) => (typeof u.weekPlan[i] === 'string' && u.weekPlan[i].trim()) ? u.weekPlan[i].trim().slice(0, 20) : def);
   if (typeof u.theme === 'string' && ['classic', 'warm', 'mint', 'ocean', 'dark'].includes(u.theme)) d.theme = u.theme;
-  if (Array.isArray(u.equip)) d.equip = u.equip.filter(x => typeof x === 'string' && EQUIP_LIST.some(e => e.k === x)).slice(0, 12);
+  if (Array.isArray(u.equip)) d.equip = u.equip.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim().slice(0, 14)).filter(function (v, i, a) { return a.indexOf(v) === i; }).slice(0, 18);
   return d;
 }
 
@@ -1834,9 +1841,10 @@ let expandedMonths = {};
 let historyMonthSeeded = false;
 let monthView = {}; /* V31: 每月视图 'list' | 'cal'，默认列表 */
 let planEditDow = -1; /* 正在改周几的运动（0=周一…6=周日） */
+let equipAddMode = false; /* plan-sheet 正在添加自定义器械（V37） */
 
 const WEEK_PLAN_DEFAULT = ['快走 40 分钟', '休息', '力量训练 30 分钟', '休息', '有氧运动 40 分钟', '拉伸散步', '休息'];
-const PLAN_PRESETS = ['快走 40 分钟', '慢跑 30 分钟', '力量训练 30 分钟', '有氧运动 40 分钟', '瑜伽 20 分钟', '拉伸散步', '休息'];
+const PLAN_PRESETS = ['俯卧撑 30 个', '仰卧起坐 30 个', '健身棒练胸 3 组', '快走 40 分钟', '慢跑 30 分钟', '力量训练 30 分钟', '有氧运动 40 分钟', '瑜伽 20 分钟', '拉伸散步', '休息'];
 
 function applyTheme() {
   const t = state.ui && state.ui.theme;
@@ -1848,9 +1856,16 @@ function applyTheme() {
 function generateWeekPlan() {
   const eq = (state.ui && state.ui.equip) || [];
   const has = k => eq.indexOf(k) > -1;
-  let strength = has('dumb') ? '哑铃力量 30 分钟'
-    : has('band') ? '弹力带力量 30 分钟'
-    : has('body') ? '徒手力量 30 分钟' : null;
+  /* 自定义条目（不在固定清单里的）直接当作力量动作候选，写什么用什么 */
+  const customs = eq.filter(k => !EQUIP_LIST.some(e => e.k === k));
+  const sPool = [];
+  if (has('dumb')) sPool.push('哑铃力量 30 分钟');
+  if (has('band')) sPool.push('弹力带力量 30 分钟');
+  if (has('bar')) sPool.push('健身棒练胸 3 组×15 个');
+  if (has('body')) sPool.push('徒手力量 30 分钟');
+  customs.forEach(c => sPool.push(/[个组分钟]$/.test(c) ? c : c + ' 训练'));
+  let strength = sPool.length ? sPool[0] : null;
+  const daily = has('pushup') ? '俯卧撑 30 个' : null; /* 每天都做的动作，全周附加 */
   const cardios = [];
   if (has('tread')) cardios.push('跑步机快走 40 分钟');
   if (has('walk')) cardios.push('快走 40 分钟');
@@ -1860,17 +1875,20 @@ function generateWeekPlan() {
   if (has('ride')) cardios.push('骑行 40 分钟');
   if (!cardios.length) cardios.push('快走 40 分钟');
   const soft = has('yoga') ? '瑜伽/垫上拉伸 20 分钟' : '拉伸散步';
-  if (!strength) strength = has('body') ? '徒手力量 30 分钟' : null;
+  const withDaily = txt => {
+    if (!daily) return txt;
+    return txt === '休息' ? '休息 · ' + daily : txt + ' + ' + daily;
+  };
   /* 模板：1力量 2休 3有氧 4休/拉伸 5力量 6有氧 7休 */
   const c0 = cardios[0], c1 = cardios[1] || cardios[0];
   return [
-    strength || c0,
-    soft,
-    c0,
-    strength ? soft : c1,
-    strength || c1,
-    strength ? c1 : (has('yoga') ? soft : c0),
-    '休息'
+    withDaily(strength || c0),
+    withDaily(soft),
+    withDaily(c0),
+    withDaily(strength ? soft : c1),
+    withDaily(strength || c1),
+    withDaily(strength ? c1 : (has('yoga') ? soft : c0)),
+    withDaily('休息')
   ];
 }
 
@@ -1936,7 +1954,18 @@ function weekPlanHTML() {
 
 function renderPlanSheet() {
   const body = document.getElementById('plan-body');
-  if (!body || planEditDow < 0) return;
+  if (!body) return;
+  if (equipAddMode) {
+    /* 添加自定义器械/运动（V37） */
+    document.getElementById('plan-sheet-title').textContent = '添加自定义器械 / 运动';
+    body.innerHTML =
+      '<p class="set-lab">写上它的名字（14 字内）</p>' +
+      '<div class="custom-row"><input class="text-input" id="equip-input" maxlength="14" placeholder="如：健身棒 / 健身环 / 跳绳垫">' +
+      '<button class="btn" data-action="equip-save">保存</button></div>' +
+      '<p class="set-tip">保存后回到设置页勾上它，周计划就会用它排 · 例：健身棒 → 力量日变「健身棒练胸」</p>';
+    return;
+  }
+  if (planEditDow < 0) return;
   const plan = weekPlanArr();
   document.getElementById('plan-sheet-title').textContent = ['周一','周二','周三','周四','周五','周六','周日'][planEditDow] + '做什么？';
   body.innerHTML =
@@ -1948,6 +1977,9 @@ function renderPlanSheet() {
         '<span class="set-line-txt"><b>' + p + '</b></span>' +
       '</button>'
     ).join('') +
+    '<p class="set-lab">或者自己写一个</p>' +
+    '<div class="custom-row"><input class="text-input" id="plan-custom-input" maxlength="20" placeholder="如：健身棒练胸 3 组×15 个">' +
+    '<button class="btn" data-action="plan-pick-custom">保存</button></div>' +
     '<p class="set-tip">建议：力量和有氧隔天轮换，练后第二天酸痛是正常的，休息日拉伸恢复更快</p>';
 }
 
@@ -2110,6 +2142,10 @@ function renderSettings() {
           '<button class="set-chip' + ((state.ui.equip || []).indexOf(t.k) > -1 ? ' on' : '') + '" data-action="toggle-equip" data-v="' + t.k + '">' +
           ((state.ui.equip || []).indexOf(t.k) > -1 ? '✓ ' : '') + t.n + '</button>'
         ).join('') +
+        ((state.ui.equip || []).filter(x => !EQUIP_LIST.some(e => e.k === x)).map(x =>
+          '<button class="set-chip on" data-action="toggle-equip" data-v="' + x + '">✓ ' + esc(x) + '</button>'
+        ).join('')) +
+        '<button class="set-chip equip-add" data-action="equip-add">＋ 自定义</button>' +
       '</div>' +
       '<button class="btn" data-action="regen-plan">按我的器械重排周计划</button>' +
       '<p class="set-tip">重排后仍可去统计页逐天微调 · 没勾的器械不会出现在安排里</p>' +
@@ -2451,7 +2487,38 @@ document.addEventListener('click', e => {
     else if (a === 'toggle-month') { const mk = act.dataset.mkey; expandedMonths[mk] = !expandedMonths[mk]; renderStats(); }
     else if (a === 'month-view') { const mk = act.dataset.mkey; monthView[mk] = monthView[mk] === 'cal' ? 'list' : 'cal'; if (!expandedMonths[mk]) expandedMonths[mk] = true; renderStats(); }
     else if (a === 'plan-day') { planEditDow = +act.dataset.dow; renderPlanSheet(); document.getElementById('sheet-mask').classList.add('show'); document.getElementById('plan-sheet').classList.add('show'); }
-    else if (a === 'close-plan') { document.getElementById('plan-sheet').classList.remove('show'); document.getElementById('sheet-mask').classList.remove('show'); }
+    else if (a === 'plan-pick-custom') {
+      const v = (document.getElementById('plan-custom-input') || {}).value || '';
+      if (planEditDow >= 0 && v.trim()) {
+        state.ui.weekPlan = weekPlanArr();
+        state.ui.weekPlan[planEditDow] = v.trim().slice(0, 20);
+        persist();
+        document.getElementById('plan-sheet').classList.remove('show');
+        document.getElementById('sheet-mask').classList.remove('show');
+        planEditDow = -1;
+        renderStats();
+        toast('✓ 安排已更新');
+      } else if (!v.trim()) { toast('先写点内容再保存'); }
+    }
+    else if (a === 'equip-add') {
+      equipAddMode = true;
+      renderPlanSheet();
+      document.getElementById('sheet-mask').classList.add('show');
+      document.getElementById('plan-sheet').classList.add('show');
+    }
+    else if (a === 'equip-save') {
+      const v = (document.getElementById('equip-input') || {}).value || '';
+      if (!v.trim()) { toast('先写点内容再保存'); return; }
+      state.ui.equip = state.ui.equip || [];
+      if (state.ui.equip.indexOf(v.trim()) === -1) state.ui.equip.push(v.trim().slice(0, 14));
+      persist();
+      equipAddMode = false;
+      document.getElementById('plan-sheet').classList.remove('show');
+      document.getElementById('sheet-mask').classList.remove('show');
+      renderSettings();
+      toast('✓ 已添加「' + v.trim() + '」，勾上即可参与周计划');
+    }
+    else if (a === 'close-plan') { equipAddMode = false; document.getElementById('plan-sheet').classList.remove('show'); document.getElementById('sheet-mask').classList.remove('show'); }
     else if (a === 'plan-pick') {
       if (planEditDow >= 0) {
         state.ui.weekPlan = weekPlanArr();
