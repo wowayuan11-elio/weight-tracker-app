@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V30';
+const APP_VERSION = 'V31';
 const CHANGELOG = [
+  { v: 'V31', d: '9月28日', items: [
+    '全部记录的月份头右侧新增「📅 日历」切换：点一下，这个月变成日历缩略图（彩点=两人记录），再点切回列表——明细和全月一览两种看法随便换',
+    '统计页新增「每周减脂安排」：周一到周日每天练什么一目了然（默认快走/力量/有氧轮休模板），点任何一天换成你要的运动，自动保存'
+  ]},
   { v: 'V30', d: '9月28日', items: [
     '全部记录按月折叠：默认只展开本月，历史月份收起成一行（「2026年8月 · 2 天」），点月份头展开/收起——不用再无限下滑'
   ]},
@@ -190,6 +194,7 @@ function sanitizeUI(u) {
   if (Array.isArray(u.heroOrder) && u.heroOrder.length === 2 && PERSON_IDS.includes(u.heroOrder[0]) && PERSON_IDS.includes(u.heroOrder[1]) && u.heroOrder[0] !== u.heroOrder[1]) d.heroOrder = u.heroOrder.slice();
   if (u.heroMetrics && typeof u.heroMetrics === 'object') Object.keys(d.heroMetrics).forEach(k => { if (typeof u.heroMetrics[k] === 'boolean') d.heroMetrics[k] = u.heroMetrics[k]; });
   if (typeof u.trendRange === 'number' && [0, 7, 30, 90].includes(u.trendRange)) d.trendRange = u.trendRange;
+  if (Array.isArray(u.weekPlan)) d.weekPlan = WEEK_PLAN_DEFAULT.map((def, i) => (typeof u.weekPlan[i] === 'string' && u.weekPlan[i].trim()) ? u.weekPlan[i].trim().slice(0, 20) : def);
   return d;
 }
 
@@ -1705,6 +1710,7 @@ function renderStats() {
     }
   }
 
+  html += weekPlanHTML();
   html += historyHTML();
   document.getElementById('stats-body').innerHTML = html;
 }
@@ -1712,6 +1718,78 @@ function renderStats() {
 /* 月份折叠状态（V30）：默认只展开当月，历史月收起 */
 let expandedMonths = {};
 let historyMonthSeeded = false;
+let monthView = {}; /* V31: 每月视图 'list' | 'cal'，默认列表 */
+let planEditDow = -1; /* 正在改周几的运动（0=周一…6=周日） */
+
+const WEEK_PLAN_DEFAULT = ['快走 40 分钟', '休息', '力量训练 30 分钟', '休息', '有氧运动 40 分钟', '拉伸散步', '休息'];
+const PLAN_PRESETS = ['快走 40 分钟', '慢跑 30 分钟', '力量训练 30 分钟', '有氧运动 40 分钟', '瑜伽 20 分钟', '拉伸散步', '休息'];
+
+function weekPlanArr() {
+  const p = (state.ui && state.ui.weekPlan) || [];
+  return WEEK_PLAN_DEFAULT.map((d, i) => (typeof p[i] === 'string' && p[i]) ? p[i] : d);
+}
+
+/* 迷你月历：月份折叠视图的"日历形态"（V31），复用打卡月历的格子样式 */
+function miniMonthHTML(mkey) {
+  const y = +mkey.slice(0, 4), mo = +mkey.slice(5, 7) - 1;
+  const first = new Date(y, mo, 1);
+  const startPad = first.getDay();
+  const dim = new Date(y, mo + 1, 0).getDate();
+  const tk = todayKey();
+  let cells = '';
+  for (let i = 0; i < startPad; i++) cells += '<span class="cal-cell cal-pad"></span>';
+  for (let d = 1; d <= dim; d++) {
+    const k = dateKey(new Date(y, mo, d));
+    const r = state.records[k] || {};
+    const future = k > tk;
+    const cls = 'cal-cell' + (k === tk ? ' cal-today' : '') + (future ? ' cal-future' : '');
+    const dots = (typeof r.me === 'number' ? '<i style="background:' + COLORS.me + '"></i>' : '<i></i>') +
+      (typeof r.partner === 'number' ? '<i style="background:' + COLORS.partner + '"></i>' : '<i></i>');
+    cells += '<span class="' + cls + '"><span class="cal-d">' + d + '</span><span class="cal-dots">' + dots + '</span></span>';
+  }
+  return '<div class="mini-cal">' +
+    '<div class="cal-week">' + ['日','一','二','三','四','五','六'].map(w => '<span>' + w + '</span>').join('') + '</div>' +
+    '<div class="cal-grid">' + cells + '</div>' +
+  '</div>';
+}
+
+/* 每周减脂安排卡（V31）：减脂三分练七分吃，动起来代谢才不掉 */
+function weekPlanHTML() {
+  const plan = weekPlanArr();
+  const now = new Date();
+  const todayDow = (now.getDay() + 6) % 7; /* 0=周一 */
+  const rows = plan.map((txt, i) => {
+    const rest = txt === '休息';
+    return '<button class="wp-row' + (i === todayDow ? ' today' : '') + '" data-action="plan-day" data-dow="' + i + '">' +
+      '<span class="wp-dow">' + ['周一','周二','周三','周四','周五','周六','周日'][i] + (i === todayDow ? ' · 今天' : '') + '</span>' +
+      '<span class="wp-txt' + (rest ? ' rest' : '') + '">' + esc(txt) + '</span>' +
+      '<span class="wp-edit">改</span>' +
+    '</button>';
+  }).join('');
+  return '<div class="card">' +
+    '<h3 class="card-label">每周减脂安排</h3>' +
+    '<div class="key-line">减脂 = 70% 管住嘴 + 30% 迈开腿 · 一周动 3~4 次，练一天歇一天</div>' +
+    rows +
+    '<p class="set-tip">点任意一天改安排 · 力量训练保住肌肉，减脂期比纯有氧更保代谢 · 安排自动保存</p>' +
+  '</div>';
+}
+
+function renderPlanSheet() {
+  const body = document.getElementById('plan-body');
+  if (!body || planEditDow < 0) return;
+  const plan = weekPlanArr();
+  document.getElementById('plan-sheet-title').textContent = ['周一','周二','周三','周四','周五','周六','周日'][planEditDow] + '做什么？';
+  body.innerHTML =
+    '<p class="set-lab">现在的安排</p>' +
+    '<div class="key-line">' + esc(plan[planEditDow]) + '</div>' +
+    '<p class="set-lab">换成</p>' +
+    PLAN_PRESETS.map(p =>
+      '<button class="set-line' + (plan[planEditDow] === p ? ' on' : '') + '" data-action="plan-pick" data-v="' + p + '">' +
+        '<span class="set-line-txt"><b>' + p + '</b></span>' +
+      '</button>'
+    ).join('') +
+    '<p class="set-tip">建议：力量和有氧隔天轮换，练后第二天酸痛是正常的，休息日拉伸恢复更快</p>';
+}
 
 function historyHTML() {
   const keys = sortedKeys().reverse();
@@ -1732,17 +1810,25 @@ function historyHTML() {
     historyMonthSeeded = true;
   }
   let html = '<div class="card list-card"><h3 class="card-label" style="padding:12px 0 4px">全部记录 · 点按可修改</h3>' +
-    '<p class="sub" style="padding:0 0 6px">点月份头展开 / 收起 · 每行是一天的体重，行内小箭头 = 和上一次记录比（↓瘦 ↑胖）</p>';
+    '<p class="sub" style="padding:0 0 6px">点月份头展开/收起 · 右侧 📅 可切换成日历缩略图 · 每行小箭头 = 和上一次记录比（↓瘦 ↑胖）</p>';
   months.forEach(m => {
     const open = !!expandedMonths[m.key];
+    const isCal = monthView[m.key] === 'cal';
     const mLabel = m.label + (m.key === tk.slice(0, 7) ? '（本月）' : '');
-    html += '<button class="m-toggle" data-action="toggle-month" data-mkey="' + m.key + '">' +
+    /* V31：月份头 = 折叠开关 + 右侧视图切换（列表/日历），div 嵌套避免 button 套 button */
+    html += '<div class="m-toggle' + (open ? ' open' : '') + '" data-action="toggle-month" data-mkey="' + m.key + '">' +
       '<span class="m-arrow">' + (open ? '▾' : '▸') + '</span>' +
       '<b>' + mLabel + '</b>' +
+      '<button class="m-viewbtn' + (isCal ? ' on' : '') + '" data-action="month-view" data-mkey="' + m.key + '">' +
+        (isCal ? '列表' : '📅 日历') +
+      '</button>' +
       '<span class="m-days">' + m.days.length + ' 天</span>' +
-    '</button>';
-    if (open) {
-      html += '<div class="m-body">';
+    '</div>';
+    if (!open) return; /* forEach 回调里用 return 跳过 */
+    html += '<div class="m-body">';
+    if (isCal) {
+      html += miniMonthHTML(m.key);
+    } else {
       m.days.forEach(k => {
         const r = state.records[k], d = parseKey(k);
         const vals = PERSON_IDS.map(p => {
@@ -1758,8 +1844,8 @@ function historyHTML() {
           '</button>' +
         '</div>';
       });
-      html += '</div>';
     }
+    html += '</div>';
   });
   html += '</div>';
   return html;
@@ -2160,6 +2246,22 @@ document.addEventListener('click', e => {
     else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } selectedCalDay = null; renderTrend(); }
     else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } selectedCalDay = null; renderTrend(); }
     else if (a === 'toggle-month') { const mk = act.dataset.mkey; expandedMonths[mk] = !expandedMonths[mk]; renderStats(); }
+    else if (a === 'month-view') { const mk = act.dataset.mkey; monthView[mk] = monthView[mk] === 'cal' ? 'list' : 'cal'; if (!expandedMonths[mk]) expandedMonths[mk] = true; renderStats(); }
+    else if (a === 'plan-day') { planEditDow = +act.dataset.dow; renderPlanSheet(); document.getElementById('sheet-mask').classList.add('show'); document.getElementById('plan-sheet').classList.add('show'); }
+    else if (a === 'close-plan') { document.getElementById('plan-sheet').classList.remove('show'); document.getElementById('sheet-mask').classList.remove('show'); }
+    else if (a === 'plan-pick') {
+      if (planEditDow >= 0) {
+        state.ui.weekPlan = weekPlanArr();
+        state.ui.weekPlan[planEditDow] = act.dataset.v;
+        persist();
+        document.getElementById('plan-sheet').classList.remove('show');
+        document.getElementById('sheet-mask').classList.remove('show');
+        planEditDow = -1;
+        renderStats();
+        toast('✓ 安排已更新');
+      }
+    }
+    else if (a === 'close-sheets') { closeSettings(); closeDateSheet(); closeHeroSet(); document.getElementById('plan-sheet').classList.remove('show'); }
     else if (a === 'toggle-extra') { extraOpen = !extraOpen; renderRecord(); }
     else if (a === 'goto-extra') {
       /* 卡片空格子的「＋」：直达记录页展开体成分填写区并滚到位 */
