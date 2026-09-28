@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V33';
+const APP_VERSION = 'V34';
 const CHANGELOG = [
+  { v: 'V34', d: '9月29日', items: [
+    '紧急修复：重开 App 显示空数据（记录其实都在手机里没丢）——器械功能的一个定义顺序错误导致数据读取中断，已修正，重开即恢复全部记录'
+  ]},
   { v: 'V33', d: '9月29日', items: [
     '「＋」格文字重叠修好了：紧凑卡片里只显示「＋ 填体脂率」短文案，大卡模式才显示完整说明——再也不会挤成一团乱码',
     '日历缩略图里直接带每天体重数字（蓝字=你的、橙字=Tina），一眼看完一整月，不用再点进去看'
@@ -193,6 +196,21 @@ function bmiOf(p, weightKg) {
   if (!h || typeof weightKg !== 'number') return null;
   return weightKg / (h / 100 * h / 100);
 }
+
+/* 我的运动与器械（V32）：勾完自动重排周计划 */
+const EQUIP_LIST = [
+  { k: 'walk',   n: '快走/散步',   type: 'cardio' },
+  { k: 'run',    n: '慢跑',        type: 'cardio' },
+  { k: 'jump',   n: '跳绳',        type: 'cardio' },
+  { k: 'tread',  n: '跑步机',      type: 'cardio' },
+  { k: 'swim',   n: '游泳',        type: 'cardio' },
+  { k: 'ride',   n: '骑行',        type: 'cardio' },
+  { k: 'body',   n: '徒手力量',    type: 'strength' },
+  { k: 'dumb',   n: '哑铃',        type: 'strength' },
+  { k: 'band',   n: '弹力带',      type: 'strength' },
+  { k: 'yoga',   n: '瑜伽垫',      type: 'soft' }
+];
+
 
 /* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
 function sanitizeUI(u) {
@@ -1733,20 +1751,6 @@ let planEditDow = -1; /* 正在改周几的运动（0=周一…6=周日） */
 
 const WEEK_PLAN_DEFAULT = ['快走 40 分钟', '休息', '力量训练 30 分钟', '休息', '有氧运动 40 分钟', '拉伸散步', '休息'];
 const PLAN_PRESETS = ['快走 40 分钟', '慢跑 30 分钟', '力量训练 30 分钟', '有氧运动 40 分钟', '瑜伽 20 分钟', '拉伸散步', '休息'];
-
-/* 我的运动与器械（V32）：勾完自动重排周计划 */
-const EQUIP_LIST = [
-  { k: 'walk',   n: '快走/散步',   type: 'cardio' },
-  { k: 'run',    n: '慢跑',        type: 'cardio' },
-  { k: 'jump',   n: '跳绳',        type: 'cardio' },
-  { k: 'tread',  n: '跑步机',      type: 'cardio' },
-  { k: 'swim',   n: '游泳',        type: 'cardio' },
-  { k: 'ride',   n: '骑行',        type: 'cardio' },
-  { k: 'body',   n: '徒手力量',    type: 'strength' },
-  { k: 'dumb',   n: '哑铃',        type: 'strength' },
-  { k: 'band',   n: '弹力带',      type: 'strength' },
-  { k: 'yoga',   n: '瑜伽垫',      type: 'soft' }
-];
 
 function applyTheme() {
   const t = state.ui && state.ui.theme;
