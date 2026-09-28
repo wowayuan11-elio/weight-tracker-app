@@ -134,6 +134,18 @@ main{ flex:1; min-height:0; position:relative; }
 }
 .note-input:focus{ box-shadow:0 0 0 2px var(--tint); }
 .h-note{ font-size:12px; color:var(--text2); padding-top:5px; line-height:1.5; }
+/* 月份折叠（V30） */
+.m-toggle{
+  width:100%; display:flex; align-items:center; gap:8px;
+  border:0; background:var(--bg); border-radius:12px;
+  padding:11px 14px; margin-top:8px; text-align:left;
+}
+.m-toggle:active{ transform:scale(.99); }
+.m-toggle b{ font-size:14.5px; color:var(--text); letter-spacing:-.01em; }
+.m-arrow{ font-size:12px; color:var(--text3); width:14px; flex:none; }
+.m-days{ margin-left:auto; font-size:12px; color:var(--text3); font-variant-numeric:tabular-nums; }
+.m-body{ padding-top:4px; }
+.list-card .h-row:first-of-type{ border-top:0; }
 
 /* 打卡月历 */
 .cal-head{ display:flex; align-items:center; gap:10px; }
