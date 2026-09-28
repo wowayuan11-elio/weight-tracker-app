@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V27';
+const APP_VERSION = 'V28';
 const CHANGELOG = [
+  { v: 'V28', d: '9月28日', items: [
+    '月历点日期不再跳转：点某天就地展开「当天详情」——两人体重、体脂/腰围/内脏脂肪/肌肉、备注，一看全知道；想改再点「修改这天的记录」',
+    '翻月按钮修好了（之前被「记了28/28天」挤没了）：现在左右箭头常驻，任何年份任何月份随便翻'
+  ]},
   { v: 'V27', d: '9月28日', items: [
     '保存终于有感觉了：点保存 → 按钮立刻变绿色「✓ 已保存」1.6 秒后恢复；底部同时弹出加粗的确认提示「✓ 今天已保存，数据记上了」——双保险，不成功不吭声',
     '所有提示气泡加大加粗加深影，一眼能看见'
@@ -1249,6 +1253,8 @@ function attachScrub(wrap, chart) {
 /* ================= 打卡月历（趋势页顶部） =================
    借鉴 Happy Scale / 薄荷健康：整月一览，缺哪天一目了然，点任何一天直接去补录 */
 let calYM = null;
+let selectedCalDay = null; /* 月历点选查看的那天（V28：就地查看，不再跳转） */
+
 function calendarHTML() {
   const now = parseKey(todayKey());
   if (!calYM) calYM = { y: now.getFullYear(), m: now.getMonth() };
@@ -1262,32 +1268,56 @@ function calendarHTML() {
     if (r && (typeof r.me === 'number' || typeof r.partner === 'number')) counted++;
   }
   const monthTotal = (calYM.y === now.getFullYear() && calYM.m === now.getMonth()) ? now.getDate() : dim;
-  const e = sortedKeys()[0];
-  let prevOk = true, nextOk = true;
-  if (e) { const ed = parseKey(e); prevOk = !(calYM.y === ed.getFullYear() && calYM.m === ed.getMonth()); }
-  nextOk = !(calYM.y === now.getFullYear() && calYM.m === now.getMonth());
   let cells = '';
   for (let i = 0; i < startPad; i++) cells += '<span class="cal-cell cal-pad"></span>';
   for (let d = 1; d <= dim; d++) {
     const k = dateKey(new Date(calYM.y, calYM.m, d));
     const r = state.records[k] || {};
     const future = k > tk;
-    const cls = 'cal-cell' + (k === tk ? ' cal-today' : '') + (future ? ' cal-future' : '');
+    const cls = 'cal-cell' + (k === tk ? ' cal-today' : '') + (k === selectedCalDay ? ' cal-sel' : '') + (future ? ' cal-future' : '');
     const dots = (typeof r.me === 'number' ? '<i style="background:' + COLORS.me + '"></i>' : '<i></i>') +
       (typeof r.partner === 'number' ? '<i style="background:' + COLORS.partner + '"></i>' : '<i></i>');
     cells += '<button class="' + cls + '" data-cal="' + k + '"' + (future ? ' disabled' : '') + '>' +
       '<span class="cal-d">' + d + '</span><span class="cal-dots">' + dots + '</span></button>';
   }
+  /* 选中日的就地详情（V28）：点日期 = 查看那天记了什么，想改再点「修改」 */
+  let detailHTML = '';
+  if (selectedCalDay && selectedCalDay.slice(0, 7) === calYM.y + '-' + String(calYM.m + 1).padStart(2, '0')) {
+    const r = state.records[selectedCalDay] || {};
+    const dD = parseKey(selectedCalDay);
+    const rows = [];
+    PERSON_IDS.forEach(p => {
+      const hasW = typeof r[p] === 'number';
+      const extras = [];
+      [['waist', '腰围', 'cm', 1], ['bf', '体脂', '%', 1], ['vf', '内脏脂肪', '级', 0], ['mm', '肌肉', 'kg', 1]].forEach(x => {
+        if (typeof r[p + '_' + x[0]] === 'number') extras.push(x[1] + ' ' + r[p + '_' + x[0]].toFixed(x[3]) + x[2]);
+      });
+      rows.push('<div class="cdd-person">' +
+        '<span class="cdd-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+        (hasW ? '<b>' + r[p].toFixed(1) + '<small> kg</small></b>' : '<span class="s-dim">没记体重</span>') +
+        (extras.length ? '<span class="cdd-extras">' + extras.join(' · ') + '</span>' : '') +
+      '</div>');
+    });
+    detailHTML = '<div class="cal-detail">' +
+      '<div class="cdd-head"><b>' + (dD.getMonth() + 1) + '月' + dD.getDate() + '日 · ' + WEEK_LABELS[dD.getDay()] + '</b>' +
+        '<button class="cdd-close" data-action="cal-close" aria-label="收起">✕</button></div>' +
+      rows.join('') +
+      (r.note ? '<p class="cdd-note">备注：' + esc(r.note) + '</p>' : '') +
+      (!Object.keys(r).length ? '<p class="s-dim" style="margin:4px 0 0">这天什么都没记</p>' : '') +
+      '<button class="btn ghost cdd-edit" data-action="edit-cal-day">修改这天的记录</button>' +
+    '</div>';
+  }
   return '<div class="card">' +
     '<div class="cal-head">' +
-      '<button class="cal-nav" data-action="cal-prev"' + (prevOk ? '' : ' disabled') + ' aria-label="上个月">‹</button>' +
-      '<b>' + calYM.y + ' 年 ' + (calYM.m + 1) + ' 月</b>' +
-      '<span class="cal-count">记了 ' + counted + '/' + monthTotal + ' 天</span>' +
-      '<button class="cal-nav" data-action="cal-next"' + (nextOk ? '' : ' disabled') + ' aria-label="下个月">›</button>' +
+      '<button class="cal-nav" data-action="cal-prev" aria-label="上个月">‹</button>' +
+      '<div class="cal-title"><b>' + calYM.y + ' 年 ' + (calYM.m + 1) + ' 月</b>' +
+      '<span class="cal-count">记了 ' + counted + '/' + monthTotal + ' 天</span></div>' +
+      '<button class="cal-nav" data-action="cal-next" aria-label="下个月">›</button>' +
     '</div>' +
     '<div class="cal-week">' + ['日','一','二','三','四','五','六'].map(w => '<span>' + w + '</span>').join('') + '</div>' +
     '<div class="cal-grid">' + cells + '</div>' +
-    '<p class="cal-legend">彩点 = 记了体重（<span style="color:' + COLORS.me + '">●</span> ' + esc(state.names.me) + ' / <span style="color:' + COLORS.partner + '">●</span> ' + esc(state.names.partner) + '）· 灰点 = 忘了 · 点任何一天去补录</p>' +
+    detailHTML +
+    '<p class="cal-legend">彩点 = 记了体重（<span style="color:' + COLORS.me + '">●</span> ' + esc(state.names.me) + ' / <span style="color:' + COLORS.partner + '">●</span> ' + esc(state.names.partner) + '）· 点任何一天查看当天数据</p>' +
   '</div>';
 }
 
@@ -2049,13 +2079,11 @@ document.addEventListener('click', e => {
     return;
   }
 
-  /* 月历：点某天 → 跳到记录页那天（补录/修改） */
+  /* 月历：点某天 → 就地展开/收起当天详情（V28：不跳转，先看后改） */
   const calCell = e.target.closest('[data-cal]');
   if (calCell && !calCell.disabled) {
-    currentDate = calCell.dataset.cal;
-    resetDrafts();
-    switchTab('record');
-    renderAll();
+    selectedCalDay = selectedCalDay === calCell.dataset.cal ? null : calCell.dataset.cal;
+    renderTrend();
     return;
   }
 
@@ -2085,8 +2113,12 @@ document.addEventListener('click', e => {
     else if (a === 'close-sheets') { closeSettings(); closeDateSheet(); closeHeroSet(); }
     else if (a === 'ds-prev') { dsYM.m--; if (dsYM.m < 0) { dsYM.m = 11; dsYM.y--; } renderDateSheet(); }
     else if (a === 'ds-next') { dsYM.m++; if (dsYM.m > 11) { dsYM.m = 0; dsYM.y++; } renderDateSheet(); }
-    else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } renderTrend(); }
-    else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } renderTrend(); }
+    else if (a === 'cal-close') { selectedCalDay = null; renderTrend(); }
+    else if (a === 'edit-cal-day') {
+      if (selectedCalDay) { currentDate = selectedCalDay; resetDrafts(); switchTab('record'); renderAll(); }
+    }
+    else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } selectedCalDay = null; renderTrend(); }
+    else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } selectedCalDay = null; renderTrend(); }
     else if (a === 'toggle-extra') { extraOpen = !extraOpen; renderRecord(); }
     else if (a === 'goto-extra') {
       /* 卡片空格子的「＋」：直达记录页展开体成分填写区并滚到位 */
