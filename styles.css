@@ -18,6 +18,34 @@
   --up:#ff3b30;
   --tint:#007aff;
   --shadow:0 1px 2px rgba(23,23,40,.04), 0 6px 20px rgba(23,23,40,.05);
+  --tint-rgb:0,122,255;
+}
+
+/* ===== 主题系统（V32）：5 套配色，body[data-theme] 切换 ===== */
+body[data-theme="warm"]{
+  --bg:#f7f1e8; --card:#fffdf9; --text:#3d2f23; --text2:#7a6a58; --text3:#9c8b76;
+  --sep:rgba(120,90,60,.16); --chipbg:rgba(150,110,70,.10);
+  --tint:#d97a2b; --tint-rgb:217,122,43;
+  --shadow:0 1px 2px rgba(120,80,40,.06), 0 6px 20px rgba(120,80,40,.07);
+}
+body[data-theme="mint"]{
+  --bg:#edf5ef; --card:#ffffff; --text:#1c2b22; --text2:#5c7264; --text3:#83988b;
+  --sep:rgba(40,90,60,.14); --chipbg:rgba(40,120,80,.10);
+  --tint:#1e9e6a; --tint-rgb:30,158,106;
+  --shadow:0 1px 2px rgba(30,90,60,.05), 0 6px 20px rgba(30,90,60,.06);
+}
+body[data-theme="ocean"]{
+  --bg:#ecf1f8; --card:#ffffff; --text:#182636; --text2:#5a6b80; --text3:#8494a8;
+  --sep:rgba(40,70,110,.14); --chipbg:rgba(50,90,140,.10);
+  --tint:#2d6cdf; --tint-rgb:45,108,223;
+  --shadow:0 1px 2px rgba(30,60,110,.06), 0 6px 20px rgba(30,60,110,.07);
+}
+body[data-theme="dark"]{
+  --bg:#111114; --card:#1c1c22; --segbg:#1c1c22; --text:#f2f2f7; --text2:#a8a8b0; --text3:#77777f;
+  --sep:rgba(255,255,255,.12); --chipbg:rgba(255,255,255,.09);
+  --bar:rgba(20,20,24,.88);
+  --tint:#0a84ff; --tint-rgb:10,132,255;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.35);
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -122,7 +150,7 @@ main{ flex:1; min-height:0; position:relative; }
 .makeup-bar{
   display:flex; align-items:center; justify-content:space-between; gap:10px;
   margin-top:16px; padding:12px 16px;
-  background:rgba(0,122,255,.10); border-radius:14px; font-size:13px; color:var(--text);
+  background:rgba(var(--tint-rgb),.10); border-radius:14px; font-size:13px; color:var(--text);
   line-height:1.5;
 }
 .makeup-bar .linklike{ font-weight:600; padding:4px 2px; flex:none; }
@@ -156,13 +184,30 @@ main{ flex:1; min-height:0; position:relative; }
   width:100%; display:flex; align-items:center; gap:10px;
   border:0; background:var(--bg); border-radius:12px; padding:11px 14px; margin-top:8px; text-align:left;
 }
-.wp-row.today{ background:rgba(0,122,255,.08); }
+.wp-row.today{ background:rgba(var(--tint-rgb),.08); }
 .wp-row:active{ transform:scale(.99); }
 .wp-dow{ font-size:13px; font-weight:650; color:var(--text); width:64px; flex:none; }
 .wp-row.today .wp-dow::after{ content:''; }
 .wp-txt{ flex:1; font-size:13.5px; color:var(--text); min-width:0; }
 .wp-txt.rest{ color:var(--text3); }
 .wp-edit{ font-size:11.5px; color:var(--tint); font-weight:600; flex:none; }
+/* 主题色块（V32） */
+.theme-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.theme-swatch{
+  flex:1; min-width:60px; border:2px solid transparent; background:var(--bg);
+  border-radius:14px; padding:10px 6px 8px; text-align:center;
+  font-size:12px; font-weight:600; color:var(--text2);
+}
+.theme-swatch.on{ border-color:var(--tint); color:var(--tint); }
+.theme-swatch .sw-dot{ display:block; width:22px; height:22px; border-radius:50%; margin:0 auto 5px; box-shadow:inset 0 0 0 2px rgba(255,255,255,.5); }
+/* 装备勾选（V32） */
+.set-chip{
+  border:0; background:var(--bg); border-radius:999px; padding:9px 16px;
+  font-size:13px; font-weight:600; color:var(--text2);
+}
+.equip-grid{ display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+.equip-grid .set-chip{ background:var(--bg); color:var(--text2); }
+.equip-grid .set-chip.on{ background:rgba(var(--tint-rgb),.12); color:var(--tint); }
 .m-body{ padding-top:4px; }
 .list-card .h-row:first-of-type{ border-top:0; }
 
@@ -223,7 +268,7 @@ main{ flex:1; min-height:0; position:relative; }
 .date-chip svg{ width:15px; height:15px; color:var(--tint); flex:none; }
 .chip-today{
   font-size:11px; font-weight:700; color:var(--tint);
-  background:rgba(0,122,255,.12); padding:2px 8px; border-radius:999px; margin-left:2px;
+  background:rgba(var(--tint-rgb),.12); padding:2px 8px; border-radius:999px; margin-left:2px;
 }
 /* 日期 sheet 里的月历：格子更大更好点 */
 .ds-grid{ margin-top:6px; }
@@ -272,7 +317,7 @@ main{ flex:1; min-height:0; position:relative; }
 .hero-top .hero-name{ flex:none; }
 .hero-date{
   margin-left:auto; font-size:10.5px; color:var(--tint); font-weight:600;
-  background:rgba(0,122,255,.10); padding:2px 8px; border-radius:999px;
+  background:rgba(var(--tint-rgb),.10); padding:2px 8px; border-radius:999px;
 }
 .hero-gear{
   border:0; background:var(--bg); width:26px; height:26px; border-radius:9px;
@@ -294,12 +339,12 @@ main{ flex:1; min-height:0; position:relative; }
 .hcell span{ display:block; font-size:10px; color:var(--text3); margin-top:2px; white-space:nowrap; }
 /* 空字段的「＋填写」格：虚线框，点了直达记录页填写区（V23） */
 .hcell-add{
-  border:1.5px dashed rgba(0,122,255,.4); background:rgba(0,122,255,.05);
+  border:1.5px dashed rgba(var(--tint-rgb),.4); background:rgba(var(--tint-rgb),.05);
   border-radius:12px; padding:9px 4px 7px; text-align:center; min-width:0;
 }
 .hcell-add b{ color:var(--tint); font-size:19px; line-height:1; }
 .hcell-add span{ color:var(--tint); opacity:.85; }
-.hcell-add:active{ background:rgba(0,122,255,.14); }
+.hcell-add:active{ background:rgba(var(--tint-rgb),.14); }
 /* 大卡模式：整行一张，数字更大更舒展 */
 .hero-stack{ flex-direction:column; }
 .hero-stack .hero-col{ padding:20px 20px 18px; }
@@ -321,7 +366,7 @@ main{ flex:1; min-height:0; position:relative; }
   display:flex; align-items:center; gap:10px; width:100%; text-align:left;
   background:var(--bg); border:0; border-radius:14px; padding:11px 14px; margin-top:8px;
 }
-.set-line.on{ background:rgba(0,122,255,.08); }
+.set-line.on{ background:rgba(var(--tint-rgb),.08); }
 .set-line:active{ transform:scale(.985); }
 .set-line-txt{ flex:1; display:flex; flex-direction:column; gap:1px; min-width:0; }
 .set-line-txt b{ font-size:14.5px; color:var(--text); font-weight:650; }
@@ -491,7 +536,7 @@ main{ flex:1; min-height:0; position:relative; }
   padding:2px 0; font-size:16px; font-weight:600; color:var(--text); outline:none;
   font-variant-numeric:tabular-nums;
 }
-.field:focus-within{ border-color:var(--tint); background:rgba(0,122,255,.04); }
+.field:focus-within{ border-color:var(--tint); background:rgba(var(--tint-rgb),.04); }
 .text-input:focus{ box-shadow:none; }
 /* 设置页按钮：不再全宽大蓝条 */
 .settings-btns{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
@@ -595,7 +640,7 @@ main{ flex:1; min-height:0; position:relative; }
 .wk-row:last-child{ border-bottom:0; }
 .wk-date{ font-size:12.5px; color:var(--text2); display:flex; flex-direction:column; gap:2px; }
 .wk-n{ font-size:13px; font-weight:650; color:var(--text); }
-.wk-now{ font-size:10.5px; font-weight:700; color:var(--tint); background:rgba(0,122,255,.12); border-radius:999px; padding:2px 8px; width:max-content; }
+.wk-now{ font-size:10.5px; font-weight:700; color:var(--tint); background:rgba(var(--tint-rgb),.12); border-radius:999px; padding:2px 8px; width:max-content; }
 .wk-val{ text-align:right; font-size:13.5px; display:flex; justify-content:flex-end; align-items:baseline; gap:6px; font-variant-numeric:tabular-nums; }
 
 /* ===== v13 月度复盘卡 ===== */
