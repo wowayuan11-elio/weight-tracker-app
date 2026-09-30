@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V37';
+const APP_VERSION = 'V38';
 const CHANGELOG = [
+  { v: 'V38', d: '9月30日', items: [
+    '备注自动保存：打字停一下或点别处就自动存，不用再点保存按钮——忘了点也不会丢文字',
+    '备注写在哪、去哪看写明白了：输入框上方标注去向（统计页全部记录 + 月历点日详情）'
+  ]},
   { v: 'V37', d: '9月29日', items: [
     '器械/运动全部可自定义：设置页新增「＋ 自定义」，你的健身棒、任何家里有的器材都能加进去参与周计划',
     '每日安排的选项也开放自定义：改成任何一天时，除了预设（已加入俯卧撑/仰卧起坐/健身棒练胸）还能自己写',
@@ -858,7 +862,7 @@ function renderRecord() {
           '<button class="linklike extra-toggle" data-action="toggle-extra">收起</button>' +
         '</div>';
       })() +
-      '<p class="sub" style="margin:12px 0 6px">备注（选填）：这天有什么想记的，一句话就行</p>' +
+      '<p class="sub" style="margin:12px 0 6px">备注（选填）：写完自动保存 · 显示在统计页「全部记录」和月历的点日详情里</p>' +
       '<input class="note-input" type="text" maxlength="60" enterkeyhint="done" placeholder="如：昨晚吃火锅 / 熬夜了 / 开始力量训练" value="' + (r && r.note ? esc(r.note) : '') + '">' +
       '<button class="btn save-btn' + (Date.now() - (window.__savedFlashAt || 0) < 1600 ? ' saved' : '') + '" data-action="save-all">' +
         (Date.now() - (window.__savedFlashAt || 0) < 1600 ? '✓ 已保存' : '保存') + '</button>' +
@@ -2593,6 +2597,28 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => {
   const inp = e.target.closest('.w-input');
   if (inp) drafts[inp.dataset.person] = inp.value;
+});
+
+/* V38 备注自动保存：打字停 0.9 秒就写库，再也不怕忘点保存 */
+let noteAutoTimer = null;
+function noteAutoSaveNow() {
+  const inp = document.querySelector('.note-input');
+  if (!inp) return;
+  const v = inp.value.trim();
+  const cur = state.records[currentDate] || {};
+  if (v === (cur.note || '')) return;
+  if (!state.records[currentDate]) state.records[currentDate] = {};
+  if (v) state.records[currentDate].note = v; else delete state.records[currentDate].note;
+  if (!Object.keys(state.records[currentDate]).length) delete state.records[currentDate];
+  if (persist()) toast('✓ 备注已自动保存');
+}
+document.addEventListener('input', e => {
+  if (!e.target.classList || !e.target.classList.contains('note-input')) return;
+  clearTimeout(noteAutoTimer);
+  noteAutoTimer = setTimeout(noteAutoSaveNow, 900);
+});
+document.addEventListener('focusout', e => {
+  if (e.target && e.target.classList && e.target.classList.contains('note-input')) noteAutoSaveNow();
 });
 
 /* ---------- 存档链接自动恢复 ---------- */
