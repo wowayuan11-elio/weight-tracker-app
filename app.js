@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V40';
+const APP_VERSION = 'V41';
 const CHANGELOG = [
+  { v: 'V41', d: '9月30日', items: [
+    '修复备注丢失的总根因：数据读取器的白名单里一直没有「备注」字段——每次重开 App 所有备注都被丢弃（从备注功能上线起就存在）。已补上，历史备注从云端恢复后也会完整保留'
+  ]},
   { v: 'V40', d: '9月30日', items: [
     '退出前一瞬间也会强制保存备注并立即上云——「写完就走」从此不丢'
   ]},
@@ -189,6 +192,8 @@ function sanitizeRecords(recs) {
         clean[f[0]] = Math.round(v * 10) / 10;
       }
     });
+    /* V41 紧急：note 一直不在白名单里——每次重载所有备注都被丢弃（TA 备注丢失的总根因） */
+    if (typeof r.note === 'string' && r.note.trim()) clean.note = r.note.trim().slice(0, 60);
     if (Object.keys(clean).length) out[k] = clean;
   });
   return out;
