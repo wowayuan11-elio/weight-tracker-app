@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V38';
+const APP_VERSION = 'V39';
 const CHANGELOG = [
+  { v: 'V39', d: '9月30日', items: [
+    '修复「备注存了半句」：点保存时拼音还没打完，现在会先等输入法上屏再存——存的永远是你看到的完整句子',
+    '修复「重开丢最后一次保存」：iPhone 杀 App 时可能弄丢刚写的数据，现在点保存立刻上云 + 每次打开自动对账（云端比手机新就弹窗让你一键找回）',
+    '备注仍自动保存（打完停一下就存）'
+  ]},
   { v: 'V38', d: '9月30日', items: [
     '备注自动保存：打字停一下或点别处就自动存，不用再点保存按钮——忘了点也不会丢文字',
     '备注写在哪、去哪看写明白了：输入框上方标注去向（统计页全部记录 + 月历点日详情）'
@@ -381,11 +386,9 @@ async function giteeBackup(reason) {
   return p.ok;
 }
 
-/* V35 自动恢复：本地空 + 云端有备份 → 启动时自动拉回，零点击
-   安全论证：仅当本地 0 条记录时触发，云端数据进来不覆盖任何本地内容（本地没东西可覆盖） */
+/* V39 启动对账：本地空 → 自动拉回；本地有但云端更新（上次没存完整就被杀）→ 确认后拉回 */
 async function autoRestore() {
   try {
-    if (sortedKeys().length > 0) return; /* 本地有数据，绝不碰 */
     if (!ghConf || !ghConf.token) return; /* 没开云备份，无从恢复 */
     let j;
     if (ghConf.provider === 'gitee') {
@@ -401,12 +404,31 @@ async function autoRestore() {
     const remote = parseBackupText(txt);
     const count = remote ? Object.keys(remote.records).length : 0;
     if (!remote || !count) return;
-    remote.ui = sanitizeUI(remote.ui);
-    state = remote;
-    persist();
-    renderAll();
-    applyTheme();
-    toast('✓ 检测到本地无数据，已自动从云端恢复 ' + count + ' 天记录');
+    const localCount = sortedKeys().length;
+    if (localCount === 0) {
+      /* 本地全空：云端进来是纯增益，直接恢复 */
+      remote.ui = sanitizeUI(remote.ui);
+      state = remote;
+      persist();
+      renderAll();
+      applyTheme();
+      toast('✓ 检测到本地无数据，已自动从云端恢复 ' + count + ' 天记录');
+      return;
+    }
+    /* 本地有数据：比对云端是否更新（iOS 杀进程丢最后写入的场景） */
+    const lastPush = Number(localStorage.getItem(GH_SYNC_KEY) || 0);
+    const cloudAt = remote.exportedAt ? new Date(remote.exportedAt).getTime() : 0;
+    if (cloudAt > lastPush + 15000 && cloudAt > Date.now() - 7 * 86400000) {
+      askConfirm('检测到云端备份比手机上的数据新（上次可能没保存完整）。\n\n用云端数据覆盖手机上的吗？云端共 ' + count + ' 天。').then(ok => {
+        if (!ok) return;
+        remote.ui = sanitizeUI(remote.ui);
+        state = remote;
+        persist();
+        renderAll();
+        applyTheme();
+        toast('✓ 已同步云端最新数据 ' + count + ' 天');
+      });
+    }
   } catch (e) { /* 静默：网络不好下次重开再试 */ }
 }
 
@@ -1115,6 +1137,10 @@ function saveAll() {
 
   /* 备注：跟当天记录一起存，只改备注也允许保存 */
   const noteInput = document.querySelector('.note-input');
+  if (noteInput && document.activeElement === noteInput) {
+    /* 点保存时若光标还在备注框：先失焦，强制拼音输入法把没上屏的字提交完，否则会存到半句（V39） */
+    try { noteInput.blur(); } catch (e) {}
+  }
   const noteRaw = noteInput ? noteInput.value.trim() : '';
   const noteChanged = noteRaw !== ((state.records[currentDate] || {}).note || '');
 
@@ -1142,6 +1168,8 @@ function saveAll() {
   const cur = state.records[currentDate];
   if (cur && !Object.keys(cur).length) delete state.records[currentDate];
   if (!persist()) return;
+  clearTimeout(ghTimer);
+  cloudBackup('save'); /* 手动保存立即推云（V39）：不等 3 秒防抖，缩小 iOS 杀进程丢写的窗口 */
   toast('✓ ' + (currentDate === todayKey() ? '今晨' : fmtMD(currentDate)) + ' 已保存，数据记上了');
   renderAll();
 }
@@ -2612,8 +2640,20 @@ function noteAutoSaveNow() {
   if (!Object.keys(state.records[currentDate]).length) delete state.records[currentDate];
   if (persist()) toast('✓ 备注已自动保存');
 }
+let noteComposing = false;
+document.addEventListener('compositionstart', e => {
+  if (e.target.classList && e.target.classList.contains('note-input')) noteComposing = true;
+});
+document.addEventListener('compositionend', e => {
+  if (e.target.classList && e.target.classList.contains('note-input')) {
+    noteComposing = false;
+    clearTimeout(noteAutoTimer);
+    noteAutoTimer = setTimeout(noteAutoSaveNow, 120);
+  }
+});
 document.addEventListener('input', e => {
   if (!e.target.classList || !e.target.classList.contains('note-input')) return;
+  if (noteComposing) return; /* 拼音组合中不取值，等上屏再存，否则存到半句 */
   clearTimeout(noteAutoTimer);
   noteAutoTimer = setTimeout(noteAutoSaveNow, 900);
 });
@@ -2679,5 +2719,6 @@ function renderAll() {
   }
 }
 applyTheme();
+if (navigator.storage && navigator.storage.persist) { try { navigator.storage.persist(); } catch (e) {} } /* V39：请求持久化存储，降低 iOS 清写概率 */
 renderAll();
 autoRestore();
