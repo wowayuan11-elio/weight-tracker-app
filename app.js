@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V39';
+const APP_VERSION = 'V40';
 const CHANGELOG = [
+  { v: 'V40', d: '9月30日', items: [
+    '退出前一瞬间也会强制保存备注并立即上云——「写完就走」从此不丢'
+  ]},
   { v: 'V39', d: '9月30日', items: [
     '修复「备注存了半句」：点保存时拼音还没打完，现在会先等输入法上屏再存——存的永远是你看到的完整句子',
     '修复「重开丢最后一次保存」：iPhone 杀 App 时可能弄丢刚写的数据，现在点保存立刻上云 + 每次打开自动对账（云端比手机新就弹窗让你一键找回）',
@@ -2638,8 +2641,14 @@ function noteAutoSaveNow() {
   if (!state.records[currentDate]) state.records[currentDate] = {};
   if (v) state.records[currentDate].note = v; else delete state.records[currentDate].note;
   if (!Object.keys(state.records[currentDate]).length) delete state.records[currentDate];
-  if (persist()) toast('✓ 备注已自动保存');
+  if (persist()) { clearTimeout(ghTimer); cloudBackup('note'); toast('✓ 备注已自动保存'); }
 }
+
+/* V40：切后台/退出前一瞬间强制保存备注并立即上云——写完就走也不丢 */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') { try { noteAutoSaveNow(); } catch (e) {} }
+});
+window.addEventListener('pagehide', () => { try { noteAutoSaveNow(); } catch (e) {} });
 let noteComposing = false;
 document.addEventListener('compositionstart', e => {
   if (e.target.classList && e.target.classList.contains('note-input')) noteComposing = true;
