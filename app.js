@@ -16,9 +16,14 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V52';
+const APP_VERSION = 'V53';
 const CHANGELOG = [
-  { v: 'V52', d: '10月1日', items: [
+  { v: 'V53', d: '10月2日', items: [
+    '双人合并同步上线：她的手机装同一个 App（Safari 打开 → 分享 → 添加到主屏幕，像真 App 一样），各记各的，数据自动在云端合并——你打开自己 App 就能看到她的最新记录',
+    '控制权设计：云端仓库和钥匙都在你的 GitHub 账号里，给她的是你另发的一把钥匙，随时可以作废重发',
+    '云端同步从「覆盖」改为「合并」：只把云端有而手机没有的记录并进来，永不覆盖你手机上的任何数据——丢数据风险进一步下降'
+  ]},
+  { v: 'V42', d: '10月1日', items: [
     '一次上线 10 套全新设计语言（共 16 套可选）：樱粉/抹茶/赤陶/极光/冰川/摩卡/石墨/丁香/翡翠/报刊——每套都是完整设计语言，不是简单换色',
     '系统体检：16 套风格全量截图审查 + 数据保存→重载→还在 完整回归，全部通过'
   ]},
@@ -301,6 +306,37 @@ function persist() {
   catch (e) { toast('保存失败：浏览器存储不可用'); return false; }
 }
 
+/* ================= V53 双人合并同步 =================
+   原则：合并只补不删——云端有而本地没有的记录并进来，本地已有的任何字段绝不覆盖。
+   这样两台手机各记各的，云端自动汇成完整双人账本；同时天然兼做丢数据找回。 */
+function mergeRemoteIntoState(remote) {
+  if (!remote || !remote.records || typeof remote.records !== 'object') return 0;
+  const clean = sanitizeRecords(remote.records); /* 白名单过滤，脏数据进不来 */
+  const recs = state.records = state.records || {};
+  let added = 0;
+  Object.keys(clean).forEach(k => {
+    const r = clean[k], cur = recs[k];
+    if (!cur) { recs[k] = r; added++; return; }
+    PERSON_IDS.forEach(p => { if (typeof r[p] === 'number' && typeof cur[p] !== 'number') { cur[p] = r[p]; added++; } });
+    ['_waist','_bf','_vf','_mm','_bmr'].forEach(s => {
+      PERSON_IDS.forEach(p => {
+        const f = p + s;
+        if (typeof r[f] === 'number' && typeof cur[f] !== 'number') { cur[f] = r[f]; added++; }
+      });
+    });
+    if (typeof r.note === 'string' && r.note.trim() && !cur.note) { cur.note = r.note.trim(); added++; }
+  });
+  if (remote.goals && typeof remote.goals === 'object') {
+    state.goals = state.goals || {};
+    PERSON_IDS.forEach(p => { if (typeof remote.goals[p] === 'number' && typeof state.goals[p] !== 'number') state.goals[p] = remote.goals[p]; });
+  }
+  if (remote.heights && typeof remote.heights === 'object') {
+    state.heights = state.heights || {};
+    PERSON_IDS.forEach(p => { if (typeof remote.heights[p] === 'number' && typeof state.heights[p] !== 'number') state.heights[p] = remote.heights[p]; });
+  }
+  return added;
+}
+
 /* ================= GitHub 自动云备份 ================= */
 function loadGhConf() {
   try { const c = JSON.parse(localStorage.getItem(GH_KEY)); return (c && c.token) ? c : null; }
@@ -343,7 +379,15 @@ async function cloudBackup(reason) {
     const g = await fetch(ghBase(), {
       headers: { Authorization: 'Bearer ' + ghConf.token, Accept: 'application/vnd.github+json' }
     });
-    if (g.status === 200) { sha = (await g.json()).sha; }
+    if (g.status === 200) {
+      const gj = await g.json();
+      sha = gj.sha;
+      /* V53：推送前先把云端有而本机没有的并进来，再推全量——两台手机互不覆盖 */
+      try {
+        const rem = parseBackupText(decodeURIComponent(escape(atob(String(gj.content).replace(/\n/g, '')))));
+        if (rem && mergeRemoteIntoState(rem) > 0) persist();
+      } catch (e) {}
+    }
     else if (g.status !== 404) {
       diagMsg('自动备份失败：GitHub 回应 ' + g.status);
       return false;
@@ -439,19 +483,14 @@ async function autoRestore() {
       toast('✓ 检测到本地无数据，已自动从云端恢复 ' + count + ' 天记录');
       return;
     }
-    /* 本地有数据：比对云端是否更新（iOS 杀进程丢最后写入的场景） */
-    const lastPush = Number(localStorage.getItem(GH_SYNC_KEY) || 0);
-    const cloudAt = remote.exportedAt ? new Date(remote.exportedAt).getTime() : 0;
-    if (cloudAt > lastPush + 15000 && cloudAt > Date.now() - 7 * 86400000) {
-      askConfirm('检测到云端备份比手机上的数据新（上次可能没保存完整）。\n\n用云端数据覆盖手机上的吗？云端共 ' + count + ' 天。').then(ok => {
-        if (!ok) return;
-        remote.ui = sanitizeUI(remote.ui);
-        state = remote;
-        persist();
-        renderAll();
-        applyTheme();
-        toast('✓ 已同步云端最新数据 ' + count + ' 天');
-      });
+    /* V53 双人合并：云端有而手机没有的直接并入（也覆盖 iOS 杀进程丢写入的找回），不再打扰弹窗 */
+    const added = mergeRemoteIntoState(remote);
+    if (added > 0) {
+      persist();
+      scheduleCloudBackup(); /* 并入后尽快上云，对方打开就能看到 */
+      renderAll();
+      applyTheme();
+      toast('✓ 已从云端合并 ' + added + ' 条记录');
     }
   } catch (e) { /* 静默：网络不好下次重开再试 */ }
 }
@@ -492,15 +531,15 @@ async function cloudRestore() {
     const txt = decodeURIComponent(escape(atob(String(j.content).replace(/\n/g, ''))));
     const remote = parseBackupText(txt);
     if (!remote) { toast('云端数据无效'); return; }
-    const count = Object.keys(remote.records).length;
-    askConfirm('云端有 ' + count + ' 天记录，覆盖手机当前数据？').then(ok => {
-      if (!ok) return;
-      remote.ui = sanitizeUI(remote.ui);
-    state = remote;
-    persist();
+    const added = mergeRemoteIntoState(remote);
+    if (added > 0) {
+      persist();
+      scheduleCloudBackup();
       renderAll();
-      toast('已从云端恢复 ' + count + ' 天');
-    });
+      toast('✓ 已从云端合并 ' + added + ' 条记录（手机原有数据全部保留）');
+    } else {
+      toast('云端没有手机上缺的记录，无需合并');
+    }
   } catch (e) { toast('云端读取失败，检查网络'); }
 }
 
@@ -2284,6 +2323,13 @@ function renderSettings() {
         migrateGuideHTML() +
         '<p class="s-dim" id="cloud-diag" style="display:none;margin-top:10px;color:#b91c1c;word-break:break-all">' + esc(diagFromStorage()) + '</p>' +
       '</div>') +
+    (ghConf ? '<div class="card">' +
+      '<h3 class="card-label">双人同步 · 她用她的手机记</h3>' +
+      '<div class="key-line">✓ 各记各的，云端自动合并 —— 你打开 App 就能看到她的最新记录</div>' +
+      '<p class="sub">云端仓库和钥匙都在你的 GitHub 账号里：给她另发一把钥匙，随时可以作废——控制权永远在你手上。</p>' +
+      '<button class="btn" data-action="copy-app-link">📋 把 App 链接发给她</button>' +
+      '<p class="s-dim" style="margin-top:10px">她的安装三步：① Safari 打开这个网址 ② 点分享 → 添加到主屏幕 ③ 在她的 App「设置 → 自动云备份」里粘贴你发给她的钥匙（去你的 GitHub 账号再生成一把新钥匙发她，方法和你当初配置一样；同一仓库，谁记的标谁的名字）。</p>' +
+    '</div>' : '') +
     '<div class="card">' +
       '<h3 class="card-label">手动备份 · 不依赖网络</h3>' +
       '<div class="key-line">把数据变成一段文字，发到微信存着，随存随恢复</div>' +
@@ -2573,6 +2619,12 @@ document.addEventListener('click', e => {
       persist();
       applyTheme();
       renderAll();
+    }
+    else if (a === 'copy-app-link') {
+      const url = 'https://wowayuan11-elio.github.io/weight-tracker-app/';
+      if (navigator.share) { navigator.share({ title: '双人体重小本本', url: url }).catch(() => {}); }
+      else if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(() => toast('✓ 链接已复制，微信发给她就行')).catch(() => {}); }
+      else toast('链接：' + url);
     }
     else if (a === 'toggle-theme-rotate') {
       state.ui.themeRotate = !state.ui.themeRotate;
