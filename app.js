@@ -11,13 +11,22 @@ const GH_SYNC_KEY = 'couples_weight_gh_sync';
 const GH_DATA_REPO = 'weight-tracker-data';
 const PERSON_IDS = ['me', 'partner'];
 const DEFAULT_NAMES = { me: '我', partner: '对象' };
-const COLORS = { me: '#007aff', partner: '#ff9500' };
+let COLORS = { me: '#007aff', partner: '#ff9500' }; /* V42: let，随主题切换同步 */
 const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V41';
+const APP_VERSION = 'V52';
 const CHANGELOG = [
+  { v: 'V52', d: '10月1日', items: [
+    '一次上线 10 套全新设计语言（共 16 套可选）：樱粉/抹茶/赤陶/极光/冰川/摩卡/石墨/丁香/翡翠/报刊——每套都是完整设计语言，不是简单换色',
+    '系统体检：16 套风格全量截图审查 + 数据保存→重载→还在 完整回归，全部通过'
+  ]},
+  { v: 'V42', d: '10月1日', items: [
+    '整套设计风格大改版：5 套全新设计语言——曜石（黑金老钱·衬线数字）、晨雾（奶油陶橘·大圆角）、静蓝（暗夜玻璃·电光青渐变数字）、纸感（瑞士排版·无圆角细黑线·等宽数字）、霓虹（克制赛博·紫青微光）',
+    '设置页主题选择改成大预览卡，每套风格所见即所得',
+    '新增「每天自动换一套」开关：每天第一次打开自动轮换下一套风格，每天一个新心情；手动选了某套也会记住'
+  ]},
   { v: 'V41', d: '9月30日', items: [
     '修复备注丢失的总根因：数据读取器的白名单里一直没有「备注」字段——每次重开 App 所有备注都被丢弃（从备注功能上线起就存在）。已补上，历史备注从云端恢复后也会完整保留'
   ]},
@@ -253,7 +262,14 @@ function sanitizeUI(u) {
   if (u.heroMetrics && typeof u.heroMetrics === 'object') Object.keys(d.heroMetrics).forEach(k => { if (typeof u.heroMetrics[k] === 'boolean') d.heroMetrics[k] = u.heroMetrics[k]; });
   if (typeof u.trendRange === 'number' && [0, 7, 30, 90].includes(u.trendRange)) d.trendRange = u.trendRange;
   if (Array.isArray(u.weekPlan)) d.weekPlan = WEEK_PLAN_DEFAULT.map((def, i) => (typeof u.weekPlan[i] === 'string' && u.weekPlan[i].trim()) ? u.weekPlan[i].trim().slice(0, 20) : def);
-  if (typeof u.theme === 'string' && ['classic', 'warm', 'mint', 'ocean', 'dark'].includes(u.theme)) d.theme = u.theme;
+  if (typeof u.theme === 'string') {
+    /* V42：白名单用字面量（铁律：loadState 链路不引用后文常量）；旧主题迁移到新风格 */
+    const MIGRATE = { warm: 'creme', mint: 'creme', ocean: 'midnight', dark: 'midnight' };
+    if (MIGRATE[u.theme]) d.theme = MIGRATE[u.theme];
+    else if (['classic','onyx','creme','midnight','paper','neon','sakura','matcha','terra','aurora','glacier','mocha','graphite','lilac','emerald','mono'].indexOf(u.theme) > -1) d.theme = u.theme;
+  }
+  if (u.themeRotate === true) d.themeRotate = true;
+  if (typeof u.themeDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(u.themeDate)) d.themeDate = u.themeDate;
   if (Array.isArray(u.equip)) d.equip = u.equip.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim().slice(0, 14)).filter(function (v, i, a) { return a.indexOf(v) === i; }).slice(0, 18);
   return d;
 }
@@ -1886,10 +1902,48 @@ let equipAddMode = false; /* plan-sheet 正在添加自定义器械（V37） */
 const WEEK_PLAN_DEFAULT = ['快走 40 分钟', '休息', '力量训练 30 分钟', '休息', '有氧运动 40 分钟', '拉伸散步', '休息'];
 const PLAN_PRESETS = ['俯卧撑 30 个', '仰卧起坐 30 个', '健身棒练胸 3 组', '快走 40 分钟', '慢跑 30 分钟', '力量训练 30 分钟', '有氧运动 40 分钟', '瑜伽 20 分钟', '拉伸散步', '休息'];
 
+/* V42 五套设计语言（+经典苹果风）：常量表放顶部（铁律），选择器渲染与每日轮换共用 */
+const THEME_LIST = [
+  { k: 'classic',  n: '经典', en: 'CLASSIC',  desc: '苹果设计系统 · 百搭耐看', bg: '#f2f2f7', fg: '#1d1d1f', accent: '#007aff', me: '#007aff', partner: '#ff9500', numFont: 'inherit', radius: '14px' },
+  { k: 'onyx',     n: '曜石', en: 'ONYX',     desc: '黑金老钱 · 衬线数字',     bg: '#0b0a08', fg: '#ede4d3', accent: '#c9a961', me: '#c9a961', partner: '#b08d57', numFont: 'Georgia,"Times New Roman",serif', radius: '10px' },
+  { k: 'creme',    n: '晨雾', en: 'CRÈME',    desc: '奶油陶橘 · 温柔大圆角',   bg: '#f7f1e9', fg: '#33261c', accent: '#d9724a', me: '#d9724a', partner: '#7f9db9', numFont: 'inherit', radius: '22px' },
+  { k: 'midnight', n: '静蓝', en: 'MIDNIGHT', desc: '暗夜玻璃 · 电光青渐变',   bg: '#0a0e18', fg: '#e8edf6', accent: '#6ee7ff', me: '#6ee7ff', partner: '#a78bfa', numFont: 'inherit', radius: '16px' },
+  { k: 'paper',    n: '纸感', en: 'PAPER',    desc: '瑞士排版 · 细黑线等宽数字', bg: '#f2efe9', fg: '#161513', accent: '#161513', me: '#c8401f', partner: '#161513', numFont: 'ui-monospace,"SF Mono",Menlo,monospace', radius: '0px' },
+  { k: 'neon',     n: '霓虹', en: 'NEON',     desc: '克制赛博 · 紫青微光',     bg: '#050508', fg: '#eeeaff', accent: '#8b5cf6', me: '#22d3ee', partner: '#f472b6', numFont: 'ui-monospace,"SF Mono",Menlo,monospace', radius: '14px' },
+  { k: 'sakura',   n: '樱粉', en: 'SAKURA',   desc: '日系温柔 · 梅粉圆点',   bg: '#faf3f4', fg: '#3d2530', accent: '#d6648e', me: '#d6648e', partner: '#7a9e9f', numFont: 'inherit', radius: '22px' },
+  { k: 'matcha',   n: '抹茶', en: 'MATCHA',   desc: '京都茶室 · 和式小圆角', bg: '#f0f2e6', fg: '#2c3324', accent: '#7a8f4e', me: '#7a8f4e', partner: '#c4895b', numFont: 'inherit', radius: '8px' },
+  { k: 'terra',    n: '赤陶', en: 'TERRA',    desc: '地中海陶土 · 暖沙色',   bg: '#f4ece4', fg: '#42302a', accent: '#bc5b3c', me: '#bc5b3c', partner: '#4e7d6b', numFont: 'inherit', radius: '12px' },
+  { k: 'aurora',   n: '极光', en: 'AURORA',   desc: '深空黑 · 绿紫渐变数字', bg: '#07090f', fg: '#e4ecf5', accent: '#5adfc0', me: '#5adfc0', partner: '#b18cff', numFont: 'inherit', radius: '16px' },
+  { k: 'glacier',  n: '冰川', en: 'GLACIER',  desc: '北欧冷调 · 钢蓝清爽',   bg: '#eef2f6', fg: '#22303c', accent: '#3a7ca5', me: '#3a7ca5', partner: '#e09f5a', numFont: 'inherit', radius: '14px' },
+  { k: 'mocha',    n: '摩卡', en: 'MOCHA',    desc: '咖啡馆 · 焦糖衬线数字', bg: '#f2ebe3', fg: '#3a2d24', accent: '#a0673f', me: '#a0673f', partner: '#5f7f6a', numFont: 'Georgia,"Times New Roman",serif', radius: '20px' },
+  { k: 'graphite', n: '石墨', en: 'GRAPHITE', desc: '工业极简 · 全灰阶一点橙', bg: '#e8e8ea', fg: '#1a1a1c', accent: '#e8590c', me: '#e8590c', partner: '#525258', numFont: 'inherit', radius: '6px' },
+  { k: 'lilac',    n: '丁香', en: 'LILAC',    desc: '柔和紫罗兰 · 超大圆角', bg: '#f3f0fa', fg: '#322848', accent: '#7d5fd3', me: '#7d5fd3', partner: '#d3729e', numFont: 'inherit', radius: '24px' },
+  { k: 'emerald',  n: '翡翠', en: 'EMERALD',  desc: '深绿赌场 · 金绿衬线',   bg: '#0a1f16', fg: '#e8f0e6', accent: '#50c98c', me: '#50c98c', partner: '#d4b06a', numFont: 'Georgia,"Times New Roman",serif', radius: '10px' },
+  { k: 'mono',     n: '报刊', en: 'MONO',     desc: '衬线报刊 · 黑白砖红',   bg: '#f7f5f0', fg: '#141414', accent: '#141414', me: '#141414', partner: '#8a2b1e', numFont: 'Georgia,"Times New Roman",serif', radius: '0px' }
+];
+const THEME_KEYS = THEME_LIST.map(t => t.k);
+/* 旧版主题（V32 的 warm/mint/ocean/dark）平滑迁移到新风格 */
+const THEME_MIGRATE = { warm: 'creme', mint: 'creme', ocean: 'midnight', dark: 'midnight' };
+
 function applyTheme() {
   const t = state.ui && state.ui.theme;
   if (t && t !== 'classic') document.body.setAttribute('data-theme', t);
   else document.body.removeAttribute('data-theme');
+  /* V42: 身份色（Elio/Tina 的专属色）随主题走，图表和圆点才不跳戏 */
+  const th = THEME_LIST.find(x => x.k === (t || 'classic'));
+  if (th) COLORS = { me: th.me, partner: th.partner };
+}
+
+/* V42 每日轮换：开关打开时，每天第一次打开自动换下一套（手动选的风格当天起生效，次日继续轮） */
+function rotateDailyTheme() {
+  if (!state.ui || state.ui.themeRotate !== true) return;
+  const tk = todayKey();
+  if (state.ui.themeDate === tk) return; /* 今天已经换过 */
+  const cur = state.ui.theme || 'classic';
+  const i = THEME_KEYS.indexOf(cur);
+  state.ui.theme = THEME_KEYS[(i + 1) % THEME_KEYS.length];
+  state.ui.themeDate = tk;
+  persist();
 }
 
 /* 按勾选的装备生成一周安排：力量隔天、有氧穿插、至少两个休息日 */
@@ -2164,15 +2218,24 @@ function renderSettings() {
 
   document.getElementById('settings-body').innerHTML =
     '<div class="card">' +
-      '<h3 class="card-label">主题外观</h3>' +
-      '<div class="theme-row">' +
-        [{ k: 'classic', n: '经典', c: '#007aff' }, { k: 'warm', n: '暖阳', c: '#d97a2b' }, { k: 'mint', n: '薄荷', c: '#1e9e6a' }, { k: 'ocean', n: '海盐', c: '#2d6cdf' }, { k: 'dark', n: '暗夜', c: '#1c1c22' }].map(t =>
-          '<button class="theme-swatch' + ((state.ui.theme || 'classic') === t.k ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '">' +
-            '<span class="sw-dot" style="background:' + t.c + '"></span>' + t.n +
-          '</button>'
-        ).join('') +
+      '<h3 class="card-label">设计风格 · 每天换一个心情</h3>' +
+      '<div class="theme-grid">' +
+        THEME_LIST.map(function (t) {
+          const on = (state.ui.theme || 'classic') === t.k;
+          return '<button class="theme-tile' + (on ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '" style="background:' + t.bg + ';color:' + t.fg + ';border-radius:' + (t.radius === '0px' ? '0' : '16px') + '">' +
+            '<span class="tt-num" style="font-family:' + t.numFont + ';color:' + t.accent + '">72.5</span>' +
+            '<span class="tt-name">' + t.n + '</span>' +
+            '<span class="tt-en" style="color:' + t.accent + '">' + t.en + '</span>' +
+            '<span class="tt-desc" style="color:' + t.fg + ';opacity:.55">' + t.desc + '</span>' +
+            (on ? '<span class="tt-check">\u2713</span>' : '') +
+          '</button>';
+        }).join('') +
       '</div>' +
-      '<p class="set-tip">暗夜主题夜间看数据不刺眼 · 选完立即生效</p>' +
+      '<button class="rotate-row" data-action="toggle-theme-rotate">' +
+        '<span class="rr-text"><b>每天自动换一套</b><small>每天第一次打开时轮到下一套风格，手动选的当天会保留</small></span>' +
+        '<span class="rr-switch' + (state.ui.themeRotate ? ' on' : '') + '">' + (state.ui.themeRotate ? '开' : '关') + '</span>' +
+      '</button>' +
+      '<p class="set-tip">六套都是完整设计语言——字体、圆角、光效各不相同 · 选完立即生效，不影响任何数据</p>' +
     '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">我的运动与器械</h3>' +
@@ -2506,9 +2569,18 @@ document.addEventListener('click', e => {
     else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } selectedCalDay = null; renderTrend(); }
     else if (a === 'set-theme') {
       state.ui.theme = act.dataset.v;
+      state.ui.themeDate = todayKey(); /* 手动选完当天不再被轮换覆盖 */
       persist();
       applyTheme();
-      renderSettings();
+      renderAll();
+    }
+    else if (a === 'toggle-theme-rotate') {
+      state.ui.themeRotate = !state.ui.themeRotate;
+      if (state.ui.themeRotate) state.ui.themeDate = todayKey(); /* 开启当天不立刻换，明天开始轮 */
+      persist();
+      applyTheme();
+      renderAll();
+      toast(state.ui.themeRotate ? '\u2713 已开启：每天自动换一套风格' : '已关闭自动轮换，用你手动选的风格');
     }
     else if (a === 'toggle-equip') {
       const v = act.dataset.v;
@@ -2733,6 +2805,8 @@ function renderAll() {
   }
 }
 applyTheme();
+rotateDailyTheme();
+applyTheme(); /* 轮换后重新应用当天风格 */
 if (navigator.storage && navigator.storage.persist) { try { navigator.storage.persist(); } catch (e) {} } /* V39：请求持久化存储，降低 iOS 清写概率 */
 renderAll();
 autoRestore();
