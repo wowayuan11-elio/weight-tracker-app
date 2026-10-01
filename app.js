@@ -2323,13 +2323,14 @@ function renderSettings() {
         migrateGuideHTML() +
         '<p class="s-dim" id="cloud-diag" style="display:none;margin-top:10px;color:#b91c1c;word-break:break-all">' + esc(diagFromStorage()) + '</p>' +
       '</div>') +
-    (ghConf ? '<div class="card">' +
+    ('<div class="card">' +
       '<h3 class="card-label">双人同步 · 她用她的手机记</h3>' +
       '<div class="key-line">✓ 各记各的，云端自动合并 —— 你打开 App 就能看到她的最新记录</div>' +
       '<p class="sub">云端仓库和钥匙都在你的 GitHub 账号里：给她另发一把钥匙，随时可以作废——控制权永远在你手上。</p>' +
       '<button class="btn" data-action="copy-app-link">📋 把 App 链接发给她</button>' +
       '<p class="s-dim" style="margin-top:10px">她的安装三步：① Safari 打开这个网址 ② 点分享 → 添加到主屏幕 ③ 在她的 App「设置 → 自动云备份」里粘贴你发给她的钥匙（去你的 GitHub 账号再生成一把新钥匙发她，方法和你当初配置一样；同一仓库，谁记的标谁的名字）。</p>' +
-    '</div>' : '') +
+      (ghConf ? '' : '<p class="set-tip" style="color:#b45309">她的第一步：先在下方「自动云备份」卡开通云备份，钥匙就在那张卡里配置——建议你在 GitHub 上另生成一把新钥匙发给她，和你自己那把分开，随时可作废。</p>') +
+    '</div>') +
     '<div class="card">' +
       '<h3 class="card-label">手动备份 · 不依赖网络</h3>' +
       '<div class="key-line">把数据变成一段文字，发到微信存着，随存随恢复</div>' +
