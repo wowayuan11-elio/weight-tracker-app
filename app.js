@@ -16,8 +16,16 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V53';
+const APP_VERSION = 'V54';
 const CHANGELOG = [
+  { v: 'V54', d: '10月3日', items: [
+    '合并导入（微信中转兜底）：Tina 点一键备份发微信给你，你粘贴点「合并导入」就并入——她全程不碰 GitHub，只补不删永不覆盖你的数据',
+    '趋势预测：按最近 14 天真实速度算出几月几号到 65/63；平台期检测：连续多天波动极小说一句「正常现象」',
+    '周对决：本周你和 Tina 谁的趋势更稳，一句话见分晓',
+    '本机身份 + 快捷指令一键记录：标明这台手机记的是谁，配合 iPhone 快捷指令不打开 App 也能记',
+    '早上称重提醒：给出一套免费可行的 iOS 自动化配置（复制即可用）',
+    'CSV 表格导出 + 2026 年度回顾卡'
+  ]},
   { v: 'V53', d: '10月2日', items: [
     '双人合并同步上线：她的手机装同一个 App（Safari 打开 → 分享 → 添加到主屏幕，像真 App 一样），各记各的，数据自动在云端合并——你打开自己 App 就能看到她的最新记录',
     '控制权设计：云端仓库和钥匙都在你的 GitHub 账号里，给她的是你另发的一把钥匙，随时可以作废重发',
@@ -1866,8 +1874,18 @@ function renderStats() {
   if (wkRows) {
     html += '<div class="card"><h3 class="card-label">周报 · 每周平均</h3>' +
       '<p class="sub">一人一列 · 「比上周」= 和上一个有记录的周平均比，中间没记的周自动跳过（↓瘦 ↑胖）</p>' +
-      '<div class="wk-head"><span>周</span><span>' + esc(state.names.me) + '</span><span>' + esc(state.names.partner) + '</span></div>' + wkRows + '</div>';
+      '<div class="wk-head"><span>周</span><span>' + esc(state.names.me) + '</span><span>' + esc(state.names.partner) + '</span></div>' + wkRows + weekDuelHTML() + '</div>';
   }
+
+  /* 趋势预测 + 平台期（V54） */
+  if (keys.length >= 5) {
+    const fr = PERSON_IDS.map(forecastRowHTML).join('');
+    if (fr) html += '<div class="card"><h3 class="card-label">趋势预测 · 几号到目标</h3>' +
+      '<p class="sub">按最近 14 天的真实速度算，不是拍脑袋 · 速度变了日期自动变</p>' + fr + '</div>';
+  }
+
+  /* 年度回顾（V54，统计页末尾） */
+  html += yearReviewHTML();
 
   /* 重点变化 · 一张结论卡（V22：合并周/月/累计三张卡，砍掉无对比意义的行，结论式大字） */
   if (keys.length) {
@@ -2328,14 +2346,28 @@ function renderSettings() {
       '<div class="key-line">✓ 各记各的，云端自动合并 —— 你打开 App 就能看到她的最新记录</div>' +
       '<p class="sub">云端仓库和钥匙都在你的 GitHub 账号里：给她另发一把钥匙，随时可以作废——控制权永远在你手上。</p>' +
       '<button class="btn" data-action="copy-app-link">📋 把 App 链接发给她</button>' +
+      '<div class="divider">这台手机默认记谁（快捷指令记录用）</div>' +
+      '<div class="settings-btns">' +
+        PERSON_IDS.map(p => '<button class="btn ' + (deviceOwner() === p ? '' : 'ghost') + '" data-action="set-owner-' + p + '">' + esc(state.names[p]) + (deviceOwner() === p ? ' ✓' : '') + '</button>').join('') +
+      '</div>' +
       '<p class="s-dim" style="margin-top:10px">她的安装三步：① Safari 打开这个网址 ② 点分享 → 添加到主屏幕 ③ 在她的 App「设置 → 自动云备份」里粘贴你发给她的钥匙（去你的 GitHub 账号再生成一把新钥匙发她，方法和你当初配置一样；同一仓库，谁记的标谁的名字）。</p>' +
       (ghConf ? '' : '<p class="set-tip" style="color:#b45309">她的第一步：先在下方「自动云备份」卡开通云备份，钥匙就在那张卡里配置——建议你在 GitHub 上另生成一把新钥匙发给她，和你自己那把分开，随时可作废。</p>') +
     '</div>') +
+    '<div class="card">' +
+      '<h3 class="card-label">每天称重提醒 · 免费可行方案</h3>' +
+      '<div class="key-line">网页 App 无法自己定时弹通知（需要服务器），用 iPhone 自带「快捷指令」实现，一步复制</div>' +
+      '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 再搜「询问每次」不用管 → 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成。以后每天早上弹窗输个数字，体重就记上了</p>' +
+      '<button class="btn ghost" data-action="copy-shortcut-url">复制快捷指令要用的网址</button>' +
+    '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">手动备份 · 不依赖网络</h3>' +
       '<div class="key-line">把数据变成一段文字，发到微信存着，随存随恢复</div>' +
       '<button class="btn" data-action="backup-now">一键备份（弹出分享面板）</button>' +
       '<button class="btn ghost" data-action="copy-link">复制存档链接</button>' +
+      '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
+      '<button class="btn" data-action="import-merge">合并导入 Tina 的数据（不覆盖现有）</button>' +
+      '<div class="divider">导出</div>' +
+      '<button class="btn ghost" data-action="export-csv">导出 CSV 表格（全部数据）</button>'
       '<div class="divider">恢复数据 · 粘贴进来，点一下就导入</div>' +
       '<textarea class="import-area json-area" placeholder="粘贴备份文本或存档链接" spellcheck="false"></textarea>' +
       '<button class="btn" data-action="import-backup">导入并覆盖</button>' +
@@ -2496,6 +2528,162 @@ function parseBackupText(txt) {
     records: recs,
     goals: sanitizeGoals(obj.goals)
   };
+}
+
+/* ================= V54 功能全家桶 ================= */
+
+/* 本机身份：这台手机主要记谁（快捷指令记录用） */
+function deviceOwner() {
+  try { return localStorage.getItem('wt_device_owner') === 'partner' ? 'partner' : 'me'; } catch (e) { return 'me'; }
+}
+function setDeviceOwner(p) {
+  try { localStorage.setItem('wt_device_owner', p); } catch (e) {}
+  renderSettings();
+  toast('这台手机默认记 ' + state.names[p] + ' 的体重');
+}
+
+/* 深链一键记录：?quick=72.5 或 #q=72.5 → 记到本机身份今天（不覆盖已有） */
+function handleQuickRecord() {
+  let v = null;
+  try {
+    const q = new URLSearchParams(location.search);
+    v = q.get('quick');
+    if (!v && location.hash && location.hash.indexOf('#q=') === 0) v = decodeURIComponent(location.hash.slice(3));
+  } catch (e) { return; }
+  if (!v) return;
+  try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  const n = Number(v);
+  if (!isFinite(n) || n < 20 || n > 300) { toast('快捷记录失败：' + v + ' 不是有效体重'); return; }
+  const p = deviceOwner(), k = todayKey();
+  if (typeof (state.records[k] || {})[p] === 'number') {
+    toast('今天已记过 ' + state.records[k][p].toFixed(1) + ' kg，没有覆盖——要改在记录页改');
+    return;
+  }
+  state.records[k] = state.records[k] || {};
+  state.records[k][p] = Math.round(n * 10) / 10;
+  persist();
+  renderAll();
+  toast('✓ 已记录 ' + state.records[k][p].toFixed(1) + ' kg（' + state.names[p] + ' · 今天）');
+}
+
+/* 合并导入：微信中转兜底——只补不删 */
+function importMerge() {
+  const areas = [...document.querySelectorAll('.import-area')];
+  const area = areas.find(a => a.value.trim()) || areas[0];
+  if (!area) { toast('找不到输入框'); return; }
+  let txt = area.value.trim();
+  if (!txt) { toast('先粘贴她发来的备份文本'); return; }
+  const m = txt.match(/#r=([A-Za-z0-9+/=%]{8,})/);
+  if (m) {
+    try { txt = decodeURIComponent(escape(atob(m[1].replace(/%3D/gi, '=')))); } catch (e) { toast('存档链接数据无效'); return; }
+  }
+  const remote = parseBackupText(txt);
+  if (!remote) { toast('内容不是有效的备份数据'); return; }
+  const added = mergeRemoteIntoState(remote);
+  if (!added) { toast('她的数据你都已经有了，无需合并'); return; }
+  persist();
+  scheduleCloudBackup();
+  renderAll();
+  area.value = '';
+  toast('✓ 已合并 ' + added + ' 条新记录（你原有的数据一条没动）');
+}
+
+/* CSV 导出 */
+function exportCSV() {
+  const cols = [['me_waist', '腰围cm'], ['partner_waist', '腰围cm'], ['me_bf', '体脂%'], ['partner_bf', '体脂%'], ['me_vf', '内脏脂肪'], ['partner_vf', '内脏脂肪']];
+  let head = '日期,' + PERSON_IDS.map(p => state.names[p] + '体重kg,' + state.names[p]).join(',');
+  head = '日期,' + PERSON_IDS.map(p => state.names[p] + '体重kg,' + state.names[p] + '腰围cm,' + state.names[p] + '体脂%').join(',') + ',备注';
+  const rows = sortedKeys().map(k => {
+    const r = state.records[k];
+    const cell = p => [r[p], r[p + '_waist'], r[p + '_bf']].map(x => typeof x === 'number' ? x : '');
+    const vals = PERSON_IDS.map(cell);
+    return k + ',' + vals.map(a => a.join(',')).join(',') + ',"' + (r.note || '').replace(/"/g, '""') + '"';
+  });
+  const csv = '\ufeff' + head + '\n' + rows.join('\n');
+  try {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = '体重记录_' + todayKey() + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('✓ 已导出 ' + rows.length + ' 天记录（CSV 表格）');
+  } catch (e) { toast('导出失败，试试一键备份文字版'); }
+}
+
+/* 趋势预测 + 平台期（每放一行：预测一句 + 平台期一句） */
+function recentWindow(p, days) {
+  const from = dateKey(addDays(new Date(), -days));
+  return sortedKeys().filter(k => k >= from && typeof state.records[k][p] === 'number').map(k => ({ k, v: state.records[k][p] }));
+}
+function forecastRowHTML(p) {
+  const pts = recentWindow(p, 14);
+  const bits = [];
+  /* 趋势预测 */
+  const goal = state.goals && typeof state.goals[p] === 'number' ? state.goals[p] : null;
+  const lk = lastKeyOf(p);
+  if (lk && goal) {
+    const cur = state.records[lk][p];
+    if (cur <= goal) {
+      bits.push('<b>' + esc(state.names[p]) + '</b>：最新 ' + cur.toFixed(1) + '，已在目标 ' + goal.toFixed(1) + ' 以内——维持就是胜利');
+    } else if (pts.length >= 5 && (parseKey(pts[pts.length - 1].k) - parseKey(pts[0].k)) >= 3 * 86400000) {
+      const spanD = (parseKey(pts[pts.length - 1].k) - parseKey(pts[0].k)) / 86400000;
+      const rate = (pts[pts.length - 1].v - pts[0].v) / spanD; /* kg/天 */
+      if (rate < -0.007) {
+        const days = Math.ceil((cur - goal) / (-rate));
+        const eta = addDays(new Date(), days);
+        bits.push('<b>' + esc(state.names[p]) + '</b>：按最近 14 天速度（↓' + (rate * 7).toFixed(1) + ' kg/周），预计 <b>' + (eta.getMonth() + 1) + '月' + eta.getDate() + '日</b> 到 ' + goal.toFixed(1) + '（还差 ' + (cur - goal).toFixed(1) + ' kg，约 ' + days + ' 天）');
+      } else {
+        bits.push('<b>' + esc(state.names[p]) + '</b>：最近 14 天没有下降趋势（' + (rate >= 0 ? '↑' : '±') + Math.abs(rate * 7).toFixed(1) + ' kg/周），距目标 ' + (cur - goal).toFixed(1) + ' kg——先稳住吃和动，趋势有了日期自然来');
+      }
+    } else {
+      bits.push('<b>' + esc(state.names[p]) + '</b>：最近 14 天记录还不足 5 天，攒一攒就能预测到 ' + goal.toFixed(1) + ' 的日期');
+    }
+  }
+  /* 平台期 */
+  const w10 = recentWindow(p, 10);
+  if (w10.length >= 6) {
+    const vs = w10.map(x => x.v);
+    const range = Math.max.apply(null, vs) - Math.min.apply(null, vs);
+    const drift = Math.abs(vs[vs.length - 1] - vs[0]);
+    if (range <= 0.6 && drift <= 0.4) {
+      bits.push('<b>' + esc(state.names[p]) + '</b> 平台期中：最近 10 天在 ' + Math.min.apply(null, vs).toFixed(1) + '~' + Math.max.apply(null, vs).toFixed(1) + ' 之间小幅波动——身体的适应期，正常现象，继续就好');
+    }
+  }
+  return bits.map(b => '<div style="font-size:13px;line-height:1.6;padding:6px 0;border-bottom:1px solid rgba(128,128,128,.14)">' + b + '</div>').join('');
+}
+
+/* 周对决：本周谁更稳（极差对比） */
+function weekDuelHTML() {
+  const ws = dateKey(addDays(weekStartOf(new Date()), 0)), we = dateKey(addDays(weekStartOf(new Date()), 6));
+  const pts = PERSON_IDS.map(p => {
+    const arr = sortedKeys().filter(k => k >= ws && k <= we && typeof state.records[k][p] === 'number').map(k => state.records[k][p]);
+    return { p, n: arr.length, range: arr.length >= 3 ? Math.max.apply(null, arr) - Math.min.apply(null, arr) : null };
+  });
+  const a = pts[0], b = pts[1];
+  if (!a || !b || !a.range || !b.range) return '';
+  if (Math.abs(a.range - b.range) < 0.15) return '<div class="card-foot">本周稳度打平：' + esc(state.names.me) + ' 波动 ' + a.range.toFixed(1) + '，' + esc(state.names.partner) + ' 波动 ' + b.range.toFixed(1) + '——半斤八两，一起稳</div>';
+  const steady = a.range < b.range ? a : b, wild = a.range < b.range ? b : a;
+  return '<div class="card-foot">本周 <b>' + esc(state.names[steady.p]) + '</b> 的趋势更稳（波动 ' + steady.range.toFixed(1) + ' vs ' + esc(state.names[wild.p]) + ' 的 ' + wild.range.toFixed(1) + '）</div>';
+}
+
+/* 年度回顾 */
+function yearReviewHTML() {
+  const y = todayKey().slice(0, 4);
+  const yKeys = sortedKeys().filter(k => k.slice(0, 4) === y);
+  if (yKeys.length < 3) return '';
+  let best = 0, run = 0, prev = null;
+  yKeys.forEach(k => { run = (prev && parseKey(k) - parseKey(prev) === 86400000) ? run + 1 : 1; if (run > best) best = run; prev = k; });
+  const rows = PERSON_IDS.map(p => {
+    const arr = yKeys.filter(k => typeof state.records[k][p] === 'number');
+    if (arr.length < 2) return '';
+    const first = state.records[arr[0]][p], last = state.records[arr[arr.length - 1]][p];
+    const d = last - first;
+    return '<div class="rv-row"><span class="rv-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+      '<div class="rv-body"><div>' + arr[0].slice(5).replace('-', '/') + ' ' + first.toFixed(1) + ' → ' + arr[arr.length - 1].slice(5).replace('-', '/') + ' ' + last.toFixed(1) + ' kg，' +
+      (Math.abs(d) < 0.05 ? '持平' : (d < 0 ? '共瘦 ' : '共涨 ') + Math.abs(d).toFixed(1) + ' kg') + '</div></div></div>';
+  }).join('');
+  return '<div class="card"><h3 class="card-label">' + y + ' 年度回顾 · 至今</h3>' +
+    '<p class="sub">今年 1 月 1 日以来的第一笔 → 最新一笔 · 每个数字自带日期</p>' + rows +
+    '<div class="card-foot">今年共同记录 ' + yKeys.length + ' 天 · 最长连续 ' + best + ' 天没断 · 这些数字年底会越来越好看</div></div>';
 }
 
 function importBackup() {
@@ -2727,6 +2915,15 @@ document.addEventListener('click', e => {
     });
     else if (a === 'copy-link') copyLink();
     else if (a === 'import-backup') importBackup();
+    else if (a === 'import-merge') importMerge();
+    else if (a === 'export-csv') exportCSV();
+    else if (a === 'set-owner-me') setDeviceOwner('me');
+    else if (a === 'set-owner-partner') setDeviceOwner('partner');
+    else if (a === 'copy-shortcut-url') {
+      const u = 'https://wowayuan11-elio.github.io/weight-tracker-app/?quick=输入的数字';
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(() => toast('✓ 已复制——URL 处把「输入的数字」换成快捷指令的文本变量')).catch(() => toast(u));
+      else toast(u);
+    }
     else if (a === 'clear-all') clearAll();
     else if (a === 'modal-cancel') closeModal(false);
     else if (a === 'modal-ok') closeModal(true);
@@ -2862,4 +3059,5 @@ rotateDailyTheme();
 applyTheme(); /* 轮换后重新应用当天风格 */
 if (navigator.storage && navigator.storage.persist) { try { navigator.storage.persist(); } catch (e) {} } /* V39：请求持久化存储，降低 iOS 清写概率 */
 renderAll();
+handleQuickRecord();
 autoRestore();
