@@ -2365,7 +2365,8 @@ function renderSettings() {
       '<button class="btn" data-action="backup-now">一键备份（弹出分享面板）</button>' +
       '<button class="btn ghost" data-action="copy-link">复制存档链接</button>' +
       '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
-      '<button class="btn" data-action="import-merge">合并导入 Tina 的数据（不覆盖现有）</button>' +
+      '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false"></textarea>' +
+      '<button class="btn" data-action="import-merge">合并导入（只补不删，不覆盖现有）</button>' +
       '<div class="divider">导出</div>' +
       '<button class="btn ghost" data-action="export-csv">导出 CSV 表格（全部数据）</button>'
       '<div class="divider">恢复数据 · 粘贴进来，点一下就导入</div>' +
@@ -2568,11 +2569,10 @@ function handleQuickRecord() {
 
 /* 合并导入：微信中转兜底——只补不删 */
 function importMerge() {
-  const areas = [...document.querySelectorAll('.import-area')];
-  const area = areas.find(a => a.value.trim()) || areas[0];
-  if (!area) { toast('找不到输入框'); return; }
+  const areas = [...document.querySelectorAll('.merge-area'), ...document.querySelectorAll('.import-area')];
+  const area = areas.find(a => a.value.trim());
+  if (!area) { toast('先把她发的备份文本粘贴到上面的框里'); return; }
   let txt = area.value.trim();
-  if (!txt) { toast('先粘贴她发来的备份文本'); return; }
   const m = txt.match(/#r=([A-Za-z0-9+/=%]{8,})/);
   if (m) {
     try { txt = decodeURIComponent(escape(atob(m[1].replace(/%3D/gi, '=')))); } catch (e) { toast('存档链接数据无效'); return; }
