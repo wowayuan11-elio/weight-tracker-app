@@ -13,7 +13,7 @@
 /* 自愈机制：版本变化时自动清掉手机上的旧缓存/旧SW，用户无感 */
 (function(){
   try{
-    var BUILD='v54a-20261003';
+    var BUILD='v55a-20261004';
     if(localStorage.getItem('wt_build')!==BUILD){
       localStorage.setItem('wt_build',BUILD);
       if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})});}
@@ -73,6 +73,11 @@
     <div id="stats-body"></div>
   </section>
 
+  <section id="page-tools" class="page">
+    <div class="page-head"><h1>工具</h1></div>
+    <div id="tools-body"></div>
+  </section>
+
 </main>
 
 <nav id="tabbar">
@@ -87,6 +92,10 @@
   <button class="tab" data-page="stats">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 20v-7M12 20V5.5M18.5 20v-10"/></svg>
     <span>统计</span>
+  </button>
+  <button class="tab" data-page="tools">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M15.2 8.8l-2 4.4-4.4 2 2-4.4z"/></svg>
+    <span>工具</span>
   </button>
 </nav>
 </div>
