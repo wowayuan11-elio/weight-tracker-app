@@ -13,7 +13,7 @@
 /* 自愈机制：版本变化时自动清掉手机上的旧缓存/旧SW，用户无感 */
 (function(){
   try{
-    var BUILD='v55a-20261004';
+    var BUILD='v56a-20261004';
     if(localStorage.getItem('wt_build')!==BUILD){
       localStorage.setItem('wt_build',BUILD);
       if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})});}
@@ -36,12 +36,10 @@
   <section id="page-record" class="page active">
     <div class="page-head">
       <h1>体重</h1>
-      <button class="icon-btn" data-action="open-settings" aria-label="设置">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-          <path d="M4 7h16M4 12h16M4 17h16"/>
-          <circle cx="9.5" cy="7" r="2.1" fill="var(--bg)"/>
-          <circle cx="15" cy="12" r="2.1" fill="var(--bg)"/>
-          <circle cx="8" cy="17" r="2.1" fill="var(--bg)"/>
+      <button class="icon-btn" data-action="open-settings" aria-label="设置" style="background:transparent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.1"/>
+          <path d="M19.4 15a1.68 1.68 0 0 0 .34 1.85l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.68 1.68 0 0 0-1.85-.34 1.68 1.68 0 0 0-1.02 1.54V21a2 2 0 1 1-4 0v-.09a1.68 1.68 0 0 0-1.1-1.54 1.68 1.68 0 0 0-1.85.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.68 1.68 0 0 0 .34-1.85 1.68 1.68 0 0 0-1.54-1.02H3a2 2 0 1 1 0-4h.09a1.68 1.68 0 0 0 1.54-1.1 1.68 1.68 0 0 0-.34-1.85l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.68 1.68 0 0 0 1.85.34h.08a1.68 1.68 0 0 0 1.02-1.54V3a2 2 0 1 1 4 0v.09a1.68 1.68 0 0 0 1.02 1.54 1.68 1.68 0 0 0 1.85-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.68 1.68 0 0 0-.34 1.85v.08a1.68 1.68 0 0 0 1.54 1.02H21a2 2 0 1 1 0 4h-.09a1.68 1.68 0 0 0-1.54 1.02z"/>
         </svg>
       </button>
     </div>
