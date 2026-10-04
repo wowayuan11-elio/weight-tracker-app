@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V55';
+const APP_VERSION = 'V56';
 const CHANGELOG = [
+  { v: 'V56', d: '10月4日', items: [
+    '设置页从 13 张散卡合并成 3 张（个性化 / 数据与同步 / 关于），点开才展开，不再一屏堆满',
+    '首页右上角换成精致细线齿轮图标，去掉了灰底圆',
+    '砍掉趋势页「腰围说明」常驻提示卡（每次内容都一样的纯文案，没有信息量）'
+  ]},
   { v: 'V55', d: '10月4日', items: [
     '新增第 4 个板块「工具」：趋势预测、平台期、年度回顾、CSV 导出、合并导入、称重提醒全部集中到这里，一屏找得到',
     '设置页大瘦身：所有卡片默认收起只留一行摘要，点标题才展开——不用再滚两屏找东西'
@@ -1641,8 +1646,7 @@ function renderTrend() {
       attachScrub(waistBox.querySelector('.chart-wrap'), c);
     } else waistBox.innerHTML = '';
   } else {
-    waistBox.innerHTML = '<div class="card"><h3 class="card-label">腰围 · 减肚子的硬指标</h3>' +
-      '<p class="sub">体重包含水分和肌肉，波动大；腰围直接反映肚子上的脂肪。在记录页点「+ 记腰围 / 体脂」，一把软尺就够了，每周 1~2 次。</p></div>';
+    waistBox.innerHTML = '';
   }
 
   if (anyBf) {
@@ -2412,6 +2416,7 @@ function renderSettings() {
       '<button class="btn danger" data-action="clear-all">清空全部记录</button>' +
       '<p class="sub" style="text-align:center;margin-top:10px">' + APP_VERSION + ' · 本机存储 + GitHub 云备份 · 不上传任何第三方服务器</p>' +
     '</div>';
+  regroupSettings();
   foldSettings();
 }
 
@@ -2712,6 +2717,48 @@ function renderTools() {
 }
 
 /* 设置页折叠（V55）：卡片默认收起只留标题+摘要行，点标题展开 */
+/* V56: 把 13 张散卡按用途合并成 3 张大卡（个性化 / 数据与同步 / 关于） */
+function regroupSettings() {
+  const body = document.getElementById('settings-body');
+  if (!body) return;
+  const cards = [...body.querySelectorAll(':scope > .card')];
+  if (!cards.length) return;
+  function groupOf(t) {
+    if (!t) return 'o';
+    if (/设计风格|运动|称呼|目标体重|身高/.test(t)) return 'p';
+    if (/云备份|双人同步|手动备份|数据状态/.test(t)) return 'd';
+    return 'o';
+  }
+  const th = THEME_LIST.find(x => x.k === (state.ui.theme || 'classic'));
+  const thName = th ? th.n : (state.ui.theme || '经典');
+  const age = lastBackupAgeDays();
+  const meta = {
+    p: { t: '个性化', k: '主题「' + thName + '」· ' + esc(state.names.me) + ' & ' + esc(state.names.partner) +
+      (typeof state.goals.me === 'number' ? ' · 目标 ' + state.goals.me + ' / ' + state.goals.partner : '') },
+    d: { t: '数据与同步', k: '云端自动备份 · ' + (age === null ? '还没有手动备份过' : '上次手动备份 ' + age + ' 天前') },
+    o: { t: '关于', k: APP_VERSION + ' · 指标说明 · 安装指引 · 更新日志' }
+  };
+  const groups = { p: [], d: [], o: [] };
+  cards.forEach(function (card) {
+    const label = card.querySelector('.card-label');
+    groups[groupOf(label ? label.textContent : '')].push(card);
+  });
+  body.innerHTML = '';
+  ['p', 'd', 'o'].forEach(function (g) {
+    if (!groups[g].length) return;
+    const card = document.createElement('div'); card.className = 'card';
+    const h3 = document.createElement('h3'); h3.className = 'card-label'; h3.textContent = meta[g].t;
+    const key = document.createElement('div'); key.className = 'key-line'; key.textContent = meta[g].k;
+    const wrap = document.createElement('div'); wrap.className = 'sg-body';
+    groups[g].forEach(function (c) {
+      const kl = c.querySelector(':scope > .key-line'); if (kl) kl.remove();
+      [...c.children].forEach(function (ch) { wrap.appendChild(ch); });
+    });
+    card.appendChild(h3); card.appendChild(key); card.appendChild(wrap);
+    body.appendChild(card);
+  });
+}
+
 function foldSettings() {
   document.querySelectorAll('#settings-body .card').forEach(function (card) {
     const label = card.querySelector('.card-label');
