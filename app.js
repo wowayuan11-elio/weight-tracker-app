@@ -2358,7 +2358,7 @@ function renderSettings() {
       '<button class="btn" data-action="backup-now">一键备份（弹出分享面板）</button>' +
       '<button class="btn ghost" data-action="copy-link">复制存档链接</button>' +
       '<div class="divider">数据工具已搬家</div>' +
-      '<p class="sub" style="margin:4px 0 0">合并导入 / CSV 导出搬到了底部「工具」板块</p>'
+      '<p class="sub" style="margin:4px 0 0">合并导入 / CSV 导出搬到了底部「工具」板块</p>' +
       '<div class="divider">恢复数据 · 粘贴进来，点一下就导入</div>' +
       '<textarea class="import-area json-area" placeholder="粘贴备份文本或存档链接" spellcheck="false"></textarea>' +
       '<button class="btn" data-action="import-backup">导入并覆盖</button>' +
