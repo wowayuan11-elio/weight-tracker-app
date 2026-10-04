@@ -16,8 +16,14 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V57';
+const APP_VERSION = 'V58';
 const CHANGELOG = [
+  { v: 'V58', d: '10月4日', items: [
+    '整体质感打磨：所有绿色提示块改成细线摘要行，页面安静了一大截',
+    '次要按钮全部改小号（复制/导出/导入/开通类），主操作才保留大按钮——不容易误触，层级也清楚',
+    '数字全部等宽对齐（表格数字体），竖着看一列数字不再歪歪扭扭',
+    '切换设计风格时，手机顶部状态栏颜色跟着主题走'
+  ]},
   { v: 'V57', d: '10月4日', items: [
     '「每周减脂安排」收起成一行摘要（今天练什么 · 本周练几休几），点标题才展开 7 天——滚动不再误触改安排',
     '工具页「数据工具」「称重提醒」同样收起成一行，展开后按钮全部改小号，不再满屏大色块'
@@ -1104,7 +1110,7 @@ function recordExtraHTML() {
       '<h3 class="card-label">从旧版搬数据 · 一步完成</h3>' +
       '<p class="sub">旧图标 → 设置 → 复制备份文本，粘贴到下面直接导入。</p>' +
       '<textarea class="json-area import-area" placeholder="粘贴备份文本或存档链接"></textarea>' +
-      '<button class="btn" data-action="import-backup">导入</button>' +
+      '<button class="btn sm" data-action="import-backup">导入</button>' +
     '</div>';
   } else {
     const age = lastBackupAgeDays();
@@ -1290,7 +1296,7 @@ function goalProgressHTML() {
           '<input class="text-input" id="qgoal-' + p + '" type="number" step="0.1" inputmode="decimal" placeholder="如 70.0"></label>'
         ).join('') +
       '</div>' +
-      '<button class="btn" data-action="save-goals-inline">保存目标，开始倒计时</button>' +
+      '<button class="btn sm" data-action="save-goals-inline">保存目标，开始倒计时</button>' +
     '</div>';
   }
 
@@ -1989,6 +1995,13 @@ function applyTheme() {
   const t = state.ui && state.ui.theme;
   if (t && t !== 'classic') document.body.setAttribute('data-theme', t);
   else document.body.removeAttribute('data-theme');
+  /* V58: 状态栏颜色跟随主题（PWA 高级感细节） */
+  try {
+    const th2 = THEME_LIST.find(function (x) { return x.k === (t || 'classic'); });
+    if (th2) {
+      document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', th2.bg); });
+    }
+  } catch (e) {}
   /* V42: 身份色（Elio/Tina 的专属色）随主题走，图表和圆点才不跳戏 */
   const th = THEME_LIST.find(x => x.k === (t || 'classic'));
   if (th) COLORS = { me: th.me, partner: th.partner };
@@ -2335,7 +2348,7 @@ function renderSettings() {
         ).join('')) +
         '<button class="set-chip equip-add" data-action="equip-add">＋ 自定义</button>' +
       '</div>' +
-      '<button class="btn" data-action="regen-plan">按我的器械重排周计划</button>' +
+      '<button class="btn sm" data-action="regen-plan">按我的器械重排周计划</button>' +
       '<p class="set-tip">重排后仍可去统计页逐天微调 · 没勾的器械不会出现在安排里</p>' +
     '</div>' +
     '<div class="card">' +
@@ -2357,9 +2370,9 @@ function renderSettings() {
         '<div class="key-line">✓ 数据已自动上云 —— 手机丢了、换新机，记录都在</div>' +
         '<p class="sub">每次记录后自动备份（' + (ghConf.provider === 'gitee' ? 'Gitee 国内通道' : 'GitHub') + ' · 私有仓库 ' + esc(ghConf.owner) + '/' + esc(ghConf.repo) + '，只有你能看）</p>' +
         '<p class="s-dim" style="margin-bottom:10px">上次同步：' + lastSyncText() + '</p>' +
-        '<div class="settings-btns"><button class="btn" data-action="cloud-sync">立即同步</button><button class="btn ghost" data-action="cloud-restore">从云端恢复</button></div>' +
+        '<div class="settings-btns"><button class="btn" data-action="cloud-sync">立即同步</button><button class="btn ghost sm" data-action="cloud-restore">从云端恢复</button></div>' +
         migrateGuideHTML() +
-        '<button class="btn danger" data-action="cloud-off">关闭自动云备份</button>' +
+        '<button class="btn danger sm" data-action="cloud-off">关闭自动云备份</button>' +
       '</div>'
       : '<div class="card">' +
         '<h3 class="card-label">自动云备份</h3>' +
@@ -2373,7 +2386,7 @@ function renderSettings() {
       '<h3 class="card-label">双人同步 · 她用她的手机记</h3>' +
       '<div class="key-line">✓ 各记各的，云端自动合并 —— 你打开 App 就能看到她的最新记录</div>' +
       '<p class="sub">云端仓库和钥匙都在你的 GitHub 账号里：给她另发一把钥匙，随时可以作废——控制权永远在你手上。</p>' +
-      '<button class="btn" data-action="copy-app-link">📋 把 App 链接发给她</button>' +
+      '<button class="btn sm" data-action="copy-app-link">📋 把 App 链接发给她</button>' +
       '<div class="divider">这台手机默认记谁（快捷指令记录用）</div>' +
       '<div class="settings-btns">' +
         PERSON_IDS.map(p => '<button class="btn ' + (deviceOwner() === p ? '' : 'ghost') + '" data-action="set-owner-' + p + '">' + esc(state.names[p]) + (deviceOwner() === p ? ' ✓' : '') + '</button>').join('') +
@@ -2386,12 +2399,12 @@ function renderSettings() {
       '<h3 class="card-label">手动备份 · 不依赖网络</h3>' +
       '<div class="key-line">把数据变成一段文字，发到微信存着，随存随恢复</div>' +
       '<button class="btn" data-action="backup-now">一键备份（弹出分享面板）</button>' +
-      '<button class="btn ghost" data-action="copy-link">复制存档链接</button>' +
+      '<button class="btn ghost sm" data-action="copy-link">复制存档链接</button>' +
       '<div class="divider">数据工具已搬家</div>' +
       '<p class="sub" style="margin:4px 0 0">合并导入 / CSV 导出搬到了底部「工具」板块</p>' +
       '<div class="divider">恢复数据 · 粘贴进来，点一下就导入</div>' +
       '<textarea class="import-area json-area" placeholder="粘贴备份文本或存档链接" spellcheck="false"></textarea>' +
-      '<button class="btn" data-action="import-backup">导入并覆盖</button>' +
+      '<button class="btn sm" data-action="import-backup">导入并覆盖</button>' +
       '<p class="s-dim" style="margin-top:10px">状态：' + backupTxt + '</p>' +
     '</div>' +
     '<div class="card">' +
@@ -2426,7 +2439,7 @@ function renderSettings() {
           '<span class="unit">cm</span>' +
         '</div>';
       }).join('') +
-      '<button class="btn" data-action="save-heights" style="margin-top:8px">保存身高</button>' +
+      '<button class="btn sm" data-action="save-heights" style="margin-top:8px">保存身高</button>' +
     '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">安装到桌面</h3>' +
@@ -2730,7 +2743,7 @@ function renderTools() {
   html += '<div class="card" data-fc="1"><h3 class="card-label">数据工具 · 导出与合并</h3>' +
     '<div class="key-line">导出 CSV 存档 · 合并 Tina 发来的备份（只补不删）· 点标题展开</div>' +
     '<div class="sg-body">' +
-    '<button class="btn ghost" data-action="export-csv" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">导出 CSV</button>' +
+    '<button class="btn ghost sm" data-action="export-csv" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">导出 CSV</button>' +
     '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
     '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false" style="min-height:64px"></textarea>' +
     '<button class="btn" data-action="import-merge" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">合并导入（只补不删）</button>' +
@@ -2742,7 +2755,7 @@ function renderTools() {
       '<div class="key-line">用 iPhone 自带「快捷指令」实现，每天早上弹窗输个数字就记上 · 点标题看 4 步设置</div>' +
       '<div class="sg-body">' +
       '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成</p>' +
-      '<button class="btn ghost" data-action="copy-shortcut-url" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">复制要用的网址</button>' +
+      '<button class="btn ghost sm" data-action="copy-shortcut-url" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">复制要用的网址</button>' +
       '</div></div>';
 
   document.getElementById('tools-body').innerHTML = html;
