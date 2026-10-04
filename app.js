@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V56';
+const APP_VERSION = 'V57';
 const CHANGELOG = [
+  { v: 'V57', d: '10月4日', items: [
+    '「每周减脂安排」收起成一行摘要（今天练什么 · 本周练几休几），点标题才展开 7 天——滚动不再误触改安排',
+    '工具页「数据工具」「称重提醒」同样收起成一行，展开后按钮全部改小号，不再满屏大色块'
+  ]},
   { v: 'V56', d: '10月4日', items: [
     '设置页从 13 张散卡合并成 3 张（个性化 / 数据与同步 / 关于），点开才展开，不再一屏堆满',
     '首页右上角换成精致细线齿轮图标，去掉了灰底圆',
@@ -1945,6 +1949,7 @@ function renderStats() {
   html += weekPlanHTML();
   html += historyHTML();
   document.getElementById('stats-body').innerHTML = html;
+  bindFoldToggle(document.getElementById("stats-body"));
 }
 
 /* 月份折叠状态（V30）：默认只展开当月，历史月收起 */
@@ -2093,12 +2098,37 @@ function weekPlanHTML() {
       '<span class="wp-edit">改</span>' +
     '</button>';
   }).join('');
-  return '<div class="card">' +
+  const trainDays = plan.filter(t => t !== '休息').length;
+  return '<div class="card" data-fc="1">' +
     '<h3 class="card-label">每周减脂安排</h3>' +
-    '<div class="key-line">减脂 = 70% 管住嘴 + 30% 迈开腿 · 一周动 3~4 次，练一天歇一天</div>' +
-    rows +
-    '<p class="set-tip">点任意一天改安排 · 力量训练保住肌肉，减脂期比纯有氧更保代谢 · 安排自动保存</p>' +
+    '<div class="key-line">今天（' + ['周一','周二','周三','周四','周五','周六','周日'][todayDow] + '）：' + plan[todayDow] +
+    ' · 本周练 ' + trainDays + ' 休 ' + (7 - trainDays) + ' · 点标题展开改安排</div>' +
+    '<div class="sg-body">' + rows +
+    '<p class="set-tip">点任意一天改安排 · 力量训练保住肌肉，减脂期比纯有氧更保代谢 · 安排自动保存</p></div>' +
   '</div>';
+}
+
+/* 卡片折叠通用绑定（V57）：卡带 data-fc 时，.sg-body 默认收起，点标题展开 */
+function bindFoldToggle(root) {
+  if (!root) return;
+  root.querySelectorAll('.card[data-fc]').forEach(function (card) {
+    const label = card.querySelector(':scope > .card-label');
+    const body = card.querySelector(':scope > .sg-body');
+    if (!label || !body || label.dataset.fcBound) return;
+    label.dataset.fcBound = '1';
+    label.style.cursor = 'pointer';
+    const ar = document.createElement('span');
+    ar.className = 'sg-arrow';
+    ar.textContent = '展开';
+    ar.style.cssText = 'float:right;font-size:12px;font-weight:400;color:var(--muted,#98A2B3)';
+    label.appendChild(ar);
+    body.style.display = 'none';
+    label.addEventListener('click', function () {
+      const open = body.style.display === 'none';
+      body.style.display = open ? '' : 'none';
+      ar.textContent = open ? '收起' : '展开';
+    });
+  });
 }
 
 function renderPlanSheet() {
@@ -2696,24 +2726,27 @@ function renderTools() {
   /* 年度回顾 */
   html += yearReviewHTML();
 
-  /* 数据工具 */
-  html += '<div class="card"><h3 class="card-label">数据工具 · 导出与合并</h3>' +
-    '<div class="key-line">导出 = 全部数据变表格文件永久存档 · 合并 = 把 Tina 发来的备份并进来，只补不删</div>' +
-    '<button class="btn ghost" data-action="export-csv">导出 CSV 表格（全部数据）</button>' +
+  /* 数据工具：默认收起防误触（V57） */
+  html += '<div class="card" data-fc="1"><h3 class="card-label">数据工具 · 导出与合并</h3>' +
+    '<div class="key-line">导出 CSV 存档 · 合并 Tina 发来的备份（只补不删）· 点标题展开</div>' +
+    '<div class="sg-body">' +
+    '<button class="btn ghost" data-action="export-csv" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">导出 CSV</button>' +
     '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
-    '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false"></textarea>' +
-    '<button class="btn" data-action="import-merge">合并导入（只补不删，不覆盖现有）</button>' +
-    '</div>';
+    '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false" style="min-height:64px"></textarea>' +
+    '<button class="btn" data-action="import-merge" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">合并导入（只补不删）</button>' +
+    '</div></div>';
 
-  /* 称重提醒 */
-  html += '<div class="card">' +
-      '<h3 class="card-label">每天称重提醒 · 免费可行方案</h3>' +
-      '<div class="key-line">网页 App 无法自己定时弹通知（需要服务器），用 iPhone 自带「快捷指令」实现，一步复制</div>' +
-      '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成。以后每天早上弹窗输个数字，体重就记上了</p>' +
-      '<button class="btn ghost" data-action="copy-shortcut-url">复制快捷指令要用的网址</button>' +
-    '</div>';
+  /* 称重提醒：默认收起（V57） */
+  html += '<div class="card" data-fc="1">' +
+      '<h3 class="card-label">每天称重提醒</h3>' +
+      '<div class="key-line">用 iPhone 自带「快捷指令」实现，每天早上弹窗输个数字就记上 · 点标题看 4 步设置</div>' +
+      '<div class="sg-body">' +
+      '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成</p>' +
+      '<button class="btn ghost" data-action="copy-shortcut-url" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">复制要用的网址</button>' +
+      '</div></div>';
 
   document.getElementById('tools-body').innerHTML = html;
+  bindFoldToggle(document.getElementById('tools-body'));
 }
 
 /* 设置页折叠（V55）：卡片默认收起只留标题+摘要行，点标题展开 */
