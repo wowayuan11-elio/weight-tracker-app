@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V54';
+const APP_VERSION = 'V55';
 const CHANGELOG = [
+  { v: 'V55', d: '10月4日', items: [
+    '新增第 4 个板块「工具」：趋势预测、平台期、年度回顾、CSV 导出、合并导入、称重提醒全部集中到这里，一屏找得到',
+    '设置页大瘦身：所有卡片默认收起只留一行摘要，点标题才展开——不用再滚两屏找东西'
+  ]},
   { v: 'V54', d: '10月3日', items: [
     '合并导入（微信中转兜底）：Tina 点一键备份发微信给你，你粘贴点「合并导入」就并入——她全程不碰 GitHub，只补不删永不覆盖你的数据',
     '趋势预测：按最近 14 天真实速度算出几月几号到 65/63；平台期检测：连续多天波动极小说一句「正常现象」',
@@ -1877,16 +1881,6 @@ function renderStats() {
       '<div class="wk-head"><span>周</span><span>' + esc(state.names.me) + '</span><span>' + esc(state.names.partner) + '</span></div>' + wkRows + weekDuelHTML() + '</div>';
   }
 
-  /* 趋势预测 + 平台期（V54） */
-  if (keys.length >= 5) {
-    const fr = PERSON_IDS.map(forecastRowHTML).join('');
-    if (fr) html += '<div class="card"><h3 class="card-label">趋势预测 · 几号到目标</h3>' +
-      '<p class="sub">按最近 14 天的真实速度算，不是拍脑袋 · 速度变了日期自动变</p>' + fr + '</div>';
-  }
-
-  /* 年度回顾（V54，统计页末尾） */
-  html += yearReviewHTML();
-
   /* 重点变化 · 一张结论卡（V22：合并周/月/累计三张卡，砍掉无对比意义的行，结论式大字） */
   if (keys.length) {
     const ws = weekStartOf(new Date());
@@ -2353,22 +2347,14 @@ function renderSettings() {
       '<p class="s-dim" style="margin-top:10px">她的安装三步：① Safari 打开这个网址 ② 点分享 → 添加到主屏幕 ③ 在她的 App「设置 → 自动云备份」里粘贴你发给她的钥匙（去你的 GitHub 账号再生成一把新钥匙发她，方法和你当初配置一样；同一仓库，谁记的标谁的名字）。</p>' +
       (ghConf ? '' : '<p class="set-tip" style="color:#b45309">她的第一步：先在下方「自动云备份」卡开通云备份，钥匙就在那张卡里配置——建议你在 GitHub 上另生成一把新钥匙发给她，和你自己那把分开，随时可作废。</p>') +
     '</div>') +
-    '<div class="card">' +
-      '<h3 class="card-label">每天称重提醒 · 免费可行方案</h3>' +
-      '<div class="key-line">网页 App 无法自己定时弹通知（需要服务器），用 iPhone 自带「快捷指令」实现，一步复制</div>' +
-      '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 再搜「询问每次」不用管 → 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成。以后每天早上弹窗输个数字，体重就记上了</p>' +
-      '<button class="btn ghost" data-action="copy-shortcut-url">复制快捷指令要用的网址</button>' +
-    '</div>' +
+    
     '<div class="card">' +
       '<h3 class="card-label">手动备份 · 不依赖网络</h3>' +
       '<div class="key-line">把数据变成一段文字，发到微信存着，随存随恢复</div>' +
       '<button class="btn" data-action="backup-now">一键备份（弹出分享面板）</button>' +
       '<button class="btn ghost" data-action="copy-link">复制存档链接</button>' +
-      '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
-      '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false"></textarea>' +
-      '<button class="btn" data-action="import-merge">合并导入（只补不删，不覆盖现有）</button>' +
-      '<div class="divider">导出</div>' +
-      '<button class="btn ghost" data-action="export-csv">导出 CSV 表格（全部数据）</button>'
+      '<div class="divider">数据工具已搬家</div>' +
+      '<p class="sub" style="margin:4px 0 0">合并导入 / CSV 导出搬到了底部「工具」板块</p>'
       '<div class="divider">恢复数据 · 粘贴进来，点一下就导入</div>' +
       '<textarea class="import-area json-area" placeholder="粘贴备份文本或存档链接" spellcheck="false"></textarea>' +
       '<button class="btn" data-action="import-backup">导入并覆盖</button>' +
@@ -2426,6 +2412,7 @@ function renderSettings() {
       '<button class="btn danger" data-action="clear-all">清空全部记录</button>' +
       '<p class="sub" style="text-align:center;margin-top:10px">' + APP_VERSION + ' · 本机存储 + GitHub 云备份 · 不上传任何第三方服务器</p>' +
     '</div>';
+  foldSettings();
 }
 
 function saveHeights() {
@@ -2684,6 +2671,65 @@ function yearReviewHTML() {
   return '<div class="card"><h3 class="card-label">' + y + ' 年度回顾 · 至今</h3>' +
     '<p class="sub">今年 1 月 1 日以来的第一笔 → 最新一笔 · 每个数字自带日期</p>' + rows +
     '<div class="card-foot">今年共同记录 ' + yKeys.length + ' 天 · 最长连续 ' + best + ' 天没断 · 这些数字年底会越来越好看</div></div>';
+}
+
+/* ================= 工具页（V55：新功能集合地） ================= */
+function renderTools() {
+  const keys = sortedKeys();
+  let html = '';
+
+  /* 趋势预测 + 平台期 */
+  if (keys.length >= 5) {
+    const fr = PERSON_IDS.map(forecastRowHTML).join('');
+    if (fr) html += '<div class="card"><h3 class="card-label">趋势预测 · 几号到目标</h3>' +
+      '<p class="sub">按最近 14 天的真实速度算，不是拍脑袋 · 速度变了日期自动变</p>' + fr + '</div>';
+  } else {
+    html += '<div class="card"><h3 class="card-label">趋势预测 · 几号到目标</h3>' +
+      '<p class="sub">记录攒够 5 天就能预测——按现在的节奏，下周就有答案</p></div>';
+  }
+
+  /* 年度回顾 */
+  html += yearReviewHTML();
+
+  /* 数据工具 */
+  html += '<div class="card"><h3 class="card-label">数据工具 · 导出与合并</h3>' +
+    '<div class="key-line">导出 = 全部数据变表格文件永久存档 · 合并 = 把 Tina 发来的备份并进来，只补不删</div>' +
+    '<button class="btn ghost" data-action="export-csv">导出 CSV 表格（全部数据）</button>' +
+    '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
+    '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false"></textarea>' +
+    '<button class="btn" data-action="import-merge">合并导入（只补不删，不覆盖现有）</button>' +
+    '</div>';
+
+  /* 称重提醒 */
+  html += '<div class="card">' +
+      '<h3 class="card-label">每天称重提醒 · 免费可行方案</h3>' +
+      '<div class="key-line">网页 App 无法自己定时弹通知（需要服务器），用 iPhone 自带「快捷指令」实现，一步复制</div>' +
+      '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成。以后每天早上弹窗输个数字，体重就记上了</p>' +
+      '<button class="btn ghost" data-action="copy-shortcut-url">复制快捷指令要用的网址</button>' +
+    '</div>';
+
+  document.getElementById('tools-body').innerHTML = html;
+}
+
+/* 设置页折叠（V55）：卡片默认收起只留标题+摘要行，点标题展开 */
+function foldSettings() {
+  document.querySelectorAll('#settings-body .card').forEach(function (card) {
+    const label = card.querySelector('.card-label');
+    if (!label || label.dataset.sgBound) return;
+    const kids = [...card.children].filter(el => el !== label && !el.classList.contains('key-line'));
+    kids.forEach(el => { el.style.display = 'none'; });
+    label.style.cursor = 'pointer';
+    const ar = document.createElement('span');
+    ar.textContent = '展开';
+    ar.style.cssText = 'float:right;font-size:12px;font-weight:400;color:var(--muted,#98A2B3)';
+    label.appendChild(ar);
+    label.dataset.sgBound = '1';
+    label.addEventListener('click', function () {
+      const open = kids[0] && kids[0].style.display === 'none';
+      kids.forEach(el => { el.style.display = open ? '' : 'none'; });
+      ar.textContent = open ? '收起' : '展开';
+    });
+  });
 }
 
 function importBackup() {
@@ -3041,6 +3087,7 @@ function renderAll() {
     renderRecord();
     renderTrend();
     renderStats();
+    renderTools();
   } catch (err) {
     /* 更新瞬间新旧文件短暂混装的兜底：绝不让用户看到白屏 */
     const pg = document.querySelector('.page.active') || document.getElementById('page-record');
