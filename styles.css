@@ -190,6 +190,7 @@ main{ flex:1; min-height:0; position:relative; }
 
 /* ---------- 通用卡片 ---------- */
 .card{
+  font-variant-numeric: tabular-nums;
   background:var(--card); border-radius:var(--radius-card); border:var(--card-border); padding:20px 18px; margin-top:16px;
   box-shadow:var(--shadow);
 }
@@ -507,6 +508,8 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 /* 保存成功态（V27）：按钮变绿打勾，1.6 秒后恢复 */
 .btn.saved{ background:#34c759; }
 .btn.ghost{ background:var(--chipbg); color:var(--tint); }
+/* V58: 次级操作小按钮——不满宽、不抢戏、不易误触 */
+.btn.sm{ width:auto; display:inline-block; padding:9px 16px; font-size:13.5px; border-radius:11px; margin-top:8px; }
 .btn.danger{ background:transparent; color:var(--up); font-weight:500; }
 
 /* 最新数据（大数字 · SF Pro Display Bold） */
@@ -753,9 +756,9 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .mig-note{ font-size:11.5px; color:var(--text3); line-height:1.6; margin:0; }
 /* 设置卡重点句（V25）：一眼看到这张卡是干嘛的 */
 .key-line{
-  font-size:13.5px; font-weight:650; color:var(--text);
-  background:rgba(52,199,89,.10); border-radius:10px;
-  padding:9px 12px; margin:8px 0 4px; line-height:1.5;
+  font-size:13px; font-weight:550; color:var(--text2);
+  background:none; border-left:2.5px solid rgba(var(--tint-rgb),.45); border-radius:0;
+  padding:2px 0 2px 10px; margin:8px 0 4px; line-height:1.55;
 }
 
 .json-area{
