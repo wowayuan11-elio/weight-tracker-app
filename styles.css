@@ -194,6 +194,14 @@ main{ flex:1; min-height:0; position:relative; }
   background:var(--card); border-radius:var(--radius-card); border:var(--card-border); padding:20px 18px; margin-top:16px;
   box-shadow:var(--shadow);
 }
+/* V59 入场微动画：切页时卡片轻轻上浮，不抢戏 */
+@keyframes cardIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
+.page.active .card{ animation:cardIn .38s cubic-bezier(.2,.7,.3,1) both; }
+.page.active .card:nth-child(2){ animation-delay:.04s; }
+.page.active .card:nth-child(3){ animation-delay:.08s; }
+.page.active .card:nth-child(4){ animation-delay:.12s; }
+.page.active .card:nth-child(n+5){ animation-delay:.16s; }
+@media (prefers-reduced-motion: reduce){ .page.active .card{ animation:none; } }
 .card-label{
   font-size:12px; font-weight:600; color:var(--text3); margin:0 0 12px;
   text-transform:var(--label-case); letter-spacing:var(--label-spacing);
