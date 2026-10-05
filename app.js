@@ -1788,7 +1788,7 @@ function ovStats(p) {
   const cur = lastKnown(p);
   if (cur === null) return null;
   const days = lastNDays(30);
-  const in30 = days.filter(k => typeof state.records[k][p] === 'number').map(k => state.records[k][p]);
+  const in30 = days.filter(k => state.records[k] && typeof state.records[k][p] === 'number').map(k => state.records[k][p]);
   const first30 = in30.length ? in30[0] : null;
   const avg30 = in30.length ? in30.reduce((a, b) => a + b, 0) / in30.length : null;
   const now = new Date();
