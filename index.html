@@ -13,7 +13,7 @@
 /* 自愈机制：版本变化时自动清掉手机上的旧缓存/旧SW，用户无感 */
 (function(){
   try{
-    var BUILD='v58a-20261004';
+    var BUILD='v59a-20261005';
     if(localStorage.getItem('wt_build')!==BUILD){
       localStorage.setItem('wt_build',BUILD);
       if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})});}
