@@ -878,3 +878,27 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .lg{ display:flex; gap:12px; font-size:12.5px; color:var(--text2); padding-bottom:2px; }
 .lg-item{ display:flex; align-items:center; gap:5px; }
 .lg-item b{ font-variant-numeric:tabular-nums; }
+
+/* V60: 30 天总览大屏卡 */
+.ov-head{ display:flex; align-items:center; padding-bottom:6px; border-bottom:1px solid var(--sep); }
+.ov-name{ flex:1; display:flex; align-items:center; gap:5px; font-size:13px; font-weight:650; color:var(--text); justify-content:flex-end; }
+.ov-head .ov-name:first-of-type{ justify-content:flex-end; }
+.ov-head .ov-lab{ flex:none; width:74px; }
+.ov-row{ display:flex; align-items:baseline; padding:9px 0; border-bottom:1px dashed var(--sep); }
+.ov-row:last-of-type{ border-bottom:0; }
+.ov-lab{ flex:none; width:74px; font-size:12.5px; color:var(--text2); }
+.ov-val{ flex:1; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:clip; }
+.ov-num{ font-size:17px; font-weight:700; color:var(--text); letter-spacing:-.2px; }
+.ov-val i{ font-style:normal; font-size:11px; color:var(--text3); margin-left:3px; }
+.ov-mute{ font-size:13px; color:var(--text3); }
+.ov-row .ov-val:first-of-type{ padding-right:14px; }
+
+/* V60: 本周 vs 上周 */
+.wc-wrap{ display:flex; gap:14px; }
+.wc-col{ flex:1; min-width:0; padding:12px; background:var(--chipbg); border-radius:14px; }
+.wc-name{ display:flex; align-items:center; gap:5px; font-size:12.5px; font-weight:650; color:var(--text); }
+.wc-big{ font-size:26px; font-weight:750; color:var(--text); letter-spacing:-.5px; margin-top:8px; }
+.wc-big small{ font-size:11px; font-weight:500; color:var(--text3); margin-left:5px; letter-spacing:0; }
+.wc-last{ font-size:11.5px; color:var(--text3); margin-top:3px; }
+.wc-delta{ margin-top:8px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.wc-note{ font-size:11px; color:var(--text2); line-height:1.4; }
