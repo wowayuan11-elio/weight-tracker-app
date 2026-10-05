@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V58';
+const APP_VERSION = 'V59';
 const CHANGELOG = [
+  { v: 'V59', d: '10月5日', items: [
+    '图表质感升级：曲线下方加同色渐变填充，最新一个数据点带光晕——对标一线健康 App 的图表观感',
+    '切页时卡片带轻微上浮入场动画，滑动更跟手',
+    '首页大数字字形收紧，更有海报感'
+  ]},
   { v: 'V58', d: '10月4日', items: [
     '整体质感打磨：所有绿色提示块改成细线摘要行，页面安静了一大截',
     '次要按钮全部改小号（复制/导出/导入/开通类），主操作才保留大按钮——不容易误触，层级也清楚',
@@ -1425,12 +1430,22 @@ function buildDualChart(days, opts) {
   });
 
   let paths = '';
+  let defs = '';
+  const bottom = T + ih;
   const goalsDrawn = [];
   series.forEach(s => {
     const cpts = s.pts.map(pt => ({ x: X(pt.i), y: Y(pt.v) }));
     if (cpts.length) {
       const d = smoothPath(cpts);
-      if (d) paths += '<path d="' + d + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>';
+      if (d) {
+        /* V59 渐变面积：曲线下方同色淡出填充 */
+        const gid = 'g' + s.p + '-' + Math.random().toString(36).slice(2, 7);
+        defs += '<linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0" stop-color="' + COLORS[s.p] + '" stop-opacity=".16"/>' +
+          '<stop offset="1" stop-color="' + COLORS[s.p] + '" stop-opacity="0"/></linearGradient>';
+        paths += '<path d="' + d + ' L ' + cpts[cpts.length - 1].x + ' ' + bottom + ' L ' + cpts[0].x + ' ' + bottom + ' Z" fill="url(#' + gid + ')" stroke="none"/>';
+        paths += '<path d="' + d + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>';
+      }
       /* 趋势线：滑动平均（Happy Scale 式）——碎虚线+降透明度，和实线一眼区分 */
       if (opts.trend && s.pts.length >= 4) {
         const mpts = s.pts.map((pt, idx) => {
@@ -1442,7 +1457,8 @@ function buildDualChart(days, opts) {
         if (dm) paths += '<path d="' + dm + '" fill="none" stroke="' + COLORS[s.p] + '" stroke-width="2" stroke-linecap="round" opacity="0.45" stroke-dasharray="2 6"/>';
       }
       const last = cpts[cpts.length - 1];
-      paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--card)" stroke="' + COLORS[s.p] + '" stroke-width="2.5"/>';
+      paths += '<circle cx="' + last.x + '" cy="' + last.y + '" r="10" fill="' + COLORS[s.p] + '" opacity=".14"/>' +
+        '<circle cx="' + last.x + '" cy="' + last.y + '" r="4" fill="var(--card)" stroke="' + COLORS[s.p] + '" stroke-width="2.5"/>';
     }
     const g = withGoals ? state.goals[s.p] : undefined;
     if (typeof g === 'number' && goalsDrawn.indexOf(g.toFixed(1)) === -1) {
@@ -1453,6 +1469,7 @@ function buildDualChart(days, opts) {
   });
 
   const svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img">' +
+    (defs ? '<defs>' + defs + '</defs>' : '') +
     grid +
     '<line class="scrub-line" x1="0" y1="' + T + '" x2="0" y2="' + (T + ih) + '" stroke="var(--text3)" stroke-width="1" stroke-dasharray="3 3" style="display:none"/>' +
     paths +
