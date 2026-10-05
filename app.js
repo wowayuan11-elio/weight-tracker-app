@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V59';
+const APP_VERSION = 'V60';
 const CHANGELOG = [
+  { v: 'V60', d: '10月5日', items: [
+    '统计页顶部新增「30 天总览」大屏卡：两人并排，最新体重/距目标/30天变化/平均/本月天数/体脂率一次看全——一屏看懂俩人的区别',
+    '新增「本周 vs 上周」对比卡：每周平均一比，降了就报喜，涨了也告诉你波动很正常'
+  ]},
   { v: 'V59', d: '10月5日', items: [
     '图表质感升级：曲线下方加同色渐变填充，最新一个数据点带光晕——对标一线健康 App 的图表观感',
     '切页时卡片带轻微上浮入场动画，滑动更跟手',
@@ -1779,6 +1783,88 @@ function weeklyTableHTML() {
 }
 
 /* 本月复盘卡：体重/腰围各「月初第一条 → 最新」+ 打卡天数，每个数字自带日期解释 */
+/* V60: 30 天总览大屏——一屏看懂俩人的区别（数值固定列，防短条折行） */
+function ovStats(p) {
+  const cur = lastKnown(p);
+  if (cur === null) return null;
+  const days = lastNDays(30);
+  const in30 = days.filter(k => typeof state.records[k][p] === 'number').map(k => state.records[k][p]);
+  const first30 = in30.length ? in30[0] : null;
+  const avg30 = in30.length ? in30.reduce((a, b) => a + b, 0) / in30.length : null;
+  const now = new Date();
+  const mStr = todayKey().slice(0, 7);
+  const mKeys = sortedKeys().filter(k => k.slice(0, 7) === mStr && typeof state.records[k][p] === 'number');
+  const mDays = mKeys.length, mAll = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const g = state.goals[p];
+  const bf = lastKnownField(p + '_bf');
+  return {
+    cur, curKey: lastKeyOf(p),
+    goal: (typeof g === 'number' && cur !== null) ? (cur - g) : null,
+    d30: (first30 !== null && in30.length >= 2) ? (cur - first30) : null,
+    avg30, mDays, mAll,
+    bf: bf ? bf.value : null
+  };
+}
+function overviewHTML() {
+  const a = ovStats('me'), b = ovStats('partner');
+  if (!a && !b) return '';
+  function cell(v, digits) { return v === null ? '<span class="ov-mute">—</span>' : '<b class="ov-num">' + v.toFixed(digits === undefined ? 1 : digits) + '</b>'; }
+  function rows() {
+    const mk = (label, fa, fb, unit, digits) =>
+      '<div class="ov-row"><span class="ov-lab">' + label + '</span>' +
+      '<span class="ov-val">' + cell(fa, digits) + (unit ? '<i>' + unit + '</i>' : '') + '</span>' +
+      '<span class="ov-val">' + cell(fb, digits) + (unit ? '<i>' + unit + '</i>' : '') + '</span></div>';
+    let h = '';
+    h += mk('最新体重', a && a.cur, b && b.cur, 'kg');
+    h += mk('距目标', a && a.goal, b && b.goal, 'kg');
+    h += mk('30 天变化', a && a.d30, b && b.d30, 'kg');
+    h += mk('30 天平均', a && a.avg30, b && b.avg30, 'kg');
+    const md = p => p === null ? null : p.mDays;
+    h += '<div class="ov-row"><span class="ov-lab">本月记了</span>' +
+      '<span class="ov-val">' + (a ? '<b class="ov-num">' + a.mDays + '</b><i>/' + a.mAll + ' 天</i>' : '<span class="ov-mute">—</span>') + '</span>' +
+      '<span class="ov-val">' + (b ? '<b class="ov-num">' + b.mDays + '</b><i>/' + b.mAll + ' 天</i>' : '<span class="ov-mute">—</span>') + '</span></div>';
+    h += mk('体脂率', a && a.bf, b && b.bf, '%');
+    return h;
+  }
+  return '<div class="card"><h3 class="card-label">30 天总览 · 一屏看懂俩人</h3>' +
+    '<div class="ov-head"><span class="ov-lab"></span>' +
+    '<span class="ov-name"><i class="dotc" style="background:' + COLORS.me + '"></i>' + esc(state.names.me) + '</span>' +
+    '<span class="ov-name"><i class="dotc" style="background:' + COLORS.partner + '"></i>' + esc(state.names.partner) + '</span></div>' +
+    rows() +
+    '<p class="set-tip">30 天变化 = 30 天前第一记 vs 现在 · 平均 = 这 30 天有记录日子的平均 · 「—」= 这个指标还没记过</p></div>';
+}
+
+/* V60: 本周 vs 上周——短周期对比，鼓励式定调 */
+function weekAvgRange(p, fromKey, toKey) {
+  const vals = sortedKeys().filter(k => k >= fromKey && k <= toKey && typeof state.records[k][p] === 'number').map(k => state.records[k][p]);
+  return vals.length ? vals.reduce((x, y) => x + y, 0) / vals.length : null;
+}
+function weekCompareHTML() {
+  const now = new Date();
+  const monday = addDays(now, -((now.getDay() + 6) % 7));
+  const lastMonday = addDays(monday, -7), lastSunday = addDays(monday, -1);
+  const wk = dateKey(monday), lwk = dateKey(lastMonday), lwe = dateKey(lastSunday);
+  const cols = PERSON_IDS.map(p => {
+    const t = weekAvgRange(p, wk, todayKey()), l = weekAvgRange(p, lwk, lwe);
+    let inner;
+    if (t === null) inner = '<span class="delta flat">本周还没记</span>';
+    else if (l === null) inner = '<span class="delta flat">上周没记录，从这周开始比</span>';
+    else {
+      const d = t - l;
+      if (Math.abs(d) < 0.05) inner = '<span class="delta flat">和上周打平</span>';
+      else if (d < 0) inner = '<span class="delta down">↓ ' + Math.abs(d).toFixed(1) + '</span><span class="wc-note">比上周低，继续保持</span>';
+      else inner = '<span class="delta up">↑ ' + d.toFixed(1) + '</span><span class="wc-note">比上周高一点，波动很正常</span>';
+    }
+    return '<div class="wc-col"><div class="wc-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</div>' +
+      (t !== null ? '<div class="wc-big">' + t.toFixed(1) + '<small>kg 本周均</small></div>' : '') +
+      (l !== null ? '<div class="wc-last">上周均 ' + l.toFixed(1) + '</div>' : '') +
+      '<div class="wc-delta">' + inner + '</div></div>';
+  }).join('');
+  return '<div class="card"><h3 class="card-label">本周 vs 上周</h3>' +
+    '<div class="wc-wrap">' + cols + '</div>' +
+    '<p class="set-tip">每周一为起点 · 比的是平均值，一天两天的浮动不算数</p></div>';
+}
+
 function monthlyReviewHTML() {
   const mStr = todayKey().slice(0, 7);
   const mKeys = sortedKeys().filter(k => k.slice(0, 7) === mStr);
@@ -1813,6 +1899,10 @@ function monthlyReviewHTML() {
 function renderStats() {
   const keys = sortedKeys();
   let html = '';
+
+  /* 30 天总览大屏 + 本周对比（V60）：顶部前两张 */
+  html += overviewHTML();
+  html += weekCompareHTML();
 
   /* 本月复盘 · 顶部第一张卡（可复盘） */
   html += monthlyReviewHTML();
