@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V60';
+const APP_VERSION = 'V61';
 const CHANGELOG = [
+  { v: 'V61', d: '10月6日', items: [
+    '工具页上线「居家训练」：16 个居家动作，每个都能点开看 B 站标准教学视频（都是验证过的正规教练/康复师视频）+ 几组几次怎么休息',
+    '「智能训练规划」自动识别你勾过的器械（哑铃/弹力带/跳绳…），一键生成一周居家计划，没勾的器械绝不会出现在安排里',
+    '没器械也能练——徒手动作永远都在池子里'
+  ]},
   { v: 'V60', d: '10月5日', items: [
     '统计页顶部新增「30 天总览」大屏卡：两人并排，最新体重/距目标/30天变化/平均/本月天数/体脂率一次看全——一屏看懂俩人的区别',
     '新增「本周 vs 上周」对比卡：每周平均一比，降了就报喜，涨了也告诉你波动很正常'
@@ -294,6 +299,81 @@ const EQUIP_LIST = [
 ];
 
 
+/* ============ 居家训练动作库（V61）：视频均为人工验证的 B 站正规教学 ============ */
+const GYM_MOVES = [
+  /* 下肢力量 */
+  { id: 'squat',   n: '深蹲',     grp: '下肢力量', kind: 'strength', need: null,
+    sets: '3 组 × 12-15 次', rest: '组间休息 60-90 秒',
+    tips: ['双脚与肩同宽，脚尖微微外展', '膝盖始终对准脚尖方向，不要内扣', '臀部向后坐，重心压在脚跟，起身夹臀'],
+    bv: 'BV1FB4y137gi', by: '卓叔增重' },
+  { id: 'lunge',   n: '弓步蹲',   grp: '下肢力量', kind: 'strength', need: null,
+    sets: '3 组 × 每边 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['前脚膝盖对脚尖，后膝靠近地面但不砸地', '上身挺直，核心收紧别晃', '步幅别太小——太小膝盖压力反而大'],
+    bv: 'BV1iV89zME8a', by: 'ACE 认证教练 宋健鹏' },
+  { id: 'glutebridge', n: '臀桥', grp: '下肢力量', kind: 'strength', need: null,
+    sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
+    tips: ['脚跟踩实，用臀部发力顶起', '顶到身体成一条直线，停 1 秒再下', '下落时臀部别完全坐实地面，保持张力'],
+    bv: 'BV1kF411F7YG', by: 'MidoriLau' },
+  { id: 'wallsit', n: '靠墙静蹲', grp: '下肢力量', kind: 'strength', need: null,
+    sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 60 秒',
+    tips: ['背贴紧墙面，大腿与地面平行（做不到就高一点）', '膝盖不超过脚尖，小腿尽量垂直地面', '膝盖不舒服时抬高角度，量力而行'],
+    bv: 'BV1MscszTEJH', by: '运动康复陈老师' },
+  { id: 'pushup',  n: '俯卧撑',   grp: '上肢力量', kind: 'strength', need: null,
+    sets: '3 组 × 8-15 次（做不动就跪姿）', rest: '组间休息 60-90 秒',
+    tips: ['手在胸两侧，肘部与身体约 45 度，别外展 90 度', '全身绷直像一块板，塌腰=白练', '下去吸气上来呼气，幅度做满'],
+    bv: 'BV1Ta411K72v', by: '帅soserious' },
+  { id: 'dumbrow', n: '哑铃俯身划船', grp: '上肢力量', kind: 'strength', need: 'dumb',
+    sets: '3 组 × 每边 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['俯身时背平，别弓腰', '肘部贴身向后拉，感受背部收紧', '用哑铃就从小重量开始，动作对了再加'],
+    bv: 'BV1JS411N7Yg', by: '拿铁孙同学' },
+  { id: 'press',   n: '哑铃肩上推举', grp: '上肢力量', kind: 'strength', need: 'dumb',
+    sets: '3 组 × 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['坐稳或站直，核心收紧别挺腰', '推起时哑铃轨迹略向后，头顶正上方', '下放慢一点，别借力甩'],
+    bv: 'BV1uw411N7MC', by: '凯圣王' },
+  { id: 'bandrow', n: '弹力带划船', grp: '上肢力量', kind: 'strength', need: 'band',
+    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
+    tips: ['弹力带固定稳，两端拉直再开始', '肘贴身向后收，肩胛骨夹紧', '回放慢速对抗，别让带子弹回来'],
+    bv: 'BV183411N7uG', by: '菠萝头爱运动' },
+  /* 核心 */
+  { id: 'plank',   n: '平板支撑', grp: '核心', kind: 'core', need: null,
+    sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 45-60 秒',
+    tips: ['肘在肩正下方，小臂平行向前', '收腹夹臀，身体一条直线', '憋不住变形了就停——质量大于时长'],
+    bv: 'BV1Q34y1j79r', by: 'Gandy__' },
+  { id: 'crunch',  n: '卷腹',     grp: '核心', kind: 'core', need: null,
+    sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
+    tips: ['下背贴地，靠腹部卷起肩胛骨就够', '脖子放松，手轻扶耳别抱头使劲拽', '起身呼气，慢下比快起有效'],
+    bv: 'BV15N4y1g7VV', by: 'ALEX 健身频道' },
+  { id: 'deadbug', n: '死虫式',   grp: '核心', kind: 'core', need: null,
+    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
+    tips: ['下背全程压紧地面，腰别拱起', '对侧手脚同时放，慢到像慢动作', '腰痛人群首选核心动作，安全'],
+    bv: 'BV1Bu411V7rW', by: '运动康复陈老师' },
+  { id: 'legraise', n: '仰卧抬腿', grp: '核心', kind: 'core', need: null,
+    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
+    tips: ['手放身体两侧，下背压住地面', '腿慢抬慢放，落下来别碰地', '腰离地了就抬高一点腿再放'],
+    bv: 'BV1kq4y1n75T', by: 'Mina筱敏' },
+  /* 有氧 */
+  { id: 'jumpingjack', n: '开合跳', grp: '有氧', kind: 'cardio', need: null,
+    sets: '4 组 × 30-45 秒', rest: '组间休息 30-45 秒',
+    tips: ['落地膝盖微屈缓冲，别直腿砸地', '手臂摆到头顶，幅度做满', '节奏匀速，能边做边正常喘气为宜'],
+    bv: 'BV1Bb4y147tm', by: 'coolkii' },
+  { id: 'burpee',  n: '波比跳',   grp: '有氧', kind: 'cardio', need: null,
+    sets: '3-4 组 × 8-12 次', rest: '组间休息 60-90 秒',
+    tips: ['跳不起来的降级版：站起就行，不跳', '撑地时核心收紧，别塌腰', '心率猛就减次数，安全第一'],
+    bv: 'BV15E411E7AW', by: '闫帅奇' },
+  { id: 'mountain', n: '登山跑',  grp: '有氧', kind: 'cardio', need: null,
+    sets: '4 组 × 30 秒', rest: '组间休息 30-45 秒',
+    tips: ['肩在手腕正上方，屁股别撅高', '膝盖往胸口方向提，速度匀', '撑不住就放慢，姿态优先'],
+    bv: 'BV1D24y1t7CD', by: '运动科学' },
+  { id: 'highknees', n: '高抬腿', grp: '有氧', kind: 'cardio', need: null,
+    sets: '4 组 × 30-45 秒', rest: '组间休息 30-45 秒',
+    tips: ['膝盖抬到髋部高度，前脚掌落地', '上身挺直别后仰', '小区里怕吵就原地轻放，不用猛跺'],
+    bv: 'BV11J4m1u7R3', by: '阿娇教练' },
+  { id: 'jumprope', n: '跳绳（新手版）', grp: '有氧', kind: 'cardio', need: 'jump',
+    sets: '3-5 组 × 1 分钟', rest: '组间休息 60-90 秒',
+    tips: ['前脚掌起跳落，跳得低一点省力', '手腕摇绳，不是抡大臂', '膝盖踝关节有旧伤就先别跳'],
+    bv: 'BV1uS4y1k7sw', by: '麦斯跳绳' }
+];
+
 /* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
 function sanitizeUI(u) {
   const d = { heroLayout: 'grid', heroOrder: PERSON_IDS.slice(), heroMetrics: { goal: true, bmi: true, bf: true, waist: true, vf: true, mm: true } };
@@ -312,6 +392,21 @@ function sanitizeUI(u) {
   if (u.themeRotate === true) d.themeRotate = true;
   if (typeof u.themeDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(u.themeDate)) d.themeDate = u.themeDate;
   if (Array.isArray(u.equip)) d.equip = u.equip.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim().slice(0, 14)).filter(function (v, i, a) { return a.indexOf(v) === i; }).slice(0, 18);
+  /* V61 居家训练计划：只认合法动作 id 与文字条目 */
+  if (u.gymPlan && typeof u.gymPlan === 'object' && Array.isArray(u.gymPlan.days)) {
+    const okIds = {};
+    GYM_MOVES.forEach(m => { okIds[m.id] = true; });
+    const days = u.gymPlan.days.slice(0, 7).map(day => {
+      if (!day || !Array.isArray(day.ex)) return null;
+      const ex = day.ex.slice(0, 8).map(e => {
+        if (e && okIds[e.id]) return { id: e.id };
+        if (e && typeof e.t === 'string' && e.t.trim()) return { t: e.t.trim().slice(0, 30), s: typeof e.s === 'string' ? e.s.slice(0, 40) : '' };
+        return null;
+      }).filter(Boolean);
+      return { f: typeof day.f === 'string' ? day.f.slice(0, 16) : '', ex };
+    }).filter(Boolean);
+    if (days.length === 7) d.gymPlan = { gen: (typeof u.gymPlan.gen === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(u.gymPlan.gen)) ? u.gymPlan.gen : todayKey(), days };
+  }
   return d;
 }
 
@@ -2829,9 +2924,118 @@ function yearReviewHTML() {
 }
 
 /* ================= 工具页（V55：新功能集合地） ================= */
+/* 动作详情弹层（V61）：iframe 懒加载，打开才插视频 */
+function openGymSheet(id) {
+  const m = GYM_MOVES.find(x => x.id === id);
+  if (!m) return;
+  const body = document.getElementById('gym-body');
+  if (!body) return;
+  document.getElementById('gym-sheet-title').textContent = m.n;
+  body.innerHTML =
+    '<div class="gym-meta"><span class="set-chip on">' + m.grp + '</span><span class="set-chip">' + m.sets + '</span>' +
+    (m.rest ? '<span class="set-chip">' + m.rest + '</span>' : '') + '</div>' +
+    '<div class="gym-video"><iframe src="https://player.bilibili.com/player.html?bvid=' + m.bv + '&autoplay=0&danmaku=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" title="' + esc(m.n) + ' 标准动作教学"></iframe></div>' +
+    '<p class="sub">教学来源：B 站 · ' + esc(m.by) + ' · 已人工核对为标准动作教学</p>' +
+    '<div class="divider">动作要点 · 做对比做多重要</div>' +
+    '<div class="gym-tips">' + m.tips.map(t => '<div class="gym-tip"><i class="dotc" style="background:' + COLORS.me + '"></i>' + t + '</div>').join('') + '</div>' +
+    '<a class="btn ghost sm" href="https://www.bilibili.com/video/' + m.bv + '" target="_blank" rel="noopener" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px;text-decoration:none;margin-top:10px">卡了？去 B 站 App 看原视频 ↗</a>';
+  document.getElementById('sheet-mask').classList.add('show');
+  document.getElementById('gym-sheet').classList.add('show');
+}
+
+/* ============ 智能训练规划（V61）：读已勾器械 → 自动生成一周居家计划 ============ */
+function gymPool() {
+  const eq = (state.ui && state.ui.equip) || [];
+  const has = k => eq.indexOf(k) > -1;
+  return GYM_MOVES.filter(m => !m.need || (m.need === 'dumb' && has('dumb')) || (m.need === 'band' && has('band')) || (m.need === 'jump' && has('jump')));
+}
+function gymPick(arr, n, used) {
+  const rest = arr.filter(m => used.indexOf(m.id) === -1);
+  const bag = rest.sort(() => Math.random() - 0.5);
+  if (bag.length < n) bag.push.apply(bag, arr.filter(m => used.indexOf(m.id) === -1 && bag.indexOf(m) === -1).sort(() => Math.random() - 0.5));
+  return bag.slice(0, n);
+}
+function genGymPlan() {
+  const pool = gymPool();
+  const by = k => pool.filter(m => m.kind === k);
+  const legs = pool.filter(m => m.kind === 'strength' && ['下肢力量'].indexOf(m.grp) > -1);
+  const upper = pool.filter(m => m.kind === 'strength' && m.grp === '上肢力量');
+  const core = by('core'), cardio = by('cardio');
+  const eq = (state.ui && state.ui.equip) || [];
+  const walkName = { walk: '快走 30 分钟', run: '慢跑 20-30 分钟', tread: '跑步机快走/慢跑 30 分钟', swim: '游泳 30 分钟', ride: '骑行 30 分钟' };
+  const walkItem = (eq.find(k => walkName[k]) || 'walk') && (eq.map(k => walkName[k]).filter(Boolean)[0] || null);
+  const used = [];
+  const L = () => { const p = gymPick(legs, 3, used); p.forEach(m => used.push(m.id)); return p; };
+  const U = () => { const p = gymPick(upper.length ? upper : legs, 2, used); p.forEach(m => used.push(m.id)); return p; };
+  const C = n => { const p = gymPick(core, n, used); p.forEach(m => used.push(m.id)); return p; };
+  const A = n => { const p = gymPick(cardio, n, used); p.forEach(m => used.push(m.id)); return p; };
+  const mk = (f, ms) => ({ f, ex: ms.map(m => ({ id: m.id })) });
+  const days = [];
+  /* 周一 下肢+核心 */
+  days.push(mk('下肢 + 核心', L().concat(C(2))));
+  /* 周二 上肢+核心 */
+  days.push(mk('上肢 + 核心', U().concat(C(2))));
+  /* 周三 有氧 */
+  days.push(mk('有氧日', A(3).map(m => ({ id: m.id })).concat(walkItem ? [{ t: walkItem, s: '微微出汗就行' }] : []).concat(C(1).map(m => ({ id: m.id })))));
+  /* 周四 休息 */
+  days.push({ f: '休息日', ex: [{ t: '散步 / 拉伸', s: '让肌肉恢复，比硬练更出效果' }] });
+  /* 周五 全身 */
+  days.push(mk('全身日', L().slice(0, 2).concat(U()).concat(A(1)).concat(C(1))));
+  /* 周六 有氧+核心 */
+  days.push(mk('有氧 + 核心', A(2).map(m => ({ id: m.id })).concat(C(2).map(m => ({ id: m.id })))));
+  /* 周日 休息 */
+  days.push({ f: '休息日', ex: [{ t: '散步 / 拉伸', s: '每周休息 2 天，练得久才练得住' }] });
+  return { gen: todayKey(), days };
+}
+function gymMoveChip(m) {
+  return '<button class="set-chip gym-chip" data-action="gym-open" data-id="' + m.id + '">' + m.n + '<i>' + m.grp + '</i></button>';
+}
+function gymCardsHTML() {
+  const eq = (state.ui && state.ui.equip) || [];
+  const eqNames = eq.map(k => { const e = EQUIP_LIST.find(x => x.k === k); return e ? e.n : k; });
+  const pool = gymPool();
+  /* 动作库卡（默认收起） */
+  const groups = ['下肢力量', '上肢力量', '核心', '有氧'];
+  let lib = '';
+  groups.forEach(g => {
+    const ms = GYM_MOVES.filter(m => m.grp === g);
+    lib += '<div class="divider">' + g + ' · ' + ms.length + ' 个</div><div class="gym-chips">' + ms.map(gymMoveChip).join('') + '</div>';
+  });
+  let h = '<div class="card" data-fc="1"><h3 class="card-label">居家动作库 · 点开看标准视频</h3>' +
+    '<div class="key-line">16 个居家动作 · 每个动作配 B 站正规教学视频（教练/康复师）· 几组几次几点休息都写清了</div>' +
+    '<div class="sg-body">' + lib +
+    '<p class="set-tip">视频都是 B 站人工筛过的标准教学 · 卡了就在弹层里点「去 B 站看」</p></div></div>';
+  /* 智能规划卡（默认收起） */
+  const p = state.ui.gymPlan;
+  let planBody = '';
+  if (eqNames.length) planBody += '<div class="divider">自动识别到你的器械</div><div class="gym-chips">' + eqNames.map(n => '<span class="set-chip on gym-eq">' + n + '</span>').join('') + '</div>';
+  else planBody += '<div class="key-line">还没勾器械——纯徒手也能练，先看下面的计划</div>';
+  planBody += '<p class="sub">当前可选动作 ' + pool.length + ' 个（徒手永远在池子里 · 没勾的器械绝不会出现）</p>';
+  if (p && Array.isArray(p.days)) {
+    planBody += '<div class="divider">本周安排（' + p.gen + ' 生成）</div>';
+    p.days.forEach((d, i) => {
+      planBody += '<div class="gym-day"><b>周' + '一二三四五六日'[i] + ' · ' + esc(d.f) + '</b>' +
+        d.ex.map(e => {
+          if (e.t) return '<span class="gym-ex"><i class="dotc" style="background:var(--text3)"></i>' + esc(e.t) + '<em>' + esc(e.s || '') + '</em></span>';
+          const m = GYM_MOVES.find(x => x.id === e.id);
+          return m ? '<button class="gym-ex gym-link" data-action="gym-open" data-id="' + m.id + '"><i class="dotc" style="background:' + (COLORS.me || '#007aff') + '"></i>' + m.n + '<em>' + m.sets + '</em><u>看视频</u></button>' : '';
+        }).join('') + '</div>';
+    });
+  }
+  planBody += '<button class="btn ghost sm" data-action="gym-gen" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">' + (p ? '换一套安排' : '生成一周计划') + '</button>';
+  planBody += '<p class="set-tip">按「减脂+新手」配的量：力量 3 组、核心 3 组、有氧每次 30 秒起步 · 哪天累就挪到第二天，别硬顶</p>';
+  h += '<div class="card" data-fc="1"><h3 class="card-label">智能训练规划 · 按你的器械</h3>' +
+    '<div class="key-line">' + (p ? '已生成本周计划 · 点动作名直接看视频' : '读你勾过的器械，一键生成一周居家安排') + '</div>' +
+    '<div class="sg-body">' + planBody + '</div></div>';
+  return h;
+}
+
 function renderTools() {
   const keys = sortedKeys();
   let html = '';
+
+  /* 居家训练（V61）：动作库 + 智能规划，工具页最顶 */
+  html += gymCardsHTML();
 
   /* 趋势预测 + 平台期 */
   if (keys.length >= 5) {
@@ -3116,6 +3320,19 @@ document.addEventListener('click', e => {
       document.getElementById('sheet-mask').classList.remove('show');
       renderSettings();
       toast('✓ 已添加「' + v.trim() + '」，勾上即可参与周计划');
+    }
+    else if (a === 'gym-gen') {
+      state.ui.gymPlan = genGymPlan();
+      saveState(); renderTools();
+      toast('✓ 一周计划已按你的器械生成');
+    }
+    else if (a === 'gym-open') {
+      openGymSheet(btn.getAttribute('data-id'));
+    }
+    else if (a === 'gym-close') {
+      document.getElementById('gym-sheet').classList.remove('show');
+      document.getElementById('sheet-mask').classList.remove('show');
+      document.getElementById('gym-body').innerHTML = '';
     }
     else if (a === 'close-plan') { equipAddMode = false; document.getElementById('plan-sheet').classList.remove('show'); document.getElementById('sheet-mask').classList.remove('show'); }
     else if (a === 'plan-pick') {
