@@ -955,3 +955,11 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .wp-pill>i{ flex:none; font-style:normal; font-size:18px; color:var(--text3); }
 /* 设置宫格微调（sheet 内） */
 #settings-body .wg-item span{ display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+
+/* V65: 饮食 tabs + 识别 */
+.diet-tabs{ display:flex; gap:8px; margin-top:8px; }
+.diet-tabs .set-chip{ flex:1; text-align:center; justify-content:center; padding:9px 4px; }
+.diet-say{ display:flex; gap:8px; margin-top:8px; }
+.diet-say .text-input{ flex:1; min-width:0; }
+.diet-pv{ margin-top:10px; padding:10px; border-radius:14px; background:var(--card-2, rgba(127,127,127,.06)); }
+.diet-unknown span{ color:#b45309; font-weight:600; }
