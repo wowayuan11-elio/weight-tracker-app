@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V63.2';
+const APP_VERSION = 'V64';
 const CHANGELOG = [
+  { v: 'V64', d: '10月6日', items: [
+    '大归类：运动与器械从设置搬到健康营，就挨着「智能训练规划」——健身相关的从此都在一个地方找',
+    '数据工具升级成「数据与同步」：云备份、双人同步、导出 CSV、合并导入全归它管',
+    '设置页瘦成纯设置：主题、名字与目标、指标说明、安装版本——跟主流健康 App 一个思路，设置里不再塞业务功能'
+  ]},
   { v: 'V63.2', d: '10月6日', items: [
     '真正的病根修了：饮食日记算 7 天平均时，碰到没记录的日期（比如国庆没称的那几天）会算崩——就是它导致切换组件时内容卡住。现在没记录的天自动跳过'
   ]},
@@ -3114,12 +3119,51 @@ function trendBody() {
   }
   return '<p class="sub">记录攒够 5 天就能预测——按现在的节奏，下周就有答案</p>';
 }
+/* V64: 运动与器械（从设置搬来，紧挨训练规划） */
+function equipBody() {
+  return '<p class="sub">勾上你会做的和家里有的，周计划和训练规划都按这个排</p>' +
+    '<div class="equip-grid">' +
+    EQUIP_LIST.map(t =>
+      '<button class="set-chip' + ((state.ui.equip || []).indexOf(t.k) > -1 ? ' on' : '') + '" data-action="toggle-equip" data-v="' + t.k + '">' +
+      ((state.ui.equip || []).indexOf(t.k) > -1 ? '✓ ' : '') + t.n + '</button>'
+    ).join('') +
+    ((state.ui.equip || []).filter(x => !EQUIP_LIST.some(e => e.k === x)).map(x =>
+      '<button class="set-chip on" data-action="toggle-equip" data-v="' + x + '">✓ ' + esc(x) + '</button>'
+    ).join('')) +
+    '<button class="set-chip equip-add" data-action="equip-add">＋ 自定义</button>' +
+    '</div>' +
+    '<button class="btn sm" data-action="regen-plan" style="margin-top:12px">按我的器械重排周计划</button>' +
+    '<p class="set-tip">重排后仍可去统计页逐天微调 · 没勾的器械不会出现在安排里 · 智能训练规划读的也是这份清单</p>';
+}
+/* V64: 数据与同步（云备份+双人同步+CSV+合并，全归一处） */
 function dataBody() {
-  return '<button class="btn ghost sm" data-action="export-csv" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">导出 CSV</button>' +
+  let h = '';
+  if (ghConf) {
+    h += '<div class="divider">云备份 · 已开通</div>' +
+      '<div class="key-line">✓ 数据已自动上云 —— 手机丢了、换新机，记录都在</div>' +
+      '<p class="sub">每次记录后自动备份（' + (ghConf.provider === 'gitee' ? 'Gitee 国内通道' : 'GitHub') + ' · 私有仓库 ' + esc(ghConf.owner) + '/' + esc(ghConf.repo) + '，只有你能看）</p>' +
+      '<p class="s-dim" style="margin-bottom:10px">上次同步：' + lastSyncText() + '</p>' +
+      '<div class="settings-btns"><button class="btn" data-action="cloud-sync">立即同步</button><button class="btn ghost sm" data-action="cloud-restore">从云端恢复</button></div>';
+  } else {
+    h += '<div class="divider">云备份 · 还没开通</div>' +
+      '<p class="sub">开通后数据自动上云，手机丢了也不怕。推荐用 Gitee 私人令牌（国内网络稳定）。粘贴令牌：</p>' +
+      '<textarea class="json-area cloud-area" placeholder="粘贴配置链接或授权码" spellcheck="false"></textarea>' +
+      '<button class="btn" data-action="cloud-setup">开通自动云备份</button>';
+  }
+  h += '<div class="divider">双人同步 · 她用她的手机记</div>' +
+    '<p class="sub">各记各的，云端自动合并 —— 你打开 App 就能看到她的最新记录。云端仓库和钥匙都在你的账号里，给她的钥匙随时可作废。</p>' +
+    '<button class="btn sm" data-action="copy-app-link">📋 把 App 链接发给她</button>' +
+    '<div class="divider">这台手机默认记谁（快捷指令记录用）</div>' +
+    '<div class="settings-btns">' +
+    PERSON_IDS.map(p => '<button class="btn ' + (deviceOwner() === p ? '' : 'ghost') + '" data-action="set-owner-' + p + '">' + esc(state.names[p]) + (deviceOwner() === p ? ' ✓' : '') + '</button>').join('') +
+    '</div>' +
+    '<div class="divider">存档 · 导出与合并</div>' +
+    '<button class="btn ghost sm" data-action="export-csv" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">导出 CSV</button>' +
     '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
     '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false" style="min-height:64px"></textarea>' +
     '<button class="btn" data-action="import-merge" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">合并导入（只补不删）</button>' +
-    '<p class="set-tip">饮食和体重都包含在备份里 · 建议每周导一次存档</p>';
+    '<p class="set-tip">饮食和体重都在备份里 · 建议每周导一次 CSV 存档</p>';
+  return h;
 }
 function remindBody() {
   return '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成</p>' +
@@ -3132,6 +3176,7 @@ const WIDGET_ICONS = {
   diet: W_ICON('<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>'),
   'gym-lib': W_ICON('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
   'gym-plan': W_ICON('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),
+  equip: W_ICON('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
   trend: W_ICON('<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'),
   review: W_ICON('<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.89"/>'),
   data: W_ICON('<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>'),
@@ -3141,9 +3186,10 @@ const WIDGETS = [
   { id: 'diet', t: '饮食日记', sub: '三餐+热量，减脂第一线' },
   { id: 'gym-lib', t: '居家动作库', sub: '16 个动作 · 标准视频' },
   { id: 'gym-plan', t: '智能训练规划', sub: '按你的器械排一周' },
+  { id: 'equip', t: '运动与器械', sub: '勾上家里有的，计划更准' },
   { id: 'trend', t: '趋势预测', sub: '几号到目标，按真实速度' },
+  { id: 'data', t: '数据与同步', sub: '云备份 · 双人同步 · 存档' },
   { id: 'review', t: '年度回顾', sub: '这一年你们的变化' },
-  { id: 'data', t: '数据工具', sub: '导出存档 · 合并备份' },
   { id: 'remind', t: '称重提醒', sub: '每天早上弹窗提醒' }
 ];
 let curWidget = null, widgetBack = null;
@@ -3171,6 +3217,7 @@ function renderWidgetSheet(title, backLabel) {
     if (curWidget === 'diet') body += dietBody();
     else if (curWidget === 'gym-lib') body += gymLibBody();
     else if (curWidget === 'gym-plan') body += gymPlanBody();
+    else if (curWidget === 'equip') body += equipBody();
     else if (curWidget === 'trend') body += trendBody();
     else if (curWidget === 'review') body += yearReviewHTML();
     else if (curWidget === 'data') body += dataBody();
@@ -3211,12 +3258,10 @@ function regroupSettings() {
   const th = THEME_LIST.find(x => x.k === (state.ui.theme || 'classic'));
   const thName = th ? th.n : (state.ui.theme || '经典');
   const age = lastBackupAgeDays();
+  /* V64：设置只留纯偏好（行业惯例），业务功能全部搬去健康营 */
   const GROUPS = [
     { id: 'theme',  match: /设计风格/, t: '主题外观', sub: '主题「' + thName + '」· 每天换一个心情' },
     { id: 'who',    match: /称呼|目标体重|身高/, t: '名字与目标', sub: esc(state.names.me) + ' & ' + esc(state.names.partner) + (typeof state.goals.me === 'number' ? ' · 目标 ' + state.goals.me + ' / ' + state.goals.partner : '') },
-    { id: 'equip',  match: /运动与器械/, t: '运动与器械', sub: '勾上家里有的，训练计划更准' },
-    { id: 'sync',   match: /双人同步/, t: '双人同步', sub: '她用她的手机记，合并只补不删' },
-    { id: 'backup', match: /云备份|手动备份|数据状态/, t: '数据备份', sub: '云端自动备份 · ' + (age === null ? '还没有手动备份过' : '上次手动备份 ' + age + ' 天前') },
     { id: 'metrics', match: /指标怎么看/, t: '指标说明', sub: '每个数字怎么看、准不准' },
     { id: 'about',  match: /安装到桌面|版本与更新/, t: '安装与版本', sub: APP_VERSION + ' · 装到桌面 · 更新日志' }
   ];
@@ -3225,11 +3270,14 @@ function regroupSettings() {
   setCardsCache.forEach(function (card) {
     const label = card.querySelector('.card-label');
     const t = label ? label.textContent : '';
+    /* 运动器械/同步备份类不再出现在设置里（健康营管辖） */
+    if (/运动与器械|双人同步|云备份|手动备份|数据状态/.test(t)) return;
     const g = GROUPS.find(x => x.match.test(t));
-    (g ? buckets[g.id] : buckets.about).push(card);
+    if (g) buckets[g.id].push(card);
   });
   setGroupBuckets = buckets;
-  body.innerHTML = '<div class="wg-grid">' + GROUPS.filter(g => buckets[g.id].length).map(g =>
+  body.innerHTML = '<p class="sub" style="margin:2px 2px 12px">偏好都在这 · 健身的和数据的在「健康营」里管</p>' +
+    '<div class="wg-grid">' + GROUPS.filter(g => buckets[g.id].length).map(g =>
     '<button class="wg-item" data-action="set-group" data-id="' + g.id + '">' +
     SET_ICONS[g.id] + '<b>' + g.t + '</b><span>' + g.sub + '</span></button>').join('') + '</div>';
 }
