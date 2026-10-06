@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V64';
+const APP_VERSION = 'V65';
 const CHANGELOG = [
+  { v: 'V65', d: '10月6日', items: [
+    '饮食日记彻底重做：像说话一样记——输入「两个鸡蛋 一个玉米 一杯牛奶」，自动拆解数量并算好热量，认一下就能全记上',
+    '食物库扩到 60+ 种家常食物；认不出的自动按类别估算，不用再去别处查',
+    '修掉老版「点了没反应」的交互：餐段变成标签页，点谁显示谁；速查点一下进清单，攒齐了一键记上'
+  ]},
   { v: 'V64', d: '10月6日', items: [
     '大归类：运动与器械从设置搬到健康营，就挨着「智能训练规划」——健身相关的从此都在一个地方找',
     '数据工具升级成「数据与同步」：云备份、双人同步、导出 CSV、合并导入全归它管',
@@ -332,18 +337,63 @@ const EQUIP_LIST = [
 ];
 
 
-/* ============ 饮食速查库（V62）：常见份量热量，标注「约」= 按 USDA/中国食物成分表常用值 ============ */
-const FOODS = [
-  { n: '鸡蛋 1 个', k: 78 }, { n: '全麦面包 1 片', k: 82 }, { n: '米饭 1 碗', k: 232 },
-  { n: '馒头 1 个', k: 223 }, { n: '面条 1 碗', k: 330 }, { n: '燕麦片 40g', k: 152 },
-  { n: '红薯 150g', k: 129 }, { n: '玉米 1 根', k: 112 }, { n: '鸡胸肉 100g', k: 133 },
-  { n: '牛瘦肉 100g', k: 143 }, { n: '三文鱼 100g', k: 208 }, { n: '虾仁 100g', k: 93 },
-  { n: '豆腐 100g', k: 82 }, { n: '西兰花 100g', k: 36 }, { n: '生菜 100g', k: 15 },
-  { n: '番茄 1 个', k: 22 }, { n: '黄瓜 1 根', k: 16 }, { n: '苹果 1 个', k: 95 },
-  { n: '香蕉 1 根', k: 105 }, { n: '橙子 1 个', k: 62 }, { n: '牛奶 250ml', k: 108 },
-  { n: '无糖酸奶 100g', k: 62 }, { n: '豆浆 250ml', k: 80 }, { n: '拿铁 大杯', k: 150 },
-  { n: '美式咖啡', k: 5 }, { n: '坚果一小把 10g', k: 60 }
+/* ============ 食物库（V65）：{n 名称, u 基准单位, k 每基准份量的常见热量}，中国食物成分表常用值 ============ */
+const FOOD_DB = [
+  /* 主食 */
+  { n: '米饭', u: '碗', k: 232 }, { n: '馒头', u: '个', k: 223 }, { n: '面条', u: '碗', k: 330 },
+  { n: '全麦面包', u: '片', k: 82 }, { n: '面包', u: '片', k: 75 }, { n: '燕麦片', u: '碗', k: 152 },
+  { n: '红薯', u: '个', k: 129 }, { n: '玉米', u: '根', k: 112 }, { n: '包子', u: '个', k: 200 },
+  { n: '饺子', u: '个', k: 50 }, { n: '馄饨', u: '个', k: 40 }, { n: '粥', u: '碗', k: 100 },
+  { n: '炒饭', u: '份', k: 500 }, { n: '汉堡', u: '个', k: 550 }, { n: '披萨', u: '块', k: 280 },
+  { n: '油条', u: '根', k: 270 }, { n: '土豆', u: '个', k: 130 }, { n: '山药', u: '份', k: 90 },
+  /* 蛋白 */
+  { n: '鸡蛋', u: '个', k: 78 }, { n: '鸡胸肉', u: '份', k: 133 }, { n: '鸡腿', u: '个', k: 200 },
+  { n: '牛瘦肉', u: '份', k: 143 }, { n: '牛排', u: '份', k: 300 }, { n: '猪排', u: '份', k: 280 },
+  { n: '羊肉', u: '份', k: 200 }, { n: '培根', u: '片', k: 45 }, { n: '火腿肠', u: '根', k: 120 },
+  { n: '三文鱼', u: '份', k: 208 }, { n: '虾仁', u: '份', k: 93 }, { n: '豆腐', u: '份', k: 82 },
+  { n: '豆浆', u: '杯', k: 80 }, { n: '鸡翅', u: '个', k: 120 },
+  /* 蔬果 */
+  { n: '西兰花', u: '份', k: 36 }, { n: '生菜', u: '份', k: 15 }, { n: '番茄', u: '个', k: 22 },
+  { n: '黄瓜', u: '根', k: 16 }, { n: '苹果', u: '个', k: 95 }, { n: '香蕉', u: '根', k: 105 },
+  { n: '橙子', u: '个', k: 62 }, { n: '葡萄', u: '份', k: 60 }, { n: '西瓜', u: '份', k: 90 },
+  { n: '草莓', u: '份', k: 30 }, { n: '芒果', u: '个', k: 130 }, { n: '沙拉', u: '份', k: 150 },
+  /* 奶饮 */
+  { n: '牛奶', u: '杯', k: 108 }, { n: '无糖酸奶', u: '杯', k: 62 }, { n: '酸奶', u: '杯', k: 90 },
+  { n: '拿铁', u: '杯', k: 150 }, { n: '美式咖啡', u: '杯', k: 5 }, { n: '咖啡', u: '杯', k: 60 },
+  { n: '可乐', u: '罐', k: 140 }, { n: '奶茶', u: '杯', k: 300 }, { n: '橙汁', u: '杯', k: 110 },
+  { n: '啤酒', u: '罐', k: 150 }, { n: '果汁', u: '杯', k: 120 },
+  /* 零食汤菜 */
+  { n: '坚果', u: '把', k: 60 }, { n: '薯片', u: '袋', k: 300 }, { n: '饼干', u: '片', k: 50 },
+  { n: '蛋糕', u: '块', k: 250 }, { n: '巧克力', u: '块', k: 150 }, { n: '冰淇淋', u: '个', k: 200 },
+  { n: '汤', u: '碗', k: 100 }, { n: '紫菜汤', u: '碗', k: 30 }, { n: '番茄炒蛋', u: '份', k: 200 },
+  { n: '炒菜', u: '份', k: 150 }, { n: '火锅', u: '顿', k: 800 }, { n: '麻辣烫', u: '份', k: 500 }
 ];
+let dietParsed = []; /* 识别清单（购物车） */
+function guessFood(name) {
+  const rules = [['汤', 100], ['粥', 100], ['面', 330], ['饭', 300], ['蛋', 78], ['奶', 110], ['菜', 120], ['肉', 200], ['鱼', 150], ['虾', 93], ['果', 80], ['茶', 150], ['咖啡', 60], ['包', 200], ['饼', 150], ['鸡', 180], ['牛', 200], ['猪', 200], ['薯', 150], ['豆', 100], ['糖', 100], ['饮', 120]];
+  for (let i = 0; i < rules.length; i++) if (name.indexOf(rules[i][0]) > -1) return { n: name, k: rules[i][1], guessed: true };
+  return null;
+}
+function parseDietText(text) {
+  const CN = { '一': 1, '两': 2, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10, '半': 0.5 };
+  return text.split(/[，,。；;、\s和再还有]+/).map(s => s.trim()).filter(Boolean).map(function (seg) {
+    const m = seg.match(/^([0-9.]+|[一二两三四五六七八九十半])?(?:个大|个|只|根|碗|杯|片|份|块|勺|盘|条|包|瓶|盒|罐|颗|枚|串)?\s*(.+)$/);
+    let qty = 1, name = seg;
+    if (m && m[2] && m[1]) {
+      qty = /[0-9.]/.test(m[1]) ? parseFloat(m[1]) : (CN[m[1]] || 1);
+      name = m[2];
+    } else if (m && m[2]) {
+      name = m[2];
+      /* 「个玉米」这种单位开头=1 份；「玉米」=1 份 */
+    }
+    if (!name) return null;
+    let hit = FOOD_DB.find(f => name.indexOf(f.n) > -1 || f.n.indexOf(name) > -1);
+    let guessed = false;
+    if (!hit) { hit = guessFood(name); guessed = true; }
+    if (!hit) return { n: name, k: null, qty: qty, guessed: true };
+    return { n: hit.n + (qty !== 1 ? '×' + qty : ''), k: Math.round(hit.k * qty), guessed: guessed };
+  }).filter(Boolean);
+}
 const DIET_MEALS = { b: '早餐', l: '午餐', d: '晚餐', s: '加餐' };
 let dietWho = 'me', dietDate = todayKey(), dietMeal = 'b';
 function dietDaySum(key, w) {
@@ -3076,41 +3126,52 @@ function gymPlanBody() {
   h += '<p class="set-tip">按「减脂+新手」配的量：力量 3 组、核心 3 组、有氧 30 秒起步 · 哪天累就挪到第二天，别硬顶</p>';
   return h;
 }
-/* V62: 饮食日记内容 */
+/* V65: 餐段标签页 + 说话式识别 + 购物车一键记 */
 function dietBody() {
   const r = state.records[dietDate] || {};
   const items = (r.diet || []).filter(d => d.w === dietWho);
   const sum = items.reduce((a, b) => a + (b.k || 0), 0);
-  const days = lastNDays(7).filter(k => state.records[k] && (state.records[k].diet || []).some(d => d.w === dietWho));
-  const avg7 = days.length ? Math.round(lastNDays(7).reduce((a, k) => a + dietDaySum(k, dietWho), 0) / 7) : null;
-  const name = esc(state.names[dietWho]);
+  const avg7 = Math.round(lastNDays(7).reduce((a, k) => a + dietDaySum(k, dietWho), 0) / 7);
+  const mealSum = items.filter(d => d.m === dietMeal).reduce((a, b) => a + (b.k || 0), 0);
+  const mealItems = items.filter(d => d.m === dietMeal);
   let h = '<div class="diet-top">' +
     '<div class="gym-chips">' + PERSON_IDS.map(p =>
       '<button class="set-chip' + (p === dietWho ? ' on' : '') + '" data-action="diet-who" data-w="' + p + '">' + esc(state.names[p]) + '</button>').join('') + '</div>' +
     '<div class="diet-date"><button class="icon-btn" data-action="diet-day" data-d="-1" aria-label="前一天">‹</button>' +
     '<b>' + (dietDate === todayKey() ? '今天' : fmtCN(dietDate)) + '</b>' +
     '<button class="icon-btn" data-action="diet-day" data-d="1" aria-label="后一天"' + (dietDate >= todayKey() ? ' disabled' : '') + '>›</button></div></div>';
-  h += '<div class="diet-sum"><b>' + sum + '</b><span>kcal 今日合计（' + name + '）</span></div>' +
-    '<p class="set-tip">减脂参考：像你 175cm / 72kg，每天吃 1500-1800 kcal 大概率掉秤 · 有记录的 7 天平均 ' + (avg7 === null ? '—' : avg7 + ' kcal') + ' · 数值是估的，量准了再抠</p>';
-  ['b', 'l', 'd', 's'].forEach(mk => {
-    const arr = items.filter(d => d.m === mk);
-    h += '<div class="divider">' + DIET_MEALS[mk] + (arr.length ? ' · 约 ' + arr.reduce((a, b) => a + b.k, 0) + ' kcal' : '') + '</div>';
-    h += arr.map((d) => '<div class="diet-item"><span>' + esc(d.n) + '</span><i>约 ' + d.k + ' kcal</i>' +
-      '<button class="icon-btn diet-del" data-action="diet-del" data-idx="' + (r.diet || []).indexOf(d) + '" aria-label="删除">×</button></div>').join('');
-    h += '<button class="btn ghost sm" data-action="diet-meal" data-m="' + mk + '" style="width:auto;display:inline-block;padding:7px 12px;font-size:12px">＋ 记到' + DIET_MEALS[mk] + '</button>';
-  });
-  h += '<div class="divider">添加食物</div>' +
-    '<div class="gym-chips">' + ['b', 'l', 'd', 's'].map(mk =>
-      '<button class="set-chip' + (dietMeal === mk ? ' on' : '') + '" data-action="diet-meal" data-m="' + mk + '">' + DIET_MEALS[mk] + '</button>').join('') + '</div>' +
-    '<div class="diet-form"><input class="text-input" id="diet-name" maxlength="24" placeholder="吃了什么">' +
-    '<input class="text-input" id="diet-kcal" type="number" inputmode="numeric" placeholder="千卡" style="max-width:88px">' +
-    '<button class="btn sm" data-action="diet-add">记上</button></div>' +
-    '<div class="divider">常见食物 · 点一下自动填</div><div class="gym-chips">' +
-    FOODS.map((f, i) => '<button class="set-chip" data-action="diet-pick" data-i="' + i + '">' + esc(f.n) + ' <i>≈' + f.k + '</i></button>').join('') + '</div>' +
-    '<p class="set-tip">热量是常见份量的估算值（中国食物成分表常用值）· 拿不准就估个整十数，记录比精确重要</p>';
+  h += '<div class="diet-sum"><b>' + sum + '</b><span>kcal 今天合计（' + esc(state.names[dietWho]) + '）</span></div>' +
+    '<p class="set-tip">减脂参考：175cm / 72kg 每天 1500-1800 kcal 大概率掉秤 · 有记录的 7 天平均 ' + avg7 + ' kcal · 都是估算值，量准了再抠</p>';
+  /* 餐段标签页：点谁显示谁 */
+  h += '<div class="diet-tabs">' + ['b', 'l', 'd', 's'].map(mk =>
+    '<button class="set-chip' + (dietMeal === mk ? ' on' : '') + '" data-action="diet-meal" data-m="' + mk + '">' +
+    DIET_MEALS[mk] + (items.filter(d => d.m === mk).length ? ' · ' + items.filter(d => d.m === mk).reduce((a, b) => a + b.k, 0) : '') + '</button>').join('') + '</div>';
+  h += '<p class="sub" style="margin:8px 2px 4px">' + DIET_MEALS[dietMeal] + ' · 共约 ' + mealSum + ' kcal</p>';
+  h += mealItems.length
+    ? mealItems.map(d => '<div class="diet-item"><span>' + esc(d.n) + '</span><i>约 ' + d.k + ' kcal</i>' +
+        '<button class="icon-btn diet-del" data-action="diet-del" data-idx="' + (r.diet || []).indexOf(d) + '" aria-label="删除">×</button></div>').join('')
+    : '<p class="s-dim" style="padding:6px 2px">这一餐还没记 · 在下面说一句就记上</p>';
+  /* 说话式识别 */
+  h += '<div class="divider">说一句就记 · 自动算热量</div>' +
+    '<div class="diet-say"><input class="text-input" id="diet-say" placeholder="例：两个鸡蛋 一个玉米 一杯牛奶" enterkeyhint="done">' +
+    '<button class="btn sm" data-action="diet-parse">识别</button></div>';
+  if (dietParsed.length) {
+    h += '<div class="diet-pv">' + dietParsed.map((p, i) =>
+      '<div class="diet-item' + (p.k === null ? ' diet-unknown' : '') + '"><span>' + (p.k === null ? '❓ ' : '') + esc(p.n) + '</span>' +
+      (p.k === null
+        ? '<input class="text-input diet-pv-k" type="number" inputmode="numeric" placeholder="千卡" style="max-width:76px;padding:6px 8px;font-size:12px">'
+        : '<i>约 ' + p.k + ' kcal</i>') +
+      '<button class="icon-btn diet-del" data-action="diet-pv-del" data-i="' + i + '" aria-label="移除">×</button></div>').join('') +
+      '<button class="btn" data-action="diet-add-batch" style="margin-top:10px">全部记到「' + DIET_MEALS[dietMeal] + '」</button>' +
+      '<p class="set-tip">认不出的给了估算值，可以在框里改成准的 · 热量都写在每条后面，一眼能核对</p></div>';
+  }
+  /* 速查：点一下进清单 */
+  h += '<div class="divider">常见的 · 点一下加进上面清单</div><div class="gym-chips">' +
+    FOOD_DB.map((f, i) => '<button class="set-chip" data-action="diet-pick" data-i="' + i + '">' + esc(f.n) + ' <i>≈' + f.k + '</i></button>').join('') + '</div>' +
+    '<p class="set-tip">热量是常见份量的估算（中国食物成分表常用值）· 库里没有的就打字说，会按类别估</p>';
   return h;
 }
-/* V62: 各 widget 内容函数 */
+
 function trendBody() {
   const keys = sortedKeys();
   if (keys.length >= 5) {
@@ -3531,8 +3592,11 @@ document.addEventListener('click', e => {
       if (bw) { renderWidgetSheet(bw.t); curWidget = widgetBack; widgetBack = null; }
     }
     else if (a === 'diet-who') {
+      const sv = (document.getElementById('diet-say') || {}).value || '';
       dietWho = act.getAttribute('data-w') === 'partner' ? 'partner' : 'me';
       renderWidgetSheet('饮食日记');
+      const el = document.getElementById('diet-say');
+      if (el && sv) el.value = sv;
     }
     else if (a === 'diet-day') {
       const dd = parseInt(act.getAttribute('data-d'), 10) || 0;
@@ -3541,29 +3605,56 @@ document.addEventListener('click', e => {
       if (nk <= todayKey()) { dietDate = nk; renderWidgetSheet('饮食日记'); }
     }
     else if (a === 'diet-meal') {
+      const sv = (document.getElementById('diet-say') || {}).value || '';
       dietMeal = act.getAttribute('data-m') || 'b';
       renderWidgetSheet('饮食日记');
+      const el = document.getElementById('diet-say');
+      if (el && sv) el.value = sv;
+    }
+    else if (a === 'diet-parse') {
+      const say = ((document.getElementById('diet-say') || {}).value || '').trim();
+      if (!say) { toast('先说说吃了啥'); return; }
+      const res = parseDietText(say);
+      if (!res.length) { toast('没认出来，换个说法试试'); return; }
+      dietParsed = dietParsed.concat(res);
+      renderWidgetSheet('饮食日记');
+      toast('✓ 识别出 ' + res.length + ' 样，核对后记上');
     }
     else if (a === 'diet-pick') {
-      const f = FOODS[parseInt(act.getAttribute('data-i'), 10) || 0];
+      const f = FOOD_DB[parseInt(act.getAttribute('data-i'), 10) || 0];
       if (f) {
-        const ni = document.getElementById('diet-name'), ki = document.getElementById('diet-kcal');
-        if (ni) ni.value = f.n;
-        if (ki) ki.value = f.k;
+        dietParsed.push({ n: f.n, k: f.k, guessed: false });
+        renderWidgetSheet('饮食日记');
+        toast('✓ 已加进清单');
       }
     }
-    else if (a === 'diet-add') {
+    else if (a === 'diet-pv-del') {
+      const i2 = parseInt(act.getAttribute('data-i'), 10);
+      if (dietParsed[i2]) { dietParsed.splice(i2, 1); renderWidgetSheet('饮食日记'); }
+    }
+    else if (a === 'diet-add-batch') {
       try {
-        const n = ((document.getElementById('diet-name') || {}).value || '').trim();
-        const k = Number((document.getElementById('diet-kcal') || {}).value);
-        if (!n) { toast('先写吃了什么'); return; }
-        if (!isFinite(k) || k <= 0 || k > 5000) { toast('千卡要填 1-5000 的数字'); return; }
+        const inputs = [].map.call(document.querySelectorAll('.diet-pv-k'), el => Number(el.value));
+        const out = [];
+        let miss = 0;
+        dietParsed.forEach(p => {
+          if (p.k !== null) { out.push({ n: p.n, k: p.k }); return; }
+          const v = inputs.shift();
+          if (isFinite(v) && v > 0 && v <= 5000) out.push({ n: p.n, k: Math.round(v) });
+          else miss++;
+        });
+        if (!out.length) { toast(miss ? '没认出来的要填个千卡数字' : '清单是空的'); return; }
         state.records[dietDate] = state.records[dietDate] || {};
         state.records[dietDate].diet = state.records[dietDate].diet || [];
-        state.records[dietDate].diet.push({ n: n.slice(0, 24), k: Math.round(k), m: dietMeal, w: dietWho });
+        out.forEach(o => state.records[dietDate].diet.push({ n: o.n.slice(0, 24), k: o.k, m: dietMeal, w: dietWho }));
         persist();
+        const total = out.reduce((a, b) => a + b.k, 0);
+        dietParsed = [];
+        const sayEl = document.getElementById('diet-say'); if (sayEl) sayEl.value = '';
         renderWidgetSheet('饮食日记');
-        toast('✓ 已记到' + DIET_MEALS[dietMeal]);
+        const btn = document.querySelector('[data-action=diet-add-batch]');
+        if (btn) { btn.textContent = '✓ 已记上'; btn.style.background = '#34c759'; btn.style.borderColor = '#34c759'; }
+        toast('✓ ' + out.length + ' 样已记到' + DIET_MEALS[dietMeal] + ' · 约 ' + total + ' kcal');
       } catch (err) { toast('没记上：' + err.message); }
     }
     else if (a === 'diet-del') {
