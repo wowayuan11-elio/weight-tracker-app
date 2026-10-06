@@ -13,7 +13,7 @@
 /* 自愈机制：版本变化时自动清掉手机上的旧缓存/旧SW，用户无感 */
 (function(){
   try{
-    var BUILD='v60a-20261005';
+    var BUILD='v61a-20261006';
     if(localStorage.getItem('wt_build')!==BUILD){
       localStorage.setItem('wt_build',BUILD);
       if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})});}
@@ -112,6 +112,17 @@
     </button>
   </div>
   <div class="sheet-body" id="plan-body"></div>
+</div>
+
+<!-- 动作详情弹层（V61） -->
+<div class="sheet" id="gym-sheet">
+  <div class="sheet-head">
+    <span class="sheet-title" id="gym-sheet-title">动作</span>
+    <button class="icon-btn" data-action="gym-close" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body" id="gym-body"></div>
 </div>
 
 <!-- 首页卡片设置（V21 仪表卡自定义） -->
