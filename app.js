@@ -376,24 +376,75 @@ function guessFood(name) {
 }
 function parseDietText(text) {
   const CN = { '一': 1, '两': 2, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10, '半': 0.5 };
-  return text.split(/[，,。；;、\s和再还有]+/).map(s => s.trim()).filter(Boolean).map(function (seg) {
-    const m = seg.match(/^([0-9.]+|[一二两三四五六七八九十半])?(?:个大|个|只|根|碗|杯|片|份|块|勺|盘|条|包|瓶|盒|罐|颗|枚|串)?\s*(.+)$/);
+  const out = [];
+  const segs = text.split(/[，,。；;、\s和再还有]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+  const QTY_RE = '个|个大|只|根|碗|杯|片|份|块|勺|盘|条|包|瓶|盒|罐|颗|枚|串|小把|大勺|点';
+  segs.forEach(function (seg) {
+    const m = seg.match(new RegExp('^([0-9.]+|[一二两三四五六七八九十半])?(?:' + QTY_RE + ')?\\s*(.+)$'));
     let qty = 1, name = seg;
     if (m && m[2] && m[1]) {
       qty = /[0-9.]/.test(m[1]) ? parseFloat(m[1]) : (CN[m[1]] || 1);
       name = m[2];
     } else if (m && m[2]) {
       name = m[2];
-      /* 「个玉米」这种单位开头=1 份；「玉米」=1 份 */
     }
-    if (!name) return null;
-    let hit = FOOD_DB.find(f => name.indexOf(f.n) > -1 || f.n.indexOf(name) > -1);
-    let guessed = false;
-    if (!hit) { hit = guessFood(name); guessed = true; }
-    if (!hit) return { n: name, k: null, qty: qty, guessed: true };
-    return { n: hit.n + (qty !== 1 ? '×' + qty : ''), k: Math.round(hit.k * qty), guessed: guessed };
-  }).filter(Boolean);
+    /* 「一点西瓜」：数量是「一点」这类虚词 → 按 1 份 */
+    if (/^[一点些]+/.test(name) && name.length > 2) { name = name.replace(/^[一点些]+/, ''); qty = 1; }
+    /* 「拿铁一杯」：数量后置 → 先记 1 份，尾部数量并入 */
+    const isDictWord = FOOD_DB.some(f => f.n === name);
+    const tail = name.match(new RegExp('^(.*?)([0-9.]+|[一二两三四五六七八九十]+)?(' + QTY_RE + ')$'));
+    if (tail && tail[1].trim() && !isDictWord) {
+      name = tail[1].trim();
+      if (tail[2]) qty = /[0-9.]/.test(tail[2]) ? parseFloat(tail[2]) : (CN[tail[2]] || 1);
+    }
+    /* 纯数量段（「一杯」「两碗」）没食物 → 并进上一条的份数 */
+    if (!FOOD_DB.some(f => name.indexOf(f.n) > -1 || f.n.indexOf(name) > -1) && !guessFood(name)) {
+      const mq = name.match(new RegExp('^([0-9.]+|[一二两三四五六七八九十]+)(' + QTY_RE + ')$'));
+      if (mq && out.length && out[out.length - 1].k) {
+        const prev = out[out.length - 1];
+        const nq = /[0-9.]/.test(mq[1]) ? parseFloat(mq[1]) : (CN[mq[1]] || 1);
+        const base = prev.k / (prev.qty || 1);
+        prev.k = Math.round(base * nq);
+        prev.n = prev.n.replace(/×.*$/, '') + (nq !== 1 ? '×' + nq : '');
+        prev.qty = nq;
+        return;
+      }
+      /* 没认出来的照实列出，让用户看到并补 */
+      if (name.replace(/^[个只根碗杯片份块勺盘条包瓶盒罐颗枚串小把大点些]+$/, '')) out.push({ n: name, k: null, guessed: true });
+      return;
+    }
+    /* 段内可能连写多种食物（如「牛奶面包」），最长匹配命中后继续吃残余 */
+    let rest2 = name;
+    let guard = 0;
+    while (rest2.trim() && guard++ < 6) {
+      let hit = null, hitLen = 0, hitPos = -1;
+      for (const f of FOOD_DB) {
+        let p = rest2.indexOf(f.n);
+        let from = false;
+        if (p === -1 && f.n.indexOf(rest2) === 0) { p = 0; from = true; }
+        if (p > -1 && f.n.length > hitLen) { hit = f; hitLen = f.n.length; hitPos = from ? 0 : p; }
+      }
+      if (!hit) {
+        const g = guessFood(rest2);
+        if (g) out.push({ n: g.n + (qty !== 1 ? '×' + qty : ''), k: g.k, guessed: true });
+        else out.push({ n: rest2.trim(), k: null, guessed: true });
+        break;
+      }
+      const pos = hitPos > -1 ? hitPos : rest2.indexOf(hit.n);
+      const before = rest2.slice(0, pos);
+      rest2 = rest2.slice(pos + hit.n.length);
+      const beforeClean = before.trim().replace(/^(个|只|根|碗|杯|片|块|份|条|包|盒|瓶|罐|勺|顿|小把|大|小)+$/, '');
+      if (beforeClean) {
+        out.push({ n: beforeClean + hit.n + (qty !== 1 ? '×' + qty : ''), k: Math.round(hit.k * qty), guessed: true });
+      } else {
+        out.push({ n: hit.n + (qty !== 1 ? '×' + qty : ''), k: Math.round(hit.k * qty), guessed: false });
+      }
+      rest2 = rest2.trim();
+    }
+  });
+  return out;
 }
+
 const DIET_MEALS = { b: '早餐', l: '午餐', d: '晚餐', s: '加餐' };
 let dietWho = 'me', dietDate = todayKey(), dietMeal = 'b';
 function dietDaySum(key, w) {
