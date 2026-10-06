@@ -3327,7 +3327,7 @@ document.addEventListener('click', e => {
       toast('✓ 一周计划已按你的器械生成');
     }
     else if (a === 'gym-open') {
-      openGymSheet(btn.getAttribute('data-id'));
+      openGymSheet(act.getAttribute('data-id'));
     }
     else if (a === 'gym-close') {
       document.getElementById('gym-sheet').classList.remove('show');
