@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V63.1';
+const APP_VERSION = 'V63.2';
 const CHANGELOG = [
+  { v: 'V63.2', d: '10月6日', items: [
+    '真正的病根修了：饮食日记算 7 天平均时，碰到没记录的日期（比如国庆没称的那几天）会算崩——就是它导致切换组件时内容卡住。现在没记录的天自动跳过'
+  ]},
   { v: 'V63.1', d: '10月6日', items: [
     '修复：从别的组件切到饮食日记时，标题变了但内容没跟着变的问题——现在弹层内容加了保险，任何情况下点谁显示谁'
   ]},
@@ -3073,7 +3076,7 @@ function dietBody() {
   const r = state.records[dietDate] || {};
   const items = (r.diet || []).filter(d => d.w === dietWho);
   const sum = items.reduce((a, b) => a + (b.k || 0), 0);
-  const days = lastNDays(7).filter(k => (state.records[k].diet || []).some(d => d.w === dietWho));
+  const days = lastNDays(7).filter(k => state.records[k] && (state.records[k].diet || []).some(d => d.w === dietWho));
   const avg7 = days.length ? Math.round(lastNDays(7).reduce((a, k) => a + dietDaySum(k, dietWho), 0) / 7) : null;
   const name = esc(state.names[dietWho]);
   let h = '<div class="diet-top">' +
