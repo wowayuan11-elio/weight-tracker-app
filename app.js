@@ -3322,9 +3322,11 @@ document.addEventListener('click', e => {
       toast('✓ 已添加「' + v.trim() + '」，勾上即可参与周计划');
     }
     else if (a === 'gym-gen') {
-      state.ui.gymPlan = genGymPlan();
-      saveState(); renderTools();
-      toast('✓ 一周计划已按你的器械生成');
+      try {
+        state.ui.gymPlan = genGymPlan();
+        persist(); renderTools();
+        toast('✓ 一周计划已按你的器械生成');
+      } catch (err) { toast('生成失败：' + err.message); }
     }
     else if (a === 'gym-open') {
       openGymSheet(act.getAttribute('data-id'));
