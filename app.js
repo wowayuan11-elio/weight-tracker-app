@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V61';
+const APP_VERSION = 'V62';
 const CHANGELOG = [
+  { v: 'V62', d: '10月6日', items: [
+    '重磅上新「饮食日记」：三餐+加餐记了什么、多少千卡，内置 26 种常见食物一键选，今日合计+7 天平均都有——减脂=管住嘴迈开腿，现在俩都在一个营里',
+    '「工具」板块大改版：名字换成「健康营」，所有功能变成大格子组件，点哪个弹哪个，不再是一堆小展开',
+    '饮食数据进自动备份，和体重一样安全'
+  ]},
   { v: 'V61', d: '10月6日', items: [
     '工具页上线「居家训练」：16 个居家动作，每个都能点开看 B 站标准教学视频（都是验证过的正规教练/康复师视频）+ 几组几次怎么休息',
     '「智能训练规划」自动识别你勾过的器械（哑铃/弹力带/跳绳…），一键生成一周居家计划，没勾的器械绝不会出现在安排里',
@@ -249,6 +254,19 @@ function sanitizeRecords(recs) {
     });
     /* V41 紧急：note 一直不在白名单里——每次重载所有备注都被丢弃（TA 备注丢失的总根因） */
     if (typeof r.note === 'string' && r.note.trim()) clean.note = r.note.trim().slice(0, 60);
+    /* V62 饮食日记：条目白名单（名字/千卡/餐段/谁）——新字段必须进白名单，否则重载即丢 */
+    if (Array.isArray(r.diet)) {
+      const dl = r.diet.slice(0, 30).map(d => {
+        if (!d || typeof d !== 'object') return null;
+        const n = (typeof d.n === 'string' && d.n.trim()) ? d.n.trim().slice(0, 24) : null;
+        const k = Number(d.k);
+        const m = ['b', 'l', 'd', 's'].indexOf(d.m) > -1 ? d.m : 's';
+        const w = PERSON_IDS.indexOf(d.w) > -1 ? d.w : 'me';
+        if (!n || !isFinite(k) || k <= 0 || k > 5000) return null;
+        return { n, k: Math.round(k), m, w };
+      }).filter(Boolean);
+      if (dl.length) clean.diet = dl;
+    }
     if (Object.keys(clean).length) out[k] = clean;
   });
   return out;
@@ -298,6 +316,26 @@ const EQUIP_LIST = [
   { k: 'yoga',   n: '瑜伽垫',      type: 'soft' }
 ];
 
+
+/* ============ 饮食速查库（V62）：常见份量热量，标注「约」= 按 USDA/中国食物成分表常用值 ============ */
+const FOODS = [
+  { n: '鸡蛋 1 个', k: 78 }, { n: '全麦面包 1 片', k: 82 }, { n: '米饭 1 碗', k: 232 },
+  { n: '馒头 1 个', k: 223 }, { n: '面条 1 碗', k: 330 }, { n: '燕麦片 40g', k: 152 },
+  { n: '红薯 150g', k: 129 }, { n: '玉米 1 根', k: 112 }, { n: '鸡胸肉 100g', k: 133 },
+  { n: '牛瘦肉 100g', k: 143 }, { n: '三文鱼 100g', k: 208 }, { n: '虾仁 100g', k: 93 },
+  { n: '豆腐 100g', k: 82 }, { n: '西兰花 100g', k: 36 }, { n: '生菜 100g', k: 15 },
+  { n: '番茄 1 个', k: 22 }, { n: '黄瓜 1 根', k: 16 }, { n: '苹果 1 个', k: 95 },
+  { n: '香蕉 1 根', k: 105 }, { n: '橙子 1 个', k: 62 }, { n: '牛奶 250ml', k: 108 },
+  { n: '无糖酸奶 100g', k: 62 }, { n: '豆浆 250ml', k: 80 }, { n: '拿铁 大杯', k: 150 },
+  { n: '美式咖啡', k: 5 }, { n: '坚果一小把 10g', k: 60 }
+];
+const DIET_MEALS = { b: '早餐', l: '午餐', d: '晚餐', s: '加餐' };
+let dietWho = 'me', dietDate = todayKey(), dietMeal = 'b';
+function dietDaySum(key, w) {
+  const r = state.records[key];
+  if (!r || !Array.isArray(r.diet)) return 0;
+  return r.diet.filter(d => !w || d.w === w).reduce((a, b) => a + (b.k || 0), 0);
+}
 
 /* ============ 居家训练动作库（V61）：视频均为人工验证的 B 站正规教学 ============ */
 const GYM_MOVES = [
@@ -2924,13 +2962,15 @@ function yearReviewHTML() {
 }
 
 /* ================= 工具页（V55：新功能集合地） ================= */
-/* 动作详情弹层（V61）：iframe 懒加载，打开才插视频 */
-function openGymSheet(id) {
+/* 动作详情（V62：渲染进 widget-sheet，iframe 懒加载） */
+function openGymSheet(id, back) {
   const m = GYM_MOVES.find(x => x.id === id);
   if (!m) return;
-  const body = document.getElementById('gym-body');
-  if (!body) return;
-  document.getElementById('gym-sheet-title').textContent = m.n;
+  widgetBack = back || (curWidget === 'gym-plan' ? 'gym-plan' : 'gym-lib');
+  const sheetTitle = document.getElementById('widget-sheet-title');
+  if (!sheetTitle) return;
+  sheetTitle.textContent = m.n;
+  const body = document.getElementById('widget-body');
   body.innerHTML =
     '<div class="gym-meta"><span class="set-chip on">' + m.grp + '</span><span class="set-chip">' + m.sets + '</span>' +
     (m.rest ? '<span class="set-chip">' + m.rest + '</span>' : '') + '</div>' +
@@ -2939,8 +2979,15 @@ function openGymSheet(id) {
     '<div class="divider">动作要点 · 做对比做多重要</div>' +
     '<div class="gym-tips">' + m.tips.map(t => '<div class="gym-tip"><i class="dotc" style="background:' + COLORS.me + '"></i>' + t + '</div>').join('') + '</div>' +
     '<a class="btn ghost sm" href="https://www.bilibili.com/video/' + m.bv + '" target="_blank" rel="noopener" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px;text-decoration:none;margin-top:10px">卡了？去 B 站 App 看原视频 ↗</a>';
-  document.getElementById('sheet-mask').classList.add('show');
-  document.getElementById('gym-sheet').classList.add('show');
+  const bk = WIDGETS.find(x => x.id === widgetBack);
+  if (bk) {
+    const backBtn = document.createElement('button');
+    backBtn.className = 'btn ghost sm';
+    backBtn.setAttribute('data-action', 'widget-back');
+    backBtn.style.cssText = 'width:auto;display:inline-block;padding:7px 12px;font-size:12px;margin-bottom:10px';
+    backBtn.textContent = '‹ 返回' + bk.t;
+    body.insertBefore(backBtn, body.firstChild);
+  }
 }
 
 /* ============ 智能训练规划（V61）：读已勾器械 → 自动生成一周居家计划 ============ */
@@ -2988,49 +3035,150 @@ function genGymPlan() {
   return { gen: todayKey(), days };
 }
 function gymMoveChip(m) {
-  return '<button class="set-chip gym-chip" data-action="gym-open" data-id="' + m.id + '">' + m.n + '<i>' + m.grp + '</i></button>';
+  return '<button class="set-chip gym-chip" data-action="gym-open" data-id="' + m.id + '" data-back="' + (curWidget || 'gym-lib') + '">' + m.n + '<i>' + m.grp + '</i></button>';
 }
-function gymCardsHTML() {
-  const eq = (state.ui && state.ui.equip) || [];
-  const eqNames = eq.map(k => { const e = EQUIP_LIST.find(x => x.k === k); return e ? e.n : k; });
-  const pool = gymPool();
-  /* 动作库卡（默认收起） */
+/* V62: 动作库内容（widget-sheet 内） */
+function gymLibBody() {
   const groups = ['下肢力量', '上肢力量', '核心', '有氧'];
-  let lib = '';
+  let lib = '<p class="sub">每个动作都配了 B 站正规教学视频（教练/康复师）· 几组几次几点休息都写清了</p>';
   groups.forEach(g => {
     const ms = GYM_MOVES.filter(m => m.grp === g);
     lib += '<div class="divider">' + g + ' · ' + ms.length + ' 个</div><div class="gym-chips">' + ms.map(gymMoveChip).join('') + '</div>';
   });
-  let h = '<div class="card" data-fc="1"><h3 class="card-label">居家动作库 · 点开看标准视频</h3>' +
-    '<div class="key-line">16 个居家动作 · 每个动作配 B 站正规教学视频（教练/康复师）· 几组几次几点休息都写清了</div>' +
-    '<div class="sg-body">' + lib +
-    '<p class="set-tip">视频都是 B 站人工筛过的标准教学 · 卡了就在弹层里点「去 B 站看」</p></div></div>';
-  /* 智能规划卡（默认收起） */
+  lib += '<p class="set-tip">点动作看视频 · 卡了就在详情里点「去 B 站看」</p>';
+  return lib;
+}
+/* V62: 训练规划内容 */
+function gymPlanBody() {
+  const eq = (state.ui && state.ui.equip) || [];
+  const eqNames = eq.map(k => { const e = EQUIP_LIST.find(x => x.k === k); return e ? e.n : k; });
+  const pool = gymPool();
   const p = state.ui.gymPlan;
-  let planBody = '';
-  if (eqNames.length) planBody += '<div class="divider">自动识别到你的器械</div><div class="gym-chips">' + eqNames.map(n => '<span class="set-chip on gym-eq">' + n + '</span>').join('') + '</div>';
-  else planBody += '<div class="key-line">还没勾器械——纯徒手也能练，先看下面的计划</div>';
-  planBody += '<p class="sub">当前可选动作 ' + pool.length + ' 个（徒手永远在池子里 · 没勾的器械绝不会出现）</p>';
+  let h = '';
+  if (eqNames.length) h += '<div class="divider">自动识别到你的器械</div><div class="gym-chips">' + eqNames.map(n => '<span class="set-chip on gym-eq">' + esc(n) + '</span>').join('') + '</div>';
+  else h += '<div class="key-line">还没勾器械——纯徒手也能练 · 去设置页「我的运动与器械」勾上家里有的，计划会更准</div>';
+  h += '<p class="sub">当前可选动作 ' + pool.length + ' 个（徒手永远在池子里 · 没勾的器械绝不会出现）</p>';
   if (p && Array.isArray(p.days)) {
-    planBody += '<div class="divider">本周安排（' + p.gen + ' 生成）</div>';
+    h += '<div class="divider">本周安排（' + p.gen + ' 生成）</div>';
     p.days.forEach((d, i) => {
-      planBody += '<div class="gym-day"><b>周' + '一二三四五六日'[i] + ' · ' + esc(d.f) + '</b>' +
+      h += '<div class="gym-day"><b>周' + '一二三四五六日'[i] + ' · ' + esc(d.f) + '</b>' +
         d.ex.map(e => {
           if (e.t) return '<span class="gym-ex"><i class="dotc" style="background:var(--text3)"></i>' + esc(e.t) + '<em>' + esc(e.s || '') + '</em></span>';
           const m = GYM_MOVES.find(x => x.id === e.id);
-          return m ? '<button class="gym-ex gym-link" data-action="gym-open" data-id="' + m.id + '"><i class="dotc" style="background:' + (COLORS.me || '#007aff') + '"></i>' + m.n + '<em>' + m.sets + '</em><u>看视频</u></button>' : '';
+          return m ? '<button class="gym-ex gym-link" data-action="gym-open" data-id="' + m.id + '" data-back="gym-plan"><i class="dotc" style="background:' + COLORS.me + '"></i>' + m.n + '<em>' + m.sets + '</em><u>看视频</u></button>' : '';
         }).join('') + '</div>';
     });
   }
-  planBody += '<button class="btn ghost sm" data-action="gym-gen" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">' + (p ? '换一套安排' : '生成一周计划') + '</button>';
-  planBody += '<p class="set-tip">按「减脂+新手」配的量：力量 3 组、核心 3 组、有氧每次 30 秒起步 · 哪天累就挪到第二天，别硬顶</p>';
-  h += '<div class="card" data-fc="1"><h3 class="card-label">智能训练规划 · 按你的器械</h3>' +
-    '<div class="key-line">' + (p ? '已生成本周计划 · 点动作名直接看视频' : '读你勾过的器械，一键生成一周居家安排') + '</div>' +
-    '<div class="sg-body">' + planBody + '</div></div>';
+  h += '<button class="btn ghost sm" data-action="gym-gen" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">' + (p ? '换一套安排' : '生成一周计划') + '</button>';
+  h += '<p class="set-tip">按「减脂+新手」配的量：力量 3 组、核心 3 组、有氧 30 秒起步 · 哪天累就挪到第二天，别硬顶</p>';
   return h;
 }
+/* V62: 饮食日记内容 */
+function dietBody() {
+  const r = state.records[dietDate] || {};
+  const items = (r.diet || []).filter(d => d.w === dietWho);
+  const sum = items.reduce((a, b) => a + (b.k || 0), 0);
+  const days = lastNDays(7).filter(k => (state.records[k].diet || []).some(d => d.w === dietWho));
+  const avg7 = days.length ? Math.round(lastNDays(7).reduce((a, k) => a + dietDaySum(k, dietWho), 0) / 7) : null;
+  const name = esc(state.names[dietWho]);
+  let h = '<div class="diet-top">' +
+    '<div class="gym-chips">' + PERSON_IDS.map(p =>
+      '<button class="set-chip' + (p === dietWho ? ' on' : '') + '" data-action="diet-who" data-w="' + p + '">' + esc(state.names[p]) + '</button>').join('') + '</div>' +
+    '<div class="diet-date"><button class="icon-btn" data-action="diet-day" data-d="-1" aria-label="前一天">‹</button>' +
+    '<b>' + (dietDate === todayKey() ? '今天' : fmtCN(dietDate)) + '</b>' +
+    '<button class="icon-btn" data-action="diet-day" data-d="1" aria-label="后一天"' + (dietDate >= todayKey() ? ' disabled' : '') + '>›</button></div></div>';
+  h += '<div class="diet-sum"><b>' + sum + '</b><span>kcal 今日合计（' + name + '）</span></div>' +
+    '<p class="set-tip">减脂参考：像你 175cm / 72kg，每天吃 1500-1800 kcal 大概率掉秤 · 有记录的 7 天平均 ' + (avg7 === null ? '—' : avg7 + ' kcal') + ' · 数值是估的，量准了再抠</p>';
+  ['b', 'l', 'd', 's'].forEach(mk => {
+    const arr = items.filter(d => d.m === mk);
+    h += '<div class="divider">' + DIET_MEALS[mk] + (arr.length ? ' · 约 ' + arr.reduce((a, b) => a + b.k, 0) + ' kcal' : '') + '</div>';
+    h += arr.map((d) => '<div class="diet-item"><span>' + esc(d.n) + '</span><i>约 ' + d.k + ' kcal</i>' +
+      '<button class="icon-btn diet-del" data-action="diet-del" data-idx="' + (r.diet || []).indexOf(d) + '" aria-label="删除">×</button></div>').join('');
+    h += '<button class="btn ghost sm" data-action="diet-meal" data-m="' + mk + '" style="width:auto;display:inline-block;padding:7px 12px;font-size:12px">＋ 记到' + DIET_MEALS[mk] + '</button>';
+  });
+  h += '<div class="divider">添加食物</div>' +
+    '<div class="gym-chips">' + ['b', 'l', 'd', 's'].map(mk =>
+      '<button class="set-chip' + (dietMeal === mk ? ' on' : '') + '" data-action="diet-meal" data-m="' + mk + '">' + DIET_MEALS[mk] + '</button>').join('') + '</div>' +
+    '<div class="diet-form"><input class="text-input" id="diet-name" maxlength="24" placeholder="吃了什么">' +
+    '<input class="text-input" id="diet-kcal" type="number" inputmode="numeric" placeholder="千卡" style="max-width:88px">' +
+    '<button class="btn sm" data-action="diet-add">记上</button></div>' +
+    '<div class="divider">常见食物 · 点一下自动填</div><div class="gym-chips">' +
+    FOODS.map((f, i) => '<button class="set-chip" data-action="diet-pick" data-i="' + i + '">' + esc(f.n) + ' <i>≈' + f.k + '</i></button>').join('') + '</div>' +
+    '<p class="set-tip">热量是常见份量的估算值（中国食物成分表常用值）· 拿不准就估个整十数，记录比精确重要</p>';
+  return h;
+}
+/* V62: 各 widget 内容函数 */
+function trendBody() {
+  const keys = sortedKeys();
+  if (keys.length >= 5) {
+    const fr = PERSON_IDS.map(forecastRowHTML).join('');
+    if (fr) return '<p class="sub">按最近 14 天的真实速度算，不是拍脑袋 · 速度变了日期自动变</p>' + fr;
+  }
+  return '<p class="sub">记录攒够 5 天就能预测——按现在的节奏，下周就有答案</p>';
+}
+function dataBody() {
+  return '<button class="btn ghost sm" data-action="export-csv" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">导出 CSV</button>' +
+    '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
+    '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false" style="min-height:64px"></textarea>' +
+    '<button class="btn" data-action="import-merge" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">合并导入（只补不删）</button>' +
+    '<p class="set-tip">饮食和体重都包含在备份里 · 建议每周导一次存档</p>';
+}
+function remindBody() {
+  return '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成</p>' +
+    '<button class="btn ghost sm" data-action="copy-shortcut-url" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">复制要用的网址</button>';
+}
 
+/* ============ 健康营组件宫格（V62）：点组件弹大弹层 ============ */
+function W_ICON(d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>'; }
+const WIDGET_ICONS = {
+  diet: W_ICON('<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>'),
+  'gym-lib': W_ICON('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
+  'gym-plan': W_ICON('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),
+  trend: W_ICON('<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'),
+  review: W_ICON('<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.89"/>'),
+  data: W_ICON('<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>'),
+  remind: W_ICON('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>')
+};
+const WIDGETS = [
+  { id: 'diet', t: '饮食日记', sub: '三餐+热量，减脂第一线' },
+  { id: 'gym-lib', t: '居家动作库', sub: '16 个动作 · 标准视频' },
+  { id: 'gym-plan', t: '智能训练规划', sub: '按你的器械排一周' },
+  { id: 'trend', t: '趋势预测', sub: '几号到目标，按真实速度' },
+  { id: 'review', t: '年度回顾', sub: '这一年你们的变化' },
+  { id: 'data', t: '数据工具', sub: '导出存档 · 合并备份' },
+  { id: 'remind', t: '称重提醒', sub: '每天早上弹窗提醒' }
+];
+let curWidget = null, widgetBack = null;
+function openWidget(id) {
+  const w = WIDGETS.find(x => x.id === id);
+  if (!w) return;
+  curWidget = id; widgetBack = null;
+  renderWidgetSheet(w.t);
+  document.getElementById('sheet-mask').classList.add('show');
+  document.getElementById('widget-sheet').classList.add('show');
+}
+function renderWidgetSheet(title, backLabel) {
+  document.getElementById('widget-sheet-title').textContent = title;
+  let body = '';
+  if (backLabel) body += '<button class="btn ghost sm" data-action="widget-back" style="width:auto;display:inline-block;padding:7px 12px;font-size:12px;margin-bottom:10px">‹ ' + backLabel + '</button>';
+  if (curWidget === 'diet') body += dietBody();
+  else if (curWidget === 'gym-lib') body += gymLibBody();
+  else if (curWidget === 'gym-plan') body += gymPlanBody();
+  else if (curWidget === 'trend') body += trendBody();
+  else if (curWidget === 'review') body += yearReviewHTML();
+  else if (curWidget === 'data') body += dataBody();
+  else if (curWidget === 'remind') body += remindBody();
+  document.getElementById('widget-body').innerHTML = body;
+}
 function renderTools() {
+  document.getElementById('tools-body').innerHTML =
+    '<p class="sub" style="margin:4px 2px 14px">吃的、练的、数据家底，都在这营里管 · 点组件进去</p>' +
+    '<div class="wg-grid">' + WIDGETS.map(w =>
+      '<button class="wg-item" data-action="widget-open" data-id="' + w.id + '">' +
+      WIDGET_ICONS[w.id] + '<b>' + w.t + '</b><span>' + w.sub + '</span></button>').join('') + '</div>';
+}
+
+function renderToolsOld() {
   const keys = sortedKeys();
   let html = '';
 
@@ -3328,8 +3476,61 @@ document.addEventListener('click', e => {
         toast('✓ 一周计划已按你的器械生成');
       } catch (err) { toast('生成失败：' + err.message); }
     }
+    else if (a === 'widget-open') {
+      openWidget(act.getAttribute('data-id'));
+    }
+    else if (a === 'widget-close') {
+      document.getElementById('widget-sheet').classList.remove('show');
+      document.getElementById('sheet-mask').classList.remove('show');
+      curWidget = null; widgetBack = null;
+    }
+    else if (a === 'widget-back') {
+      const bw = WIDGETS.find(x => x.id === widgetBack);
+      if (bw) { renderWidgetSheet(bw.t); curWidget = widgetBack; widgetBack = null; }
+    }
+    else if (a === 'diet-who') {
+      dietWho = act.getAttribute('data-w') === 'partner' ? 'partner' : 'me';
+      renderWidgetSheet('饮食日记');
+    }
+    else if (a === 'diet-day') {
+      const dd = parseInt(act.getAttribute('data-d'), 10) || 0;
+      const t = new Date(dietDate); t.setDate(t.getDate() + dd);
+      const nk = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2);
+      if (nk <= todayKey()) { dietDate = nk; renderWidgetSheet('饮食日记'); }
+    }
+    else if (a === 'diet-meal') {
+      dietMeal = act.getAttribute('data-m') || 'b';
+      renderWidgetSheet('饮食日记');
+    }
+    else if (a === 'diet-pick') {
+      const f = FOODS[parseInt(act.getAttribute('data-i'), 10) || 0];
+      if (f) {
+        const ni = document.getElementById('diet-name'), ki = document.getElementById('diet-kcal');
+        if (ni) ni.value = f.n;
+        if (ki) ki.value = f.k;
+      }
+    }
+    else if (a === 'diet-add') {
+      try {
+        const n = ((document.getElementById('diet-name') || {}).value || '').trim();
+        const k = Number((document.getElementById('diet-kcal') || {}).value);
+        if (!n) { toast('先写吃了什么'); return; }
+        if (!isFinite(k) || k <= 0 || k > 5000) { toast('千卡要填 1-5000 的数字'); return; }
+        state.records[dietDate] = state.records[dietDate] || {};
+        state.records[dietDate].diet = state.records[dietDate].diet || [];
+        state.records[dietDate].diet.push({ n: n.slice(0, 24), k: Math.round(k), m: dietMeal, w: dietWho });
+        persist();
+        renderWidgetSheet('饮食日记');
+        toast('✓ 已记到' + DIET_MEALS[dietMeal]);
+      } catch (err) { toast('没记上：' + err.message); }
+    }
+    else if (a === 'diet-del') {
+      const idx = parseInt(act.getAttribute('data-idx'), 10);
+      const arr = (state.records[dietDate] || {}).diet || [];
+      if (arr[idx]) { arr.splice(idx, 1); if (!arr.length) delete state.records[dietDate].diet; persist(); renderWidgetSheet('饮食日记'); toast('已删除'); }
+    }
     else if (a === 'gym-open') {
-      openGymSheet(act.getAttribute('data-id'));
+      openGymSheet(act.getAttribute('data-id'), act.getAttribute('data-back'));
     }
     else if (a === 'gym-close') {
       document.getElementById('gym-sheet').classList.remove('show');
