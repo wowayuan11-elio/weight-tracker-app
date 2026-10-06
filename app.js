@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V63';
+const APP_VERSION = 'V63.1';
 const CHANGELOG = [
+  { v: 'V63.1', d: '10月6日', items: [
+    '修复：从别的组件切到饮食日记时，标题变了但内容没跟着变的问题——现在弹层内容加了保险，任何情况下点谁显示谁'
+  ]},
   { v: 'V63', d: '10月6日', items: [
     '设置页全面组件化：7 个大格子（主题/名字目标/器械/双人同步/数据备份/指标说明/安装版本），点哪个进哪个——和健康营同一套设计语言，小展开彻底绝迹',
     '统计页的每周安排也变成一条摘要卡：一眼看到今天练什么，点进去改'
@@ -3146,21 +3149,35 @@ function openWidget(id) {
   if (!w) return;
   curWidget = id; widgetBack = null;
   renderWidgetSheet(w.t);
+  /* V63 保险：下一帧校验标题与内容一致，不一致强制重渲一次 */
+  setTimeout(function () {
+    const tEl = document.getElementById('widget-sheet-title');
+    if (tEl && tEl.textContent !== w.t && curWidget === id) renderWidgetSheet(w.t);
+  }, 60);
   document.getElementById('sheet-mask').classList.add('show');
   document.getElementById('widget-sheet').classList.add('show');
 }
 function renderWidgetSheet(title, backLabel) {
-  document.getElementById('widget-sheet-title').textContent = title;
+  const tEl = document.getElementById('widget-sheet-title');
+  const bEl = document.getElementById('widget-body');
+  if (!tEl || !bEl) return;
+  tEl.textContent = title;
   let body = '';
   if (backLabel) body += '<button class="btn ghost sm" data-action="widget-back" style="width:auto;display:inline-block;padding:7px 12px;font-size:12px;margin-bottom:10px">‹ ' + backLabel + '</button>';
-  if (curWidget === 'diet') body += dietBody();
-  else if (curWidget === 'gym-lib') body += gymLibBody();
-  else if (curWidget === 'gym-plan') body += gymPlanBody();
-  else if (curWidget === 'trend') body += trendBody();
-  else if (curWidget === 'review') body += yearReviewHTML();
-  else if (curWidget === 'data') body += dataBody();
-  else if (curWidget === 'remind') body += remindBody();
-  document.getElementById('widget-body').innerHTML = body;
+  try {
+    if (curWidget === 'diet') body += dietBody();
+    else if (curWidget === 'gym-lib') body += gymLibBody();
+    else if (curWidget === 'gym-plan') body += gymPlanBody();
+    else if (curWidget === 'trend') body += trendBody();
+    else if (curWidget === 'review') body += yearReviewHTML();
+    else if (curWidget === 'data') body += dataBody();
+    else if (curWidget === 'remind') body += remindBody();
+    else body += '<p class="sub">这个组件内容走丢了，重新点一下试试</p>';
+  } catch (err) {
+    /* V63 保险丝：内容函数抛错时也要切换 body，绝不出现标题/内容错位 */
+    body += '<p class="sub">内容加载出错（' + esc(String(err.message || err)) + '）· 关掉重开一次就好，数据没丢</p>';
+  }
+  bEl.innerHTML = body;
 }
 function renderTools() {
   document.getElementById('tools-body').innerHTML =
