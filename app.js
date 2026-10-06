@@ -3390,7 +3390,7 @@ const WIDGET_ICONS = {
 };
 const WIDGETS = [
   { id: 'diet', t: '饮食日记', sub: '三餐+热量，减脂第一线' },
-  { id: 'gym-lib', t: '居家动作库', sub: '16 个动作 · 标准视频' },
+  { id: 'gym-lib', t: '居家动作库', sub: '36 个动作 · 按部位筛选' },
   { id: 'gym-plan', t: '智能训练规划', sub: '按你的器械排一周' },
   { id: 'equip', t: '运动与器械', sub: '勾上家里有的，计划更准' },
   { id: 'trend', t: '趋势预测', sub: '几号到目标，按真实速度' },
