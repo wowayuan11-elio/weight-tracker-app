@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V62';
+const APP_VERSION = 'V63';
 const CHANGELOG = [
+  { v: 'V63', d: '10月6日', items: [
+    '设置页全面组件化：7 个大格子（主题/名字目标/器械/双人同步/数据备份/指标说明/安装版本），点哪个进哪个——和健康营同一套设计语言，小展开彻底绝迹',
+    '统计页的每周安排也变成一条摘要卡：一眼看到今天练什么，点进去改'
+  ]},
   { v: 'V62', d: '10月6日', items: [
     '重磅上新「饮食日记」：三餐+加餐记了什么、多少千卡，内置 26 种常见食物一键选，今日合计+7 天平均都有——减脂=管住嘴迈开腿，现在俩都在一个营里',
     '「工具」板块大改版：名字换成「健康营」，所有功能变成大格子组件，点哪个弹哪个，不再是一堆小展开',
@@ -2339,29 +2343,17 @@ function miniMonthHTML(mkey) {
 }
 
 /* 每周减脂安排卡（V31）：减脂三分练七分吃，动起来代谢才不掉 */
+/* 每周减脂安排（V63）：摘要组件条，点击进编辑器 */
 function weekPlanHTML() {
   const plan = weekPlanArr();
   const now = new Date();
   const todayDow = (now.getDay() + 6) % 7; /* 0=周一 */
-  const rows = plan.map((txt, i) => {
-    const rest = txt === '休息';
-    return '<button class="wp-row' + (i === todayDow ? ' today' : '') + '" data-action="plan-day" data-dow="' + i + '">' +
-      '<span class="wp-dow">' + ['周一','周二','周三','周四','周五','周六','周日'][i] + (i === todayDow ? ' · 今天' : '') + '</span>' +
-      '<span class="wp-txt' + (rest ? ' rest' : '') + '">' + esc(txt) + '</span>' +
-      '<span class="wp-edit">改</span>' +
-    '</button>';
-  }).join('');
   const trainDays = plan.filter(t => t !== '休息').length;
-  return '<div class="card" data-fc="1">' +
-    '<h3 class="card-label">每周减脂安排</h3>' +
-    '<div class="key-line">今天（' + ['周一','周二','周三','周四','周五','周六','周日'][todayDow] + '）：' + plan[todayDow] +
-    ' · 本周练 ' + trainDays + ' 休 ' + (7 - trainDays) + ' · 点标题展开改安排</div>' +
-    '<div class="sg-body">' + rows +
-    '<p class="set-tip">点任意一天改安排 · 力量训练保住肌肉，减脂期比纯有氧更保代谢 · 安排自动保存</p></div>' +
-  '</div>';
+  return '<button class="card wp-pill" data-action="plan-day" data-dow="' + todayDow + '">' +
+    '<span class="wp-pill-main"><b>今天 · ' + esc(plan[todayDow]) + '</b>' +
+    '<span>本周训练 ' + trainDays + ' 天 · 点这里改安排</span></span><i>›</i></button>';
 }
 
-/* 卡片折叠通用绑定（V57）：卡带 data-fc 时，.sg-body 默认收起，点标题展开 */
 function bindFoldToggle(root) {
   if (!root) return;
   root.querySelectorAll('.card[data-fc]').forEach(function (card) {
@@ -3178,90 +3170,71 @@ function renderTools() {
       WIDGET_ICONS[w.id] + '<b>' + w.t + '</b><span>' + w.sub + '</span></button>').join('') + '</div>';
 }
 
-function renderToolsOld() {
-  const keys = sortedKeys();
-  let html = '';
-
-  /* 居家训练（V61）：动作库 + 智能规划，工具页最顶 */
-  html += gymCardsHTML();
-
-  /* 趋势预测 + 平台期 */
-  if (keys.length >= 5) {
-    const fr = PERSON_IDS.map(forecastRowHTML).join('');
-    if (fr) html += '<div class="card"><h3 class="card-label">趋势预测 · 几号到目标</h3>' +
-      '<p class="sub">按最近 14 天的真实速度算，不是拍脑袋 · 速度变了日期自动变</p>' + fr + '</div>';
-  } else {
-    html += '<div class="card"><h3 class="card-label">趋势预测 · 几号到目标</h3>' +
-      '<p class="sub">记录攒够 5 天就能预测——按现在的节奏，下周就有答案</p></div>';
-  }
-
-  /* 年度回顾 */
-  html += yearReviewHTML();
-
-  /* 数据工具：默认收起防误触（V57） */
-  html += '<div class="card" data-fc="1"><h3 class="card-label">数据工具 · 导出与合并</h3>' +
-    '<div class="key-line">导出 CSV 存档 · 合并 Tina 发来的备份（只补不删）· 点标题展开</div>' +
-    '<div class="sg-body">' +
-    '<button class="btn ghost sm" data-action="export-csv" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">导出 CSV</button>' +
-    '<div class="divider">她发来的备份 · 粘贴进来只补不删</div>' +
-    '<textarea class="merge-area json-area" placeholder="粘贴 Tina 发来的备份文本或存档链接" spellcheck="false" style="min-height:64px"></textarea>' +
-    '<button class="btn" data-action="import-merge" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">合并导入（只补不删）</button>' +
-    '</div></div>';
-
-  /* 称重提醒：默认收起（V57） */
-  html += '<div class="card" data-fc="1">' +
-      '<h3 class="card-label">每天称重提醒</h3>' +
-      '<div class="key-line">用 iPhone 自带「快捷指令」实现，每天早上弹窗输个数字就记上 · 点标题看 4 步设置</div>' +
-      '<div class="sg-body">' +
-      '<p class="s-dim" style="margin-bottom:8px">① 打开 iPhone「快捷指令」App → 底部「自动化」→「新建」→ 选「特定时间」，设为每天早上 7:30<br>② 添加操作：搜「获取文本」，填「输入」→ 把文本设为你输入的数字<br>③ 再添加操作：搜「URL」，粘贴下面的网址（末尾换成「快捷指令变量」）→ 最后搜「打开 URL」<br>④ 完成</p>' +
-      '<button class="btn ghost sm" data-action="copy-shortcut-url" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">复制要用的网址</button>' +
-      '</div></div>';
-
-  document.getElementById('tools-body').innerHTML = html;
-  bindFoldToggle(document.getElementById('tools-body'));
-}
-
-/* 设置页折叠（V55）：卡片默认收起只留标题+摘要行，点标题展开 */
-/* V56: 把 13 张散卡按用途合并成 3 张大卡（个性化 / 数据与同步 / 关于） */
+function SET_ICON(d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>'; }
+const SET_ICONS = {
+  theme: SET_ICON('<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>'),
+  who: SET_ICON('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  equip: SET_ICON('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
+  sync: SET_ICON('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'),
+  backup: SET_ICON('<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>'),
+  metrics: SET_ICON('<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>'),
+  about: SET_ICON('<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>')
+};
 function regroupSettings() {
   const body = document.getElementById('settings-body');
   if (!body) return;
   const cards = [...body.querySelectorAll(':scope > .card')];
-  if (!cards.length) return;
-  function groupOf(t) {
-    if (!t) return 'o';
-    if (/设计风格|运动|称呼|目标体重|身高/.test(t)) return 'p';
-    if (/云备份|双人同步|手动备份|数据状态/.test(t)) return 'd';
-    return 'o';
-  }
+  /* 首次渲染时缓存原卡；之后反复挂载不重建，表单状态不丢 */
+  if (cards.length) setCardsCache = cards;
+  if (!setCardsCache || !setCardsCache.length) return;
   const th = THEME_LIST.find(x => x.k === (state.ui.theme || 'classic'));
   const thName = th ? th.n : (state.ui.theme || '经典');
   const age = lastBackupAgeDays();
-  const meta = {
-    p: { t: '个性化', k: '主题「' + thName + '」· ' + esc(state.names.me) + ' & ' + esc(state.names.partner) +
-      (typeof state.goals.me === 'number' ? ' · 目标 ' + state.goals.me + ' / ' + state.goals.partner : '') },
-    d: { t: '数据与同步', k: '云端自动备份 · ' + (age === null ? '还没有手动备份过' : '上次手动备份 ' + age + ' 天前') },
-    o: { t: '关于', k: APP_VERSION + ' · 指标说明 · 安装指引 · 更新日志' }
-  };
-  const groups = { p: [], d: [], o: [] };
-  cards.forEach(function (card) {
+  const GROUPS = [
+    { id: 'theme',  match: /设计风格/, t: '主题外观', sub: '主题「' + thName + '」· 每天换一个心情' },
+    { id: 'who',    match: /称呼|目标体重|身高/, t: '名字与目标', sub: esc(state.names.me) + ' & ' + esc(state.names.partner) + (typeof state.goals.me === 'number' ? ' · 目标 ' + state.goals.me + ' / ' + state.goals.partner : '') },
+    { id: 'equip',  match: /运动与器械/, t: '运动与器械', sub: '勾上家里有的，训练计划更准' },
+    { id: 'sync',   match: /双人同步/, t: '双人同步', sub: '她用她的手机记，合并只补不删' },
+    { id: 'backup', match: /云备份|手动备份|数据状态/, t: '数据备份', sub: '云端自动备份 · ' + (age === null ? '还没有手动备份过' : '上次手动备份 ' + age + ' 天前') },
+    { id: 'metrics', match: /指标怎么看/, t: '指标说明', sub: '每个数字怎么看、准不准' },
+    { id: 'about',  match: /安装到桌面|版本与更新/, t: '安装与版本', sub: APP_VERSION + ' · 装到桌面 · 更新日志' }
+  ];
+  const buckets = {};
+  GROUPS.forEach(g => { buckets[g.id] = []; });
+  setCardsCache.forEach(function (card) {
     const label = card.querySelector('.card-label');
-    groups[groupOf(label ? label.textContent : '')].push(card);
+    const t = label ? label.textContent : '';
+    const g = GROUPS.find(x => x.match.test(t));
+    (g ? buckets[g.id] : buckets.about).push(card);
+  });
+  setGroupBuckets = buckets;
+  body.innerHTML = '<div class="wg-grid">' + GROUPS.filter(g => buckets[g.id].length).map(g =>
+    '<button class="wg-item" data-action="set-group" data-id="' + g.id + '">' +
+    SET_ICONS[g.id] + '<b>' + g.t + '</b><span>' + g.sub + '</span></button>').join('') + '</div>';
+}
+function showSetGroup(id) {
+  const body = document.getElementById('settings-body');
+  const g = (function () {
+    const th = THEME_LIST.find(x => x.k === (state.ui.theme || 'classic'));
+    const thName = th ? th.n : '';
+    const map = { theme: '主题外观', who: '名字与目标', equip: '运动与器械', sync: '双人同步', backup: '数据备份', metrics: '指标说明', about: '安装与版本' };
+    return map[id] || id;
+  })();
+  const wrap = document.createElement('div');
+  const back = document.createElement('button');
+  back.className = 'btn ghost sm';
+  back.setAttribute('data-action', 'set-back');
+  back.style.cssText = 'width:auto;display:inline-block;padding:7px 12px;font-size:12px;margin-bottom:10px';
+  back.textContent = '‹ 返回设置';
+  (setGroupBuckets && setGroupBuckets[id] || []).forEach(function (card) {
+    const kl = card.querySelector(':scope > .key-line'); if (kl) kl.remove();
+    wrap.appendChild(card);
   });
   body.innerHTML = '';
-  ['p', 'd', 'o'].forEach(function (g) {
-    if (!groups[g].length) return;
-    const card = document.createElement('div'); card.className = 'card';
-    const h3 = document.createElement('h3'); h3.className = 'card-label'; h3.textContent = meta[g].t;
-    const key = document.createElement('div'); key.className = 'key-line'; key.textContent = meta[g].k;
-    const wrap = document.createElement('div'); wrap.className = 'sg-body';
-    groups[g].forEach(function (c) {
-      const kl = c.querySelector(':scope > .key-line'); if (kl) kl.remove();
-      [...c.children].forEach(function (ch) { wrap.appendChild(ch); });
-    });
-    card.appendChild(h3); card.appendChild(key); card.appendChild(wrap);
-    body.appendChild(card);
-  });
+  body.appendChild(back);
+  body.appendChild(wrap);
+  const h = document.createElement('div'); h.className = 'card-label'; h.style.margin = '2px 2px 8px'; h.textContent = g;
+  body.insertBefore(h, back.nextSibling);
 }
 
 function foldSettings() {
@@ -3562,6 +3535,8 @@ document.addEventListener('click', e => {
         if (z) z.scrollIntoView({ block: 'center', behavior: 'smooth' });
       });
     }
+    else if (a === 'set-group') showSetGroup(act.getAttribute('data-id'));
+    else if (a === 'set-back') regroupSettings();
     else if (a === 'open-settings') openSettings();
     else if (a === 'close-settings') closeSettings();
     else if (a === 'save-names') saveNames();
