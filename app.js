@@ -3170,6 +3170,7 @@ function renderTools() {
       WIDGET_ICONS[w.id] + '<b>' + w.t + '</b><span>' + w.sub + '</span></button>').join('') + '</div>';
 }
 
+let setCardsCache = null, setGroupBuckets = null;
 function SET_ICON(d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>'; }
 const SET_ICONS = {
   theme: SET_ICON('<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>'),
