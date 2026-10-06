@@ -963,3 +963,20 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .diet-say .text-input{ flex:1; min-width:0; }
 .diet-pv{ margin-top:10px; padding:10px; border-radius:14px; background:var(--card-2, rgba(127,127,127,.06)); }
 .diet-unknown span{ color:#b45309; font-weight:600; }
+
+/* V66: 层级与标识 */
+.sec-title{ display:flex; align-items:baseline; gap:8px; margin:16px 2px 8px; font-size:15px; font-weight:700; color:var(--text); }
+.sec-title i{ font-style:normal; font-size:12px; font-weight:400; color:var(--text3); margin-left:auto; }
+.diet-tabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px; }
+.diet-tab{ display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 4px; border-radius:12px; background:var(--card-2, rgba(127,127,127,.08)); border:1.5px solid transparent; -webkit-tap-highlight-color:transparent; }
+.diet-tab b{ font-size:14px; font-weight:650; color:var(--text2); }
+.diet-tab i{ font-style:normal; font-size:10.5px; color:var(--text3); }
+.diet-tab.on{ background:var(--tint); border-color:var(--tint); }
+.diet-tab.on b, .diet-tab.on i{ color:#fff; }
+.diet-meal-card{ background:var(--card-2, rgba(127,127,127,.05)); border-radius:14px; padding:10px 12px; margin-top:10px; }
+.diet-ref{ font-size:12px; color:var(--text3); line-height:1.6; background:var(--card-2, rgba(127,127,127,.05)); border-radius:12px; padding:8px 12px; margin:8px 0 4px; }
+.diet-ref b{ color:var(--text2); font-weight:600; }
+.diet-item span{ font-size:15px; font-weight:600; color:var(--text); }
+.food-chips .set-chip{ font-size:12px; padding:6px 10px; }
+.diet-say .text-input{ font-size:16px; padding:12px 14px; }
+.diet-say .btn{ min-width:72px; }
