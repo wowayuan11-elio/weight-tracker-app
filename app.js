@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V65';
+const APP_VERSION = 'V66';
 const CHANGELOG = [
+  { v: 'V66', d: '10月7日', items: [
+    '动作库 16 → 36 个，新增 12 个练腹肌的动作（反向卷腹/俄罗斯转体/侧平板/V字两头起/鸟狗式…），都是 B 站人工核过的正规教学',
+    '动作库支持按部位筛选：腹肌/腿部/臀部/胸部/背部/肩部/手臂/有氧，想练哪直接点哪',
+    '饮食日记排版重排：标题、说明、输入框层级拉开，当前餐段一眼可见'
+  ]},
   { v: 'V65', d: '10月6日', items: [
     '饮食日记彻底重做：像说话一样记——输入「两个鸡蛋 一个玉米 一杯牛奶」，自动拆解数量并算好热量，认一下就能全记上',
     '食物库扩到 60+ 种家常食物；认不出的自动按类别估算，不用再去别处查',
@@ -456,52 +461,52 @@ function dietDaySum(key, w) {
 /* ============ 居家训练动作库（V61）：视频均为人工验证的 B 站正规教学 ============ */
 const GYM_MOVES = [
   /* 下肢力量 */
-  { id: 'squat',   n: '深蹲',     grp: '下肢力量', kind: 'strength', need: null,
+  { id: 'squat',   n: '深蹲',     grp: '腿部', kind: 'strength', need: null,
     sets: '3 组 × 12-15 次', rest: '组间休息 60-90 秒',
     tips: ['双脚与肩同宽，脚尖微微外展', '膝盖始终对准脚尖方向，不要内扣', '臀部向后坐，重心压在脚跟，起身夹臀'],
     bv: 'BV1FB4y137gi', by: '卓叔增重' },
-  { id: 'lunge',   n: '弓步蹲',   grp: '下肢力量', kind: 'strength', need: null,
+  { id: 'lunge',   n: '弓步蹲',   grp: '腿部', kind: 'strength', need: null,
     sets: '3 组 × 每边 10-12 次', rest: '组间休息 60-90 秒',
     tips: ['前脚膝盖对脚尖，后膝靠近地面但不砸地', '上身挺直，核心收紧别晃', '步幅别太小——太小膝盖压力反而大'],
     bv: 'BV1iV89zME8a', by: 'ACE 认证教练 宋健鹏' },
-  { id: 'glutebridge', n: '臀桥', grp: '下肢力量', kind: 'strength', need: null,
+  { id: 'glutebridge', n: '臀桥', grp: '臀部', kind: 'strength', need: null,
     sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
     tips: ['脚跟踩实，用臀部发力顶起', '顶到身体成一条直线，停 1 秒再下', '下落时臀部别完全坐实地面，保持张力'],
     bv: 'BV1kF411F7YG', by: 'MidoriLau' },
-  { id: 'wallsit', n: '靠墙静蹲', grp: '下肢力量', kind: 'strength', need: null,
+  { id: 'wallsit', n: '靠墙静蹲', grp: '腿部', kind: 'strength', need: null,
     sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 60 秒',
     tips: ['背贴紧墙面，大腿与地面平行（做不到就高一点）', '膝盖不超过脚尖，小腿尽量垂直地面', '膝盖不舒服时抬高角度，量力而行'],
     bv: 'BV1MscszTEJH', by: '运动康复陈老师' },
-  { id: 'pushup',  n: '俯卧撑',   grp: '上肢力量', kind: 'strength', need: null,
+  { id: 'pushup',  n: '俯卧撑',   grp: '胸部', kind: 'strength', need: null,
     sets: '3 组 × 8-15 次（做不动就跪姿）', rest: '组间休息 60-90 秒',
     tips: ['手在胸两侧，肘部与身体约 45 度，别外展 90 度', '全身绷直像一块板，塌腰=白练', '下去吸气上来呼气，幅度做满'],
     bv: 'BV1Ta411K72v', by: '帅soserious' },
-  { id: 'dumbrow', n: '哑铃俯身划船', grp: '上肢力量', kind: 'strength', need: 'dumb',
+  { id: 'dumbrow', n: '哑铃俯身划船', grp: '背部', kind: 'strength', need: 'dumb',
     sets: '3 组 × 每边 10-12 次', rest: '组间休息 60-90 秒',
     tips: ['俯身时背平，别弓腰', '肘部贴身向后拉，感受背部收紧', '用哑铃就从小重量开始，动作对了再加'],
     bv: 'BV1JS411N7Yg', by: '拿铁孙同学' },
-  { id: 'press',   n: '哑铃肩上推举', grp: '上肢力量', kind: 'strength', need: 'dumb',
+  { id: 'press',   n: '哑铃肩上推举', grp: '肩部', kind: 'strength', need: 'dumb',
     sets: '3 组 × 10-12 次', rest: '组间休息 60-90 秒',
     tips: ['坐稳或站直，核心收紧别挺腰', '推起时哑铃轨迹略向后，头顶正上方', '下放慢一点，别借力甩'],
     bv: 'BV1uw411N7MC', by: '凯圣王' },
-  { id: 'bandrow', n: '弹力带划船', grp: '上肢力量', kind: 'strength', need: 'band',
+  { id: 'bandrow', n: '弹力带划船', grp: '背部', kind: 'strength', need: 'band',
     sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
     tips: ['弹力带固定稳，两端拉直再开始', '肘贴身向后收，肩胛骨夹紧', '回放慢速对抗，别让带子弹回来'],
     bv: 'BV183411N7uG', by: '菠萝头爱运动' },
   /* 核心 */
-  { id: 'plank',   n: '平板支撑', grp: '核心', kind: 'core', need: null,
+  { id: 'plank',   n: '平板支撑', grp: '腹肌', kind: 'core', need: null,
     sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 45-60 秒',
     tips: ['肘在肩正下方，小臂平行向前', '收腹夹臀，身体一条直线', '憋不住变形了就停——质量大于时长'],
     bv: 'BV1Q34y1j79r', by: 'Gandy__' },
-  { id: 'crunch',  n: '卷腹',     grp: '核心', kind: 'core', need: null,
+  { id: 'crunch',  n: '卷腹',     grp: '腹肌', kind: 'core', need: null,
     sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
     tips: ['下背贴地，靠腹部卷起肩胛骨就够', '脖子放松，手轻扶耳别抱头使劲拽', '起身呼气，慢下比快起有效'],
     bv: 'BV15N4y1g7VV', by: 'ALEX 健身频道' },
-  { id: 'deadbug', n: '死虫式',   grp: '核心', kind: 'core', need: null,
+  { id: 'deadbug', n: '死虫式',   grp: '腹肌', kind: 'core', need: null,
     sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
     tips: ['下背全程压紧地面，腰别拱起', '对侧手脚同时放，慢到像慢动作', '腰痛人群首选核心动作，安全'],
     bv: 'BV1Bu411V7rW', by: '运动康复陈老师' },
-  { id: 'legraise', n: '仰卧抬腿', grp: '核心', kind: 'core', need: null,
+  { id: 'legraise', n: '仰卧抬腿', grp: '腹肌', kind: 'core', need: null,
     sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
     tips: ['手放身体两侧，下背压住地面', '腿慢抬慢放，落下来别碰地', '腰离地了就抬高一点腿再放'],
     bv: 'BV1kq4y1n75T', by: 'Mina筱敏' },
@@ -525,7 +530,89 @@ const GYM_MOVES = [
   { id: 'jumprope', n: '跳绳（新手版）', grp: '有氧', kind: 'cardio', need: 'jump',
     sets: '3-5 组 × 1 分钟', rest: '组间休息 60-90 秒',
     tips: ['前脚掌起跳落，跳得低一点省力', '手腕摇绳，不是抡大臂', '膝盖踝关节有旧伤就先别跳'],
-    bv: 'BV1uS4y1k7sw', by: '麦斯跳绳' }
+    bv: 'BV1uS4y1k7sw', by: '麦斯跳绳' },
+  /* —— V66 腹肌专场 —— */
+  { id: 'reversecrunch', n: '反向卷腹', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
+    tips: ['练下腹王牌：膝盖往胸口收，屁股离地', '用腹部发力，不是甩腿', '腰始终贴地，腰拱起就停'],
+    bv: 'BV1hb4y1a7Rd', by: 'Mina筱敏' },
+  { id: 'bicycle', n: '空中蹬车', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 15 次', rest: '组间休息 45-60 秒',
+    tips: ['肘找对侧膝，转的是躯干不是脖子', '动作慢一点，蹬得越快越没效果', '下背压住地面'],
+    bv: 'BV1Mr4y1z7Ac', by: '三藩之犬' },
+  { id: 'russian', n: '俄罗斯转体', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 12 次', rest: '组间休息 45-60 秒',
+    tips: ['转的是肩膀和胸腔，不是只摆手', '新手脚可以着地，进阶抬脚', '腰背挺直，塌腰伤腰'],
+    bv: 'BV1Uk4y117VV', by: 'JunJ徒手俊杰' },
+  { id: 'sideplank', n: '侧平板支撑', grp: '腹肌', kind: 'core', need: null,
+    sets: '每边 3 组 × 20-40 秒', rest: '组间休息 45 秒',
+    tips: ['肘在肩正下方，髋部往上顶', '身体一条直线，别塌腰', '练侧腹和腰线，马甲线必练'],
+    bv: 'BV1eF3tzjEMk', by: 'ACE 认证教练 宋健鹏' },
+  { id: 'vup', n: 'V字两头起', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 8-12 次', rest: '组间休息 60 秒',
+    tips: ['手和脚同时起来找脚尖，像字母 V', '腹部抽筋就弯膝降难度', '下来时慢，别砸'],
+    bv: 'BV1uX4y1P7uX', by: '街健醉翁' },
+  { id: 'scissor', n: '剪刀腿', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 30 秒', rest: '组间休息 45 秒',
+    tips: ['下背贴死地面，腰离地就抬高腿', '上下交叉像剪刀，慢速控制', '脖子放松别使劲抬头'],
+    bv: 'BV1NnzzBSEyq', by: '居家锻炼的小宅' },
+  { id: 'birddog', n: '鸟狗式', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
+    tips: ['对侧手脚同时伸，像猎鸟犬姿势', '腰背平得像放杯水不掉', '腰痛人群最友好的核心动作'],
+    bv: 'BV1ne411W7MV', by: '科学康复频道' },
+  { id: 'toetap', n: '仰卧触踝', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 20 次', rest: '组间休息 45 秒',
+    tips: ['屈膝仰卧，左右手交替摸同侧脚跟', '用侧腹发力，幅度不用大', '肩胛骨微微离地保持张力'],
+    bv: 'BV1Ft421G7fw', by: '跟练健身 Online' },
+  { id: 'plankleg', n: '平板抬腿', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
+    tips: ['平板姿势基础上交替抬腿', '臀部和核心一起收紧', '屁股别歪， hips 保持水平'],
+    bv: 'BV1paigeEEMx', by: '爱健身的体育老师' },
+  { id: 'kneewheel', n: '跪姿健腹轮', grp: '腹肌', kind: 'core', need: 'bar',
+    sets: '3 组 × 8-10 次', rest: '组间休息 60 秒',
+    tips: ['膝盖垫软垫，滚出去别塌腰', '先滚 60% 幅度，能收回来再加', '全程核心收紧像被打了一样绷住'],
+    bv: 'BV1fkoyY3EWs', by: 'Klein邵邵' },
+  { id: 'crunchknee', n: '卷腹摸膝', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 15 次', rest: '组间休息 45 秒',
+    tips: ['手顺着大腿滑向膝盖，肩胛离地即可', '脖子放松，下巴看天花板', '比标准卷腹更适合零基础'],
+    bv: 'BV115411d7MG', by: 'Gandy__' },
+  { id: 'hollow', n: '屈体收腹', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 坚持 15-30 秒', rest: '组间休息 45 秒',
+    tips: ['像香蕉一样绷住：腰压地、腿手抬离地', '做不了就弯膝收一点', '街舞/徒手训练核心的地基动作'],
+    bv: 'BV1BK4y1o7sk', by: 'ICFC 国际徒手体适能' },
+  /* —— V66 其他部位 —— */
+  { id: 'widepushup', n: '宽距俯卧撑', grp: '胸部', kind: 'strength', need: null,
+    sets: '3 组 × 8-12 次', rest: '组间休息 60-90 秒',
+    tips: ['手比肩宽一掌，主打胸外侧', '胸部尽量贴近地面', '做不动就跪姿'],
+    bv: 'BV1MU411d7VU', by: '李志佑' },
+  { id: 'diamondpushup', n: '钻石俯卧撑', grp: '手臂', kind: 'strength', need: null,
+    sets: '3 组 × 6-10 次', rest: '组间休息 60-90 秒',
+    tips: ['双手食指拇指拼成钻石形，主打肱三头', '肘部贴身，别外展', '太难就跪姿做'],
+    bv: 'BV1m1421S7Tg', by: '曼巴yelomamba' },
+  { id: 'superman', n: '超人式', grp: '背部', kind: 'strength', need: null,
+    sets: '3 组 × 12 次（停 2 秒）', rest: '组间休息 45 秒',
+    tips: ['俯卧，手脚同时抬离地 2 秒', '练下背部，久坐腰酸救星', '动作幅度小而稳，别甩'],
+    bv: 'BV1QXqDYFEmZ', by: '增肌期' },
+  { id: 'ytw', n: '俯卧 YTW', grp: '肩部', kind: 'strength', need: null,
+    sets: '3 组 × 每个字 8 次', rest: '组间休息 45 秒',
+    tips: ['俯卧或俯身，手臂摆出 Y→T→W 字形', '圆肩驼背矫正必练', '拇指朝上，肩胛骨发力带动'],
+    bv: 'BV1zq4y197rR', by: '欧阳春晓Aurora' },
+  { id: 'bulgarian', n: '保加利亚分腿蹲', grp: '臀部', kind: 'strength', need: null,
+    sets: '3 组 × 每边 8-12 次', rest: '组间休息 60-90 秒',
+    tips: ['后脚搭沙发/床沿，前腿下蹲', '重心 80% 在前腿，膝盖对脚尖', '臀腿王牌，比普通深蹲累得多'],
+    bv: 'BV12M411L7k8', by: 'ALEX 健身频道' },
+  { id: 'singlebridge', n: '单腿臀桥', grp: '臀部', kind: 'strength', need: null,
+    sets: '3 组 × 每边 10-12 次', rest: '组间休息 45-60 秒',
+    tips: ['一腿伸直离地，单腿顶髋', '臀部发力，腰别代偿', '比双腿臀桥难度高一档'],
+    bv: 'BV1ys421T7gZ', by: '首桐康复小周' },
+  { id: 'squatjump', n: '深蹲跳', grp: '有氧', kind: 'cardio', need: null,
+    sets: '4 组 × 10-15 次', rest: '组间休息 45-60 秒',
+    tips: ['深蹲到底跳起来，落地缓冲', '膝盖不好就用不跳的深蹲替代', '楼下住户慎重，可去楼道或垫上'],
+    bv: 'BV1nE421u7Q4', by: '跟练健身 Online' },
+  { id: 'bearcrawl', n: '熊爬', grp: '全身', kind: 'core', need: null,
+    sets: '3 组 × 爬 20-30 秒', rest: '组间休息 60 秒',
+    tips: ['手膝着地微离地，像熊一样爬', '膝盖不着地，屁股别撅高', '全身核心肩带一起练，DNS 康复体系推荐'],
+    bv: 'BV1c34y1q73T', by: '康复学堂' }
 ];
 
 /* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
@@ -3109,8 +3196,8 @@ function gymPick(arr, n, used) {
 function genGymPlan() {
   const pool = gymPool();
   const by = k => pool.filter(m => m.kind === k);
-  const legs = pool.filter(m => m.kind === 'strength' && ['下肢力量'].indexOf(m.grp) > -1);
-  const upper = pool.filter(m => m.kind === 'strength' && m.grp === '上肢力量');
+  const legs = pool.filter(m => m.kind === 'strength' && ['腿部', '臀部'].indexOf(m.grp) > -1);
+  const upper = pool.filter(m => m.kind === 'strength' && ['胸部', '背部', '肩部', '手臂'].indexOf(m.grp) > -1);
   const core = by('core'), cardio = by('cardio');
   const eq = (state.ui && state.ui.equip) || [];
   const walkName = { walk: '快走 30 分钟', run: '慢跑 20-30 分钟', tread: '跑步机快走/慢跑 30 分钟', swim: '游泳 30 分钟', ride: '骑行 30 分钟' };
@@ -3141,16 +3228,21 @@ function genGymPlan() {
 function gymMoveChip(m) {
   return '<button class="set-chip gym-chip" data-action="gym-open" data-id="' + m.id + '" data-back="' + (curWidget || 'gym-lib') + '">' + m.n + '<i>' + m.grp + '</i></button>';
 }
-/* V62: 动作库内容（widget-sheet 内） */
+/* V66: 动作库（部位筛选 + 全部展示） */
+let gymFilter = '全部';
+const GYM_CATS = ['全部', '腹肌', '腿部', '臀部', '胸部', '背部', '肩部', '手臂', '有氧', '全身'];
 function gymLibBody() {
-  const groups = ['下肢力量', '上肢力量', '核心', '有氧'];
-  let lib = '<p class="sub">每个动作都配了 B 站正规教学视频（教练/康复师）· 几组几次几点休息都写清了</p>';
-  groups.forEach(g => {
-    const ms = GYM_MOVES.filter(m => m.grp === g);
-    lib += '<div class="divider">' + g + ' · ' + ms.length + ' 个</div><div class="gym-chips">' + ms.map(gymMoveChip).join('') + '</div>';
-  });
-  lib += '<p class="set-tip">点动作看视频 · 卡了就在详情里点「去 B 站看」</p>';
-  return lib;
+  let h = '<p class="sub">每个动作都配了 B 站正规教学视频（教练/康复师人工核过）· 几组几次几点休息都写清了 · 点动作看视频</p>';
+  h += '<div class="diet-tabs">' + GYM_CATS.map(c =>
+    '<button class="set-chip' + (gymFilter === c ? ' on' : '') + '" data-action="gym-filter" data-c="' + c + '">' + c + '</button>').join('') + '</div>';
+  const ms = gymFilter === '全部' ? GYM_MOVES : GYM_MOVES.filter(m => m.grp === gymFilter);
+  if (!ms.length) h += '<p class="sub">这个部位还没录，先用相邻部位练</p>';
+  else {
+    h += '<p class="sub" style="margin:10px 2px 4px">' + gymFilter + ' · ' + ms.length + ' 个动作</p>';
+    h += '<div class="gym-chips">' + ms.map(gymMoveChip).join('') + '</div>';
+  }
+  h += '<p class="set-tip">腹部新手路径：卷腹摸膝 → 卷腹 → 反向卷腹 → 空中蹬车 → 平板支撑，每组都能保证动作质量再加难度</p>';
+  return h;
 }
 /* V62: 训练规划内容 */
 function gymPlanBody() {
@@ -3191,35 +3283,37 @@ function dietBody() {
     '<div class="diet-date"><button class="icon-btn" data-action="diet-day" data-d="-1" aria-label="前一天">‹</button>' +
     '<b>' + (dietDate === todayKey() ? '今天' : fmtCN(dietDate)) + '</b>' +
     '<button class="icon-btn" data-action="diet-day" data-d="1" aria-label="后一天"' + (dietDate >= todayKey() ? ' disabled' : '') + '>›</button></div></div>';
-  h += '<div class="diet-sum"><b>' + sum + '</b><span>kcal 今天合计（' + esc(state.names[dietWho]) + '）</span></div>' +
-    '<p class="set-tip">减脂参考：175cm / 72kg 每天 1500-1800 kcal 大概率掉秤 · 有记录的 7 天平均 ' + avg7 + ' kcal · 都是估算值，量准了再抠</p>';
+  h += '<div class="diet-sum"><b>' + sum + '</b><span>kcal 今天合计 · ' + esc(state.names[dietWho]) + '</span></div>' +
+    '<div class="diet-ref"><b>减脂参考</b>175cm / 72kg 每天吃 1500-1800 kcal 大概率掉秤 · 最近 7 天平均 <b>' + avg7 + ' kcal</b> · 都是估算，量准了再抠</div>';
   /* 餐段标签页：点谁显示谁 */
   h += '<div class="diet-tabs">' + ['b', 'l', 'd', 's'].map(mk =>
-    '<button class="set-chip' + (dietMeal === mk ? ' on' : '') + '" data-action="diet-meal" data-m="' + mk + '">' +
-    DIET_MEALS[mk] + (items.filter(d => d.m === mk).length ? ' · ' + items.filter(d => d.m === mk).reduce((a, b) => a + b.k, 0) : '') + '</button>').join('') + '</div>';
-  h += '<p class="sub" style="margin:8px 2px 4px">' + DIET_MEALS[dietMeal] + ' · 共约 ' + mealSum + ' kcal</p>';
+    '<button class="diet-tab' + (dietMeal === mk ? ' on' : '') + '" data-action="diet-meal" data-m="' + mk + '">' +
+    '<b>' + DIET_MEALS[mk] + '</b><i>' + (items.filter(d => d.m === mk).length ? items.filter(d => d.m === mk).reduce((a, b) => a + b.k, 0) + ' kcal' : '未记') + '</i></button>').join('') + '</div>';
+  h += '<div class="diet-meal-card">';
+  h += '<div class="sec-title">' + DIET_MEALS[dietMeal] + '<i>' + mealSum + ' kcal</i></div>';
   h += mealItems.length
     ? mealItems.map(d => '<div class="diet-item"><span>' + esc(d.n) + '</span><i>约 ' + d.k + ' kcal</i>' +
         '<button class="icon-btn diet-del" data-action="diet-del" data-idx="' + (r.diet || []).indexOf(d) + '" aria-label="删除">×</button></div>').join('')
-    : '<p class="s-dim" style="padding:6px 2px">这一餐还没记 · 在下面说一句就记上</p>';
+    : '<p class="s-dim" style="padding:4px 2px 8px">这一餐还没记 · 在下面说一句就记上</p>';
+  h += '</div>';
   /* 说话式识别 */
-  h += '<div class="divider">说一句就记 · 自动算热量</div>' +
+  h += '<div class="sec-title">说一句就记<i>自动算热量</i></div>' +
     '<div class="diet-say"><input class="text-input" id="diet-say" placeholder="例：两个鸡蛋 一个玉米 一杯牛奶" enterkeyhint="done">' +
-    '<button class="btn sm" data-action="diet-parse">识别</button></div>';
+    '<button class="btn" data-action="diet-parse">识别</button></div>';
   if (dietParsed.length) {
-    h += '<div class="diet-pv">' + dietParsed.map((p, i) =>
+    h += '<div class="diet-pv"><div class="sec-title">识别结果<i>' + dietParsed.length + ' 样 · 核对后记上</i></div>' + dietParsed.map((p, i) =>
       '<div class="diet-item' + (p.k === null ? ' diet-unknown' : '') + '"><span>' + (p.k === null ? '❓ ' : '') + esc(p.n) + '</span>' +
       (p.k === null
         ? '<input class="text-input diet-pv-k" type="number" inputmode="numeric" placeholder="千卡" style="max-width:76px;padding:6px 8px;font-size:12px">'
         : '<i>约 ' + p.k + ' kcal</i>') +
       '<button class="icon-btn diet-del" data-action="diet-pv-del" data-i="' + i + '" aria-label="移除">×</button></div>').join('') +
       '<button class="btn" data-action="diet-add-batch" style="margin-top:10px">全部记到「' + DIET_MEALS[dietMeal] + '」</button>' +
-      '<p class="set-tip">认不出的给了估算值，可以在框里改成准的 · 热量都写在每条后面，一眼能核对</p></div>';
+      '<p class="set-tip">❓ 的是没认出来的，给的是类别估算值，框里可以改成准的</p></div>';
   }
   /* 速查：点一下进清单 */
-  h += '<div class="divider">常见的 · 点一下加进上面清单</div><div class="gym-chips">' +
+  h += '<div class="sec-title">常见的 · 点一下加进清单</div><div class="gym-chips food-chips">' +
     FOOD_DB.map((f, i) => '<button class="set-chip" data-action="diet-pick" data-i="' + i + '">' + esc(f.n) + ' <i>≈' + f.k + '</i></button>').join('') + '</div>' +
-    '<p class="set-tip">热量是常见份量的估算（中国食物成分表常用值）· 库里没有的就打字说，会按类别估</p>';
+    '<p class="set-tip">库里没有的就打字说，按类别自动估</p>';
   return h;
 }
 
@@ -3712,6 +3806,10 @@ document.addEventListener('click', e => {
       const idx = parseInt(act.getAttribute('data-idx'), 10);
       const arr = (state.records[dietDate] || {}).diet || [];
       if (arr[idx]) { arr.splice(idx, 1); if (!arr.length) delete state.records[dietDate].diet; persist(); renderWidgetSheet('饮食日记'); toast('已删除'); }
+    }
+    else if (a === 'gym-filter') {
+      gymFilter = act.getAttribute('data-c') || '全部';
+      renderWidgetSheet('居家动作库');
     }
     else if (a === 'gym-open') {
       openGymSheet(act.getAttribute('data-id'), act.getAttribute('data-back'));
