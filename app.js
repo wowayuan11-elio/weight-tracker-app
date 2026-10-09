@@ -1430,6 +1430,7 @@ function heroHTML() {
       '<div class="hero-top"><span class="hero-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
       '<span class="hero-date">' + latestTag + '</span>' + gear + '</div>' +
       '<div class="hero-num">' + cur.toFixed(1) + '<small>kg</small></div>' +
+      heroSpark(p) +
       '<div class="hero-delta">' + deltaChip(prev ? cur - prev.value : null, 1, relPrev(lk, prev)) + '</div>' +
       progHTML + gridHTML +
     '</div>';
