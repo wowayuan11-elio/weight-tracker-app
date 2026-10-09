@@ -13,7 +13,7 @@
 /* 自愈机制：版本变化时自动清掉手机上的旧缓存/旧SW，用户无感 */
 (function(){
   try{
-    var BUILD='v66a-20261007';
+    var BUILD='v67a-20261009';
     if(localStorage.getItem('wt_build')!==BUILD){
       localStorage.setItem('wt_build',BUILD);
       if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})});}
@@ -26,7 +26,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="favicon.png">
-<link rel="stylesheet" href="styles.css?v=9h">
+<link rel="stylesheet" href="styles.css?v=9i">
 </head>
 <body>
 <div id="app">
@@ -36,6 +36,12 @@
   <section id="page-record" class="page active">
     <div class="page-head">
       <h1>体重</h1>
+      <button class="icon-btn" data-action="open-theme" aria-label="主题" style="background:transparent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="7.5" cy="9.5" r="1.4"/><circle cx="12" cy="7.5" r="1.4"/><circle cx="16.5" cy="9.5" r="1.4"/>
+          <path d="M12 21a9 9 0 1 1 9-9c0 2.5-1.5 3.5-3.5 3.5H15a2 2 0 0 0-1.5 3.3c.6.7.2 2.2-1.5 2.2z"/>
+        </svg>
+      </button>
       <button class="icon-btn" data-action="open-settings" aria-label="设置" style="background:transparent">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3.1"/>
@@ -170,6 +176,6 @@
   </div>
 </div>
 
-<script src="app.js?v=9h"></script>
+<script src="app.js?v=9i"></script>
 </body>
 </html>
