@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V66';
+const APP_VERSION = 'V67';
 const CHANGELOG = [
+  { v: 'V67', d: '10月9日', items: [
+    '新增 3 套硬核科技主题：赛博（黑底霓虹青+数字发光）、终端（黑客绿+等宽字体）、量子（深空电紫光晕）——字体、光效整套换',
+    '首页右上角新增调色板按钮：点一下直接弹出全部主题速切，不用再进设置翻'
+  ]},
   { v: 'V66', d: '10月7日', items: [
     '动作库 16 → 36 个，新增 12 个练腹肌的动作（反向卷腹/俄罗斯转体/侧平板/V字两头起/鸟狗式…），都是 B 站人工核过的正规教学',
     '动作库支持按部位筛选：腹肌/腿部/臀部/胸部/背部/肩部/手臂/有氧，想练哪直接点哪',
@@ -628,7 +632,7 @@ function sanitizeUI(u) {
     /* V42：白名单用字面量（铁律：loadState 链路不引用后文常量）；旧主题迁移到新风格 */
     const MIGRATE = { warm: 'creme', mint: 'creme', ocean: 'midnight', dark: 'midnight' };
     if (MIGRATE[u.theme]) d.theme = MIGRATE[u.theme];
-    else if (['classic','onyx','creme','midnight','paper','neon','sakura','matcha','terra','aurora','glacier','mocha','graphite','lilac','emerald','mono'].indexOf(u.theme) > -1) d.theme = u.theme;
+    else if (['classic','onyx','creme','midnight','paper','neon','sakura','matcha','terra','aurora','glacier','mocha','graphite','lilac','emerald','mono','cyber','terminal','quantum'].indexOf(u.theme) > -1) d.theme = u.theme;
   }
   if (u.themeRotate === true) d.themeRotate = true;
   if (typeof u.themeDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(u.themeDate)) d.themeDate = u.themeDate;
@@ -2428,7 +2432,10 @@ const THEME_LIST = [
   { k: 'graphite', n: '石墨', en: 'GRAPHITE', desc: '工业极简 · 全灰阶一点橙', bg: '#e8e8ea', fg: '#1a1a1c', accent: '#e8590c', me: '#e8590c', partner: '#525258', numFont: 'inherit', radius: '6px' },
   { k: 'lilac',    n: '丁香', en: 'LILAC',    desc: '柔和紫罗兰 · 超大圆角', bg: '#f3f0fa', fg: '#322848', accent: '#7d5fd3', me: '#7d5fd3', partner: '#d3729e', numFont: 'inherit', radius: '24px' },
   { k: 'emerald',  n: '翡翠', en: 'EMERALD',  desc: '深绿赌场 · 金绿衬线',   bg: '#0a1f16', fg: '#e8f0e6', accent: '#50c98c', me: '#50c98c', partner: '#d4b06a', numFont: 'Georgia,"Times New Roman",serif', radius: '10px' },
-  { k: 'mono',     n: '报刊', en: 'MONO',     desc: '衬线报刊 · 黑白砖红',   bg: '#f7f5f0', fg: '#141414', accent: '#141414', me: '#141414', partner: '#8a2b1e', numFont: 'Georgia,"Times New Roman",serif', radius: '0px' }
+  { k: 'mono',     n: '报刊', en: 'MONO',     desc: '衬线报刊 · 黑白砖红',   bg: '#f7f5f0', fg: '#141414', accent: '#141414', me: '#141414', partner: '#8a2b1e', numFont: 'Georgia,"Times New Roman",serif', radius: '0px' },
+  { k: 'cyber',    n: '赛博', en: 'CYBER',     desc: '黑底霓虹青 · 数字会发光',  bg: '#030308', fg: '#d7fdf6', accent: '#00f0ff', me: '#00f0ff', partner: '#ff2d95', numFont: 'ui-monospace,"SF Mono",Menlo,monospace', radius: '8px' },
+  { k: 'terminal', n: '终端', en: 'TERMINAL',  desc: '黑客帝国绿 · 全等宽字体',  bg: '#040804', fg: '#c8ffd9', accent: '#00ff88', me: '#00ff88', partner: '#ffd166', numFont: 'ui-monospace,"SF Mono",Menlo,monospace', radius: '2px' },
+  { k: 'quantum',  n: '量子', en: 'QUANTUM',   desc: '深空电紫 · 光晕渐变',      bg: '#0a0614', fg: '#e6ddff', accent: '#a855f7', me: '#a855f7', partner: '#22d3ee', numFont: 'inherit', radius: '14px' },
 ];
 const THEME_KEYS = THEME_LIST.map(t => t.k);
 /* 旧版主题（V32 的 warm/mint/ocean/dark）平滑迁移到新风格 */
@@ -2713,6 +2720,28 @@ function renderDateSheet() {
 }
 
 /* ================= 设置 ================= */
+/* V67: 主题速切（首页调色板按钮直达） */
+function openThemeSheet() {
+  const el = document.getElementById('widget-sheet');
+  document.getElementById('widget-sheet-title').textContent = '换个风格';
+  document.getElementById('widget-body').innerHTML =
+    '<p class="sub">点一下立即换 · 字体、圆角、光效整套变，数据不受任何影响</p>' +
+    '<div class="theme-grid">' +
+    THEME_LIST.map(function (t) {
+      const on = (state.ui.theme || 'classic') === t.k;
+      return '<button class="theme-tile' + (on ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '" style="background:' + t.bg + ';color:' + t.fg + ';border-radius:' + (t.radius === '0px' ? '0' : '16px') + '">' +
+        '<span class="tt-num" style="font-family:' + t.numFont + ';color:' + t.accent + '">72.5</span>' +
+        '<span class="tt-name">' + t.n + '</span>' +
+        '<span class="tt-en" style="color:' + t.accent + '">' + t.en + '</span>' +
+        '<span class="tt-desc" style="color:' + t.fg + ';opacity:.55">' + t.desc + '</span>' +
+        (on ? '<span class="tt-check">\u2713</span>' : '') +
+      '</button>';
+    }).join('') +
+    '</div>';
+  el.classList.add('show');
+  document.getElementById('sheet-mask').classList.add('show');
+}
+
 function openSettings() {
   renderSettings();
   document.getElementById('sheet-mask').classList.add('show');
@@ -3654,6 +3683,12 @@ document.addEventListener('click', e => {
       persist();
       applyTheme();
       renderAll();
+      /* 从速切面板进来就留在速切面板，从设置进来回设置 */
+      if (document.getElementById('widget-sheet').classList.contains('show')) openThemeSheet();
+      else openSettings();
+    }
+    else if (a === 'open-theme') {
+      openThemeSheet();
     }
     else if (a === 'copy-app-link') {
       const url = 'https://wowayuan11-elio.github.io/weight-tracker-app/';
