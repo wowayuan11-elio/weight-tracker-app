@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V69';
+const APP_VERSION = 'V70';
 const CHANGELOG = [
+  { v: 'V70', d: '10月10日', items: [
+    '趋势页同款瘦身：图表+一句话总结直出，月历/目标进度/腰围/体脂收进宫格点开看',
+    '新增 4 套一线质感主题：深邃（Linear）、简白（Things）、硬核（Whoop）、琉璃（Arc）',
+    '全站质感升级：卡片顶光+氛围底光+玻璃弹层，主题面板每个色卡带迷你曲线预览'
+  ]},
   { v: 'V69', d: '10月10日', items: [
     '统计页大瘦身：顶部只留「大屏 + 重点变化」两张结论卡，其余 8 个板块收进「数据宫格」——格子上只放一个核心数，点哪个看哪个的完整分析'
   ]},
@@ -639,7 +644,7 @@ function sanitizeUI(u) {
     /* V42：白名单用字面量（铁律：loadState 链路不引用后文常量）；旧主题迁移到新风格 */
     const MIGRATE = { warm: 'creme', mint: 'creme', ocean: 'midnight', dark: 'midnight' };
     if (MIGRATE[u.theme]) d.theme = MIGRATE[u.theme];
-    else if (['classic','onyx','creme','midnight','paper','neon','sakura','matcha','terra','aurora','glacier','mocha','graphite','lilac','emerald','mono','cyber','terminal','quantum'].indexOf(u.theme) > -1) d.theme = u.theme;
+    else if (['classic','onyx','creme','midnight','paper','neon','sakura','matcha','terra','aurora','glacier','mocha','graphite','lilac','emerald','mono','cyber','terminal','quantum','linear','things','whoop','arc'].indexOf(u.theme) > -1) d.theme = u.theme;
   }
   if (u.themeRotate === true) d.themeRotate = true;
   if (typeof u.themeDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(u.themeDate)) d.themeDate = u.themeDate;
@@ -1949,14 +1954,88 @@ function calendarHTML() {
   '</div>';
 }
 
+/* V70: 趋势页数据宫格（与统计页同款交互：格上一个数，点开看完整卡） */
+function trendWaistBody() {
+  const days = rangeDays();
+  const anyWaist = sortedKeys().some(k => { const r = state.records[k]; return r && PERSON_IDS.some(p => typeof r[p + '_waist'] === 'number'); });
+  if (!anyWaist) return '';
+  const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_waist'] : undefined), goals: false, unit: 'cm' });
+  if (c.empty) return '';
+  const rangeName = trendRange === 0 ? '全部记录' : '最近 ' + trendRange + ' 天';
+  const legend = PERSON_IDS.map(p => {
+    const last = lastKnownField(p + '_waist');
+    return '<span class="lg-item"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) +
+      (last ? ' <b>' + last.value.toFixed(1) + '</b> cm' : '') + '</span>';
+  }).join('');
+  const html = '<div class="card chart-card">' +
+    '<div class="chart-head2"><h3 class="card-label">腰围走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
+    '<p class="sub">' + waistInterpText() + '</p>' +
+    '<p class="sub">减肚子的硬指标：体重不动时，腰围缩小 = 脂肪真的在掉 · 建议每周量 1~2 次</p>' +
+    '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
+  '</div>';
+  return { html: html, scrub: true };
+}
+function trendBfBody() {
+  const days = rangeDays();
+  const anyBf = sortedKeys().some(k => { const r = state.records[k]; return r && PERSON_IDS.some(p => typeof r[p + '_bf'] === 'number'); });
+  if (!anyBf) return '';
+  const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1, unit: '%' });
+  if (c.empty) return '';
+  const rangeName = trendRange === 0 ? '全部记录' : '最近 ' + trendRange + ' 天';
+  const legend = PERSON_IDS.map(p => {
+    const last = lastKnownField(p + '_bf');
+    return '<span class="lg-item"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) +
+      (last ? ' <b>' + last.value.toFixed(1) + '</b> %' : '') + '</span>';
+  }).join('');
+  const html = '<div class="card chart-card">' +
+    '<div class="chart-head2"><h3 class="card-label">体脂率走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
+    '<p class="sub">来自你们的体脂秤数据 · 看趋势别看单日：早上空腹上秤最准</p>' +
+    '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
+  '</div>';
+  return { html: html, scrub: true };
+}
+function trendGridHTML() {
+  const curMe = lastKnown('me'), curPa = lastKnown('partner');
+  const wMe = lastKnownField('me_waist'), wPa = lastKnownField('partner_waist');
+  const bfMe = lastKnownField('me_bf'), bfPa = lastKnownField('partner_bf');
+  const cell = (k, icon, name, val, foot) =>
+    '<button class="stat-cell" data-action="open-trend" data-v="' + k + '">' +
+      '<span class="sc-ico">' + icon + '</span>' +
+      '<span class="sc-name">' + name + '</span>' +
+      '<span class="sc-val">' + val + '</span>' +
+      '<span class="sc-foot">' + foot + '</span>' +
+    '</button>';
+  const days = rangeDays();
+  const counted = days.filter(k => state.records[k] && PERSON_IDS.some(p => typeof state.records[k][p] === 'number')).length;
+  const cells = [];
+  cells.push(cell('cal', '🗓️', '月历', counted + ' 天', '这个月哪天记了哪天没记'));
+  cells.push(cell('goal', '🎯', '目标进度', (curMe !== null ? curMe.toFixed(1) : '--'), '离 65kg / 63kg 还差多少'));
+  cells.push(cell('waist', '📏', '腰围走势', (wMe ? wMe.value.toFixed(1) : (wPa ? wPa.value.toFixed(1) : '没量')), '肚子的硬指标曲线'));
+  cells.push(cell('bf', bfMe || bfPa ? '🫀' : '🫀', '体脂率', (bfMe ? bfMe.value.toFixed(1) : (bfPa ? bfPa.value.toFixed(1) : '没录')), '秤上的体脂曲线'));
+  return '<div class="card"><h3 class="card-label">更多 · 点开看详情</h3>' +
+    '<p class="sub">格上一眼一个数 · 点哪个看哪个的完整走势</p>' +
+    '<div class="stat-grid">' + cells.join('') + '</div></div>';
+}
+function openTrendSheet(key) {
+  let content = '', title = '';
+  if (key === 'cal') { title = '月历'; content = calendarHTML(); }
+  else if (key === 'goal') { title = '目标进度'; content = goalProgressHTML(); }
+  else if (key === 'waist') { const m = trendWaistBody(); if (!m) { toast('腰围还没记过，先在记录页量一次'); return; } title = '腰围走势'; content = m.html; setTimeout(() => { const w = document.querySelector('#widget-body .chart-wrap'); if (w) { const c = buildDualChart(rangeDays(), { read: (r, p) => (r ? r[p + '_waist'] : undefined), goals: false, unit: 'cm' }); if (!c.empty) attachScrub(w, c); } }, 30); }
+  else if (key === 'bf') { const m = trendBfBody(); if (!m) { toast('体脂还没录过，秤的完整报告里有'); return; } title = '体脂率走势'; content = m.html; setTimeout(() => { const w = document.querySelector('#widget-body .chart-wrap'); if (w) { const c = buildDualChart(rangeDays(), { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1, unit: '%' }); if (!c.empty) attachScrub(w, c); } }, 30); }
+  const el = document.getElementById('widget-sheet');
+  document.getElementById('widget-sheet-title').textContent = title;
+  document.getElementById('widget-body').innerHTML = content;
+  el.classList.add('show');
+  document.getElementById('sheet-mask').classList.add('show');
+}
 function renderTrend() {
   const calBox = document.getElementById('cal-box');
-  if (calBox) calBox.innerHTML = calendarHTML();
+  if (calBox) calBox.innerHTML = '';
   document.querySelectorAll('#range-seg button').forEach(b => {
     b.classList.toggle('active', +b.dataset.range === trendRange);
   });
 
-  document.getElementById('goal-box').innerHTML = goalProgressHTML();
+  document.getElementById('goal-box').innerHTML = '';
 
   const days = rangeDays();
   const anyData = PERSON_IDS.some(p => lastKnown(p) !== null);
@@ -2001,31 +2080,15 @@ function renderTrend() {
 
   document.getElementById('range-summary').innerHTML = rangeSummaryHTML(days);
 
-  /* 腰围 / 体脂曲线：有数据才出现，没有就不占地方 */
+  /* V70: 趋势页组件化——日历/目标/腰围/体脂收进宫格，点开看详情 */
+  const gridBox = document.getElementById('trend-grid');
+  if (gridBox) gridBox.innerHTML = trendGridHTML();
+
+    /* V70: 腰围/体脂曲线收进宫格，这里只填宫格 */
   const waistBox = document.getElementById('waist-chart-box');
   const bfBox = document.getElementById('bf-chart-box');
-  const anyWaist = sortedKeys().some(k => { const r = state.records[k]; return r && PERSON_IDS.some(p => typeof r[p + '_waist'] === 'number'); });
-  const anyBf = sortedKeys().some(k => { const r = state.records[k]; return r && PERSON_IDS.some(p => typeof r[p + '_bf'] === 'number'); });
-
-  if (anyWaist) {
-    const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_waist'] : undefined), goals: false, unit: 'cm' });
-    if (!c.empty) {
-      const legend = PERSON_IDS.map(p => {
-        const last = lastKnownField(p + '_waist');
-        return '<span class="lg-item"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) +
-          (last ? ' <b>' + last.value.toFixed(1) + '</b> cm' : '') + '</span>';
-      }).join('');
-      waistBox.innerHTML = '<div class="card chart-card">' +
-        '<div class="chart-head2"><h3 class="card-label">腰围走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
-        '<p class="sub">' + waistInterpText() + '</p>' +
-        '<p class="sub">减肚子的硬指标：体重不动时，腰围缩小 = 脂肪真的在掉 · 建议每周量 1~2 次</p>' +
-        '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
-      '</div>';
-      attachScrub(waistBox.querySelector('.chart-wrap'), c);
-    } else waistBox.innerHTML = '';
-  } else {
-    waistBox.innerHTML = '';
-  }
+  waistBox.innerHTML = '';
+  bfBox.innerHTML = '';
 
   if (anyBf) {
     const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1, unit: '%' });
@@ -2518,6 +2581,10 @@ const THEME_LIST = [
   { k: 'cyber',    n: '赛博', en: 'CYBER',     desc: '黑底霓虹青 · 数字会发光',  bg: '#030308', fg: '#d7fdf6', accent: '#00f0ff', me: '#00f0ff', partner: '#ff2d95', numFont: 'ui-monospace,"SF Mono",Menlo,monospace', radius: '8px' },
   { k: 'terminal', n: '终端', en: 'TERMINAL',  desc: '黑客帝国绿 · 全等宽字体',  bg: '#040804', fg: '#c8ffd9', accent: '#00ff88', me: '#00ff88', partner: '#ffd166', numFont: 'ui-monospace,"SF Mono",Menlo,monospace', radius: '2px' },
   { k: 'quantum',  n: '量子', en: 'QUANTUM',   desc: '深空电紫 · 光晕渐变',      bg: '#0a0614', fg: '#e6ddff', accent: '#a855f7', me: '#a855f7', partner: '#22d3ee', numFont: 'inherit', radius: '14px' },
+  { k: 'linear',   n: '深邃', en: 'LINEAR',    desc: 'Linear 风 · 蓝紫微光边框',  bg: '#08090d', fg: '#e2e4ec', accent: '#7b8cff', me: '#7b8cff', partner: '#f2994a', numFont: 'inherit', radius: '12px' },
+  { k: 'things',   n: '简白', en: 'THINGS',    desc: 'Things 3 风 · 超重白磁',    bg: '#ffffff', fg: '#1a1a1a', accent: '#2f6bff', me: '#2f6bff', partner: '#f5a623', numFont: 'inherit', radius: '18px' },
+  { k: 'whoop',    n: '硬核', en: 'WHOOP',     desc: 'Whoop 风 · 纯黑荧光数据',   bg: '#000000', fg: '#f2f2f2', accent: '#d4ff3f', me: '#d4ff3f', partner: '#ff4d6d', numFont: 'ui-monospace,"SF Mono",Menlo,monospace', radius: '6px' },
+  { k: 'arc',      n: '琉璃', en: 'ARC',       desc: 'Arc 风 · 彩虹渐变玻璃',     bg: '#101018', fg: '#f0ecff', accent: '#c084fc', me: '#c084fc', partner: '#5eead4', numFont: 'inherit', radius: '20px' },
 ];
 const THEME_KEYS = THEME_LIST.map(t => t.k);
 /* 旧版主题（V32 的 warm/mint/ocean/dark）平滑迁移到新风格 */
@@ -2813,6 +2880,7 @@ function openThemeSheet() {
       const on = (state.ui.theme || 'classic') === t.k;
       return '<button class="theme-tile' + (on ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '" style="background:' + t.bg + ';color:' + t.fg + ';border-radius:' + (t.radius === '0px' ? '0' : '16px') + '">' +
         '<span class="tt-num" style="font-family:' + t.numFont + ';color:' + t.accent + '">72.5</span>' +
+        '<svg class="tt-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 20 L12 17 L24 18 L36 12 L48 13 L60 8 L72 9 L84 5 L100 4" fill="none" stroke="' + t.accent + '" stroke-width="2" stroke-linecap="round"/></svg>' +
         '<span class="tt-name">' + t.n + '</span>' +
         '<span class="tt-en" style="color:' + t.accent + '">' + t.en + '</span>' +
         '<span class="tt-desc" style="color:' + t.fg + ';opacity:.55">' + t.desc + '</span>' +
@@ -2864,6 +2932,9 @@ function renderSettings() {
           const on = (state.ui.theme || 'classic') === t.k;
           return '<button class="theme-tile' + (on ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '" style="background:' + t.bg + ';color:' + t.fg + ';border-radius:' + (t.radius === '0px' ? '0' : '16px') + '">' +
             '<span class="tt-num" style="font-family:' + t.numFont + ';color:' + t.accent + '">72.5</span>' +
+'<svg class="tt-spark" viewBox="0 0 100 26" preserveAspectRatio="none">' +
+            '<path d="M0 20 L12 17 L24 18 L36 12 L48 13 L60 8 L72 9 L84 5 L100 4" fill="none" stroke="' + t.accent + '" stroke-width="2" stroke-linecap="round"/>' +
+          '</svg>' +
             '<span class="tt-name">' + t.n + '</span>' +
             '<span class="tt-en" style="color:' + t.accent + '">' + t.en + '</span>' +
             '<span class="tt-desc" style="color:' + t.fg + ';opacity:.55">' + t.desc + '</span>' +
@@ -3774,6 +3845,9 @@ document.addEventListener('click', e => {
     }
     else if (a === 'open-stat') {
       openStatSheet(act.getAttribute('data-v'));
+    }
+    else if (a === 'open-trend') {
+      openTrendSheet(act.getAttribute('data-v'));
     }
     else if (a === 'copy-summary') {
       const card = act.closest('.card');
