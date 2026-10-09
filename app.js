@@ -2874,6 +2874,44 @@ function renderDateSheet() {
 
 /* ================= 设置 ================= */
 /* V67: 主题速切（首页调色板按钮直达） */
+/* V72: 主题分组——旗舰置顶，其余按明暗归类 */
+const THEME_GROUPS = [
+  { name: '旗舰 · 设计语言最完整', keys: ['aurora', 'onyx', 'creme', 'linear'] },
+  { name: '暗夜系', keys: ['midnight', 'cyber', 'quantum', 'arc', 'terminal', 'whoop', 'neon'] },
+  { name: '晨光系', keys: ['classic', 'things', 'paper', 'mono', 'graphite'] },
+  { name: '趣味系', keys: ['sakura', 'matcha', 'glacier', 'lilac', 'emerald', 'terra', 'mocha'] }
+];
+function themeGroupedHTML() {
+  const cur = state.ui.theme || 'classic';
+  const used = {};
+  return THEME_GROUPS.map(function (g) {
+    const tiles = g.keys.filter(function (k) { const t = THEME_LIST.find(function (x) { return x.k === k; }); if (!t) return false; used[k] = 1; return true; }).map(function (k) {
+      const t = THEME_LIST.find(function (x) { return x.k === k; });
+      const on = cur === t.k;
+      return '<button class="theme-tile' + (on ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '" style="background:' + t.bg + ';color:' + t.fg + ';border-radius:' + (t.radius === '0px' ? '0' : '16px') + '">' +
+        '<span class="tt-num" style="font-family:' + t.numFont + ';color:' + t.accent + '">72.5</span>' +
+        '<svg class="tt-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 20 L12 17 L24 18 L36 12 L48 13 L60 8 L72 9 L84 5 L100 4" fill="none" stroke="' + t.accent + '" stroke-width="2" stroke-linecap="round"/></svg>' +
+        '<span class="tt-name">' + t.n + '</span>' +
+        '<span class="tt-en" style="color:' + t.accent + '">' + t.en + '</span>' +
+        '<span class="tt-desc" style="color:' + t.fg + ';opacity:.55">' + t.desc + '</span>' +
+        (on ? '<span class="tt-check">\u2713</span>' : '') +
+      '</button>';
+    }).join('');
+    if (!tiles) return '';
+    return '<p class="tg-name">' + g.name + '</p><div class="theme-grid">' + tiles + '</div>';
+  }).join('') +
+  THEME_LIST.filter(function (t) { return !used[t.k]; }).map(function (t) {
+    const on = cur === t.k;
+    return '<button class="theme-tile' + (on ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '" style="background:' + t.bg + ';color:' + t.fg + ';border-radius:' + (t.radius === '0px' ? '0' : '16px') + '">' +
+      '<span class="tt-num" style="font-family:' + t.numFont + ';color:' + t.accent + '">72.5</span>' +
+      '<svg class="tt-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 20 L12 17 L24 18 L36 12 L48 13 L60 8 L72 9 L84 5 L100 4" fill="none" stroke="' + t.accent + '" stroke-width="2" stroke-linecap="round"/></svg>' +
+      '<span class="tt-name">' + t.n + '</span>' +
+      '<span class="tt-en" style="color:' + t.accent + '">' + t.en + '</span>' +
+      '<span class="tt-desc" style="color:' + t.fg + ';opacity:.55">' + t.desc + '</span>' +
+      (on ? '<span class="tt-check">\u2713</span>' : '') +
+    '</button>';
+  }).join('');
+}
 function openThemeSheet() {
   const el = document.getElementById('widget-sheet');
   document.getElementById('widget-sheet-title').textContent = '换个风格';
