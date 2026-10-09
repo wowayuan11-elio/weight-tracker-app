@@ -1351,6 +1351,24 @@ function renderRecord() {
 
 const GEAR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>';
 
+/* V72: hero 迷你走势线（最近 14 天，纯 SVG 轻量自绘） */
+function heroSpark(p) {
+  const ks = sortedKeys().slice(-14);
+  const pts = [];
+  ks.forEach(k => { const v = state.records[k] ? state.records[k][p] : undefined; if (typeof v === 'number') pts.push(v); });
+  if (pts.length < 3) return '';
+  const W = 120, H = 30;
+  const min = Math.min.apply(null, pts), max = Math.max.apply(null, pts);
+  const span = Math.max(0.4, max - min);
+  const xy = pts.map((v, i) => [ (i / (pts.length - 1)) * (W - 4) + 2, H - 4 - ((v - min) / span) * (H - 10) ]);
+  const d = xy.map((p2, i) => (i === 0 ? 'M' : 'L') + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1)).join(' ');
+  const last = xy[xy.length - 1];
+  return '<svg class="hero-spark" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
+    '<path d="' + d + '" fill="none" stroke="' + COLORS[p] + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>' +
+    '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="3" fill="' + COLORS[p] + '"/>' +
+  '</svg>';
+}
+
 function heroHTML() {
   /* 上一次记录的相对说法：隔1天=昨天，隔2天=前天，再久直接报日期 */
   const relPrev = (lk, prev) => {
@@ -2861,19 +2879,7 @@ function openThemeSheet() {
   document.getElementById('widget-sheet-title').textContent = '换个风格';
   document.getElementById('widget-body').innerHTML =
     '<p class="sub">点一下立即换 · 字体、圆角、光效整套变，数据不受任何影响</p>' +
-    '<div class="theme-grid">' +
-    THEME_LIST.map(function (t) {
-      const on = (state.ui.theme || 'classic') === t.k;
-      return '<button class="theme-tile' + (on ? ' on' : '') + '" data-action="set-theme" data-v="' + t.k + '" style="background:' + t.bg + ';color:' + t.fg + ';border-radius:' + (t.radius === '0px' ? '0' : '16px') + '">' +
-        '<span class="tt-num" style="font-family:' + t.numFont + ';color:' + t.accent + '">72.5</span>' +
-        '<svg class="tt-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 20 L12 17 L24 18 L36 12 L48 13 L60 8 L72 9 L84 5 L100 4" fill="none" stroke="' + t.accent + '" stroke-width="2" stroke-linecap="round"/></svg>' +
-        '<span class="tt-name">' + t.n + '</span>' +
-        '<span class="tt-en" style="color:' + t.accent + '">' + t.en + '</span>' +
-        '<span class="tt-desc" style="color:' + t.fg + ';opacity:.55">' + t.desc + '</span>' +
-        (on ? '<span class="tt-check">\u2713</span>' : '') +
-      '</button>';
-    }).join('') +
-    '</div>';
+    themeGroupedHTML();
   el.classList.add('show');
   document.getElementById('sheet-mask').classList.add('show');
 }
