@@ -1026,3 +1026,85 @@ body[data-theme='quantum'] .card{ border:1px solid rgba(168,85,247,.16); box-sha
 .sc-val{ font-size:19px; font-weight:700; color:var(--text,#1d1d1f); font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
 .sc-foot{ font-size:11px; color:var(--text3,#86868b); line-height:1.45; }
 .cmp-sub{ font-size:12px; color:var(--text3,#86868b); margin:2px 0 8px 84px; }
+/* ================= V70 质感升级包 ================= */
+/* 卡片：顶部内侧高光 + 精细边 + 悬浮阴影（vibe coding 一线质感三件套） */
+body .card{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 1px 2px rgba(0,0,0,.04),
+    0 8px 24px rgba(0,0,0,.05);
+}
+body[data-theme='cyber'] .card, body[data-theme='terminal'] .card, body[data-theme='quantum'] .card,
+body[data-theme='linear'] .card, body[data-theme='whoop'] .card, body[data-theme='arc'] .card,
+body[data-theme='onyx'] .card, body[data-theme='midnight'] .card{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 8px 28px rgba(0,0,0,.45);
+}
+/* 弹层玻璃拟态 */
+.sheet, #widget-sheet .sheet-panel, .sheet-card{
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+}
+/* 底部 Tab 毛玻璃强化 */
+#tabbar{
+  backdrop-filter: blur(28px) saturate(1.7);
+  -webkit-backdrop-filter: blur(28px) saturate(1.7);
+  border-top: 1px solid rgba(127,127,127,.14);
+}
+/* 按钮：细微渐变+按压反馈 */
+body .btn{
+  background-image: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 55%);
+}
+body .btn:active{ transform: scale(.98); }
+
+/* ---- V70 四套新主题 ---- */
+body[data-theme='linear']{
+  --bg:#08090d; --card:rgba(124,140,255,.045); --text:#e2e4ec; --text2:#9aa0b4; --text3:#5c6275;
+  --tint:#7b8cff; --line:rgba(124,140,255,.15); --accent:#7b8cff; --ok:#4ade80; --warn:#f2994a;
+  background-image:
+    radial-gradient(ellipse 110% 45% at 50% -10%, rgba(94,106,210,.22), transparent 60%),
+    radial-gradient(ellipse 60% 30% at 85% 105%, rgba(124,140,255,.08), transparent 65%);
+}
+body[data-theme='linear'] .card{ border:1px solid rgba(124,140,255,.14); }
+body[data-theme='linear'] .hero-num, body[data-theme='linear'] .big-num{ text-shadow:0 0 24px rgba(123,140,255,.35); }
+
+body[data-theme='things']{
+  --bg:#ffffff; --card:#ffffff; --text:#1a1a1a; --text2:#71727b; --text3:#a4a5ae;
+  --tint:#2f6bff; --line:rgba(0,0,0,.07); --accent:#2f6bff; --ok:#34c759; --warn:#ff9500;
+  background-image:none;
+}
+body[data-theme='things'] .card{ border:1px solid rgba(0,0,0,.055); box-shadow:0 1px 2px rgba(0,0,0,.03), 0 6px 20px rgba(0,0,0,.04); }
+body[data-theme='things'] .hero-num{ font-weight:800; letter-spacing:-.035em; }
+body[data-theme='things'] .page-head h1{ font-weight:800; letter-spacing:-.02em; }
+
+body[data-theme='whoop']{
+  --bg:#000000; --card:rgba(255,255,255,.035); --text:#f2f2f2; --text2:#b0b0b0; --text3:#666;
+  --tint:#d4ff3f; --line:rgba(212,255,63,.16); --accent:#d4ff3f; --ok:#d4ff3f; --warn:#ff4d6d;
+  background-image:radial-gradient(ellipse 90% 40% at 50% -8%, rgba(212,255,63,.07), transparent 60%);
+}
+body[data-theme='whoop'] .hero-num, body[data-theme='whoop'] .big-num{
+  font-family:ui-monospace,'SF Mono',Menlo,monospace; font-weight:700; letter-spacing:-.02em;
+}
+body[data-theme='whoop'] .card, body[data-theme='whoop'] .tile{ border:1px solid rgba(255,255,255,.08); }
+body[data-theme='whoop'] .page-head h1, body[data-theme='whoop'] .card-label{ letter-spacing:.06em; text-transform:uppercase; }
+
+body[data-theme='arc']{
+  --bg:#101018; --card:rgba(255,255,255,.05); --text:#f0ecff; --text2:#b5aed4; --text3:#6e6890;
+  --tint:#c084fc; --line:rgba(192,132,252,.16); --accent:#c084fc; --ok:#5eead4; --warn:#fb7185;
+  background-image:
+    radial-gradient(ellipse 80% 40% at 8% -5%, rgba(192,132,252,.16), transparent 55%),
+    radial-gradient(ellipse 70% 35% at 95% 8%, rgba(94,234,212,.10), transparent 60%),
+    radial-gradient(ellipse 60% 30% at 50% 108%, rgba(251,113,133,.08), transparent 65%);
+}
+body[data-theme='arc'] .card{ border:1px solid rgba(255,255,255,.09); }
+body[data-theme='arc'] .hero-num{ background:linear-gradient(120deg,#c084fc,#5eead4 60%,#fb7185); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+/* ---- 主题面板：色卡加迷你曲线+渐变底，告别"一个数字一块色" ---- */
+.theme-tile{ position:relative; overflow:hidden; }
+.theme-tile::after{
+  content:''; position:absolute; left:0; right:0; bottom:0; height:46%;
+  background:inherit; opacity:.55; filter:blur(0px);
+  pointer-events:none;
+}
+.tt-spark{ position:absolute; left:12px; right:12px; bottom:34px; height:26px; opacity:.5; pointer-events:none; }
