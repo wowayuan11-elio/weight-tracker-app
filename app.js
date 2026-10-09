@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V67';
+const APP_VERSION = 'V68';
 const CHANGELOG = [
+  { v: 'V68', d: '10月10日', items: [
+    '趋势页新增「一句话总结」：这 30 天谁降了多少、算不算有效，自动说人话+一键复制',
+    '周对比卡新增「复制周报」：生成能直接发微信的周报文本（本周 vs 上周·每人平均·合计变化）'
+  ]},
   { v: 'V67', d: '10月9日', items: [
     '新增 3 套硬核科技主题：赛博（黑底霓虹青+数字发光）、终端（黑客绿+等宽字体）、量子（深空电紫光晕）——字体、光效整套换',
     '首页右上角新增调色板按钮：点一下直接弹出全部主题速切，不用再进设置翻'
@@ -2064,8 +2068,27 @@ function rangeSummaryHTML(days) {
     '</div>';
   }).filter(Boolean).join('');
   if (!rows) return '';
+  /* V68: 一句话总结——把表格翻译成人话 */
+  let verdict = '';
+  try {
+    const lines = PERSON_IDS.map(p => {
+      const cur = lastKnown(p);
+      if (cur === null) return '';
+      const inRange = [];
+      days.forEach(k => { const v = state.records[k] ? state.records[k][p] : undefined; if (typeof v === 'number') inRange.push({ k, v }); });
+      if (!inRange.length) return '';
+      const first = inRange[0], last = inRange[inRange.length - 1];
+      const span = last.v - first.v;
+      const nm = esc(state.names[p]);
+      if (span <= -0.3) return nm + ' ' + first.v.toFixed(1) + '→' + last.v.toFixed(1) + '（降 ' + Math.abs(span).toFixed(1) + 'kg，有效果）';
+      if (span >= 0.3) return nm + ' ' + first.v.toFixed(1) + '→' + last.v.toFixed(1) + '（涨 ' + span.toFixed(1) + 'kg，盯一下）';
+      return nm + ' ' + first.v.toFixed(1) + '→' + last.v.toFixed(1) + '（基本横住，稳）';
+    }).filter(Boolean);
+    if (lines.length) verdict = '<div class="verdict"><b>一句话：</b>' + lines.join(' · ') +
+      '<button class="btn ghost sm" data-action="copy-summary" style="margin-top:8px">复制这段话</button></div>';
+  } catch (e) {}
   return '<div class="card"><h3 class="card-label">' + (trendRange === 0 ? '全部' : trendRange + '天') + '概览 · 期初 → 现在</h3>' +
-    '<p class="sub" style="margin-bottom:6px">「起点 → 最新」这段总共的变化 · 箭头=瘦了↓ / 胖了↑ · 「均」= 这段平均</p>' + rows + '</div>';
+    '<p class="sub" style="margin-bottom:6px">「起点 → 最新」这段总共的变化 · 箭头=瘦了↓ / 胖了↑ · 「均」= 这段平均</p>' + rows + verdict + '</div>';
 }
 
 /* ================= 统计页 ================= */
@@ -2200,8 +2223,18 @@ function weekCompareHTML() {
       (l !== null ? '<div class="wc-last">上周均 ' + l.toFixed(1) + '</div>' : '') +
       '<div class="wc-delta">' + inner + '</div></div>';
   }).join('');
+  /* V68: 周报文本——拼好直接发微信 */
+  let report = '📊 双人减重周报（' + wk.slice(5).replace('-', '.') + ' 更新）\n';
+  PERSON_IDS.forEach(p => {
+    const t = weekAvgRange(p, wk, todayKey()), l = weekAvgRange(p, lwk, lwe);
+    const nm = state.names[p];
+    if (t === null) { report += '· ' + nm + '：本周还没记\n'; return; }
+    const d = (l === null) ? '' : ('（较上周 ' + (t - l >= 0 ? '+' : '') + (t - l).toFixed(1) + '）');
+    report += '· ' + nm + '：平均 ' + t.toFixed(1) + 'kg ' + d + '\n';
+  });
   return '<div class="card"><h3 class="card-label">本周 vs 上周</h3>' +
     '<div class="wc-wrap">' + cols + '</div>' +
+    '<button class="btn ghost sm" data-action="copy-weekly" data-report="' + esc(report).replace(/"/g, '&quot;') + '">复制周报 · 发微信</button>' +
     '<p class="set-tip">每周一为起点 · 比的是平均值，一天两天的浮动不算数</p></div>';
 }
 
@@ -3689,6 +3722,18 @@ document.addEventListener('click', e => {
     }
     else if (a === 'open-theme') {
       openThemeSheet();
+    }
+    else if (a === 'copy-summary') {
+      const card = act.closest('.card');
+      const txt = card ? card.querySelector('.verdict').innerText.replace(/^一句话：/, '').replace(/复制这段话$/, '').trim() : '';
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(() => toast('✓ 已复制，可以直接发给别人')).catch(() => {});
+      else toast(txt);
+    }
+    else if (a === 'copy-weekly') {
+      const txt = (act.getAttribute('data-report') || '').replace(/\\n/g, '\n');
+      if (navigator.share) { navigator.share({ text: txt }).catch(() => {}); }
+      else if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(() => toast('✓ 周报已复制，去微信粘贴')).catch(() => {});
+      else toast('周报：' + txt);
     }
     else if (a === 'copy-app-link') {
       const url = 'https://wowayuan11-elio.github.io/weight-tracker-app/';
