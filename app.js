@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V70';
+const APP_VERSION = 'V71';
 const CHANGELOG = [
+  { v: 'V71', d: '10月10日', items: [
+    '修复趋势页切换时偶发的白屏兜底（清理了旧渲染残留代码）'
+  ]},
   { v: 'V70', d: '10月10日', items: [
     '趋势页同款瘦身：图表+一句话总结直出，月历/目标进度/腰围/体脂收进宫格点开看',
     '新增 4 套一线质感主题：深邃（Linear）、简白（Things）、硬核（Whoop）、琉璃（Arc）',
@@ -2020,8 +2023,8 @@ function openTrendSheet(key) {
   let content = '', title = '';
   if (key === 'cal') { title = '月历'; content = calendarHTML(); }
   else if (key === 'goal') { title = '目标进度'; content = goalProgressHTML(); }
-  else if (key === 'waist') { const m = trendWaistBody(); if (!m) { toast('腰围还没记过，先在记录页量一次'); return; } title = '腰围走势'; content = m.html; setTimeout(() => { const w = document.querySelector('#widget-body .chart-wrap'); if (w) { const c = buildDualChart(rangeDays(), { read: (r, p) => (r ? r[p + '_waist'] : undefined), goals: false, unit: 'cm' }); if (!c.empty) attachScrub(w, c); } }, 30); }
-  else if (key === 'bf') { const m = trendBfBody(); if (!m) { toast('体脂还没录过，秤的完整报告里有'); return; } title = '体脂率走势'; content = m.html; setTimeout(() => { const w = document.querySelector('#widget-body .chart-wrap'); if (w) { const c = buildDualChart(rangeDays(), { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1, unit: '%' }); if (!c.empty) attachScrub(w, c); } }, 30); }
+  else if (key === 'waist') { const m = trendWaistBody(); if (!m) { toast('腰围数据还不够画曲线，先记上 2 次再来看'); return; } title = '腰围走势'; content = m.html; setTimeout(() => { const w = document.querySelector('#widget-body .chart-wrap'); if (w) { const c = buildDualChart(rangeDays(), { read: (r, p) => (r ? r[p + '_waist'] : undefined), goals: false, unit: 'cm' }); if (!c.empty) attachScrub(w, c); } }, 30); }
+  else if (key === 'bf') { const m = trendBfBody(); if (!m) { toast('体脂数据还不够画曲线，先记上 2 次再来看'); return; } title = '体脂率走势'; content = m.html; setTimeout(() => { const w = document.querySelector('#widget-body .chart-wrap'); if (w) { const c = buildDualChart(rangeDays(), { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1, unit: '%' }); if (!c.empty) attachScrub(w, c); } }, 30); }
   const el = document.getElementById('widget-sheet');
   document.getElementById('widget-sheet-title').textContent = title;
   document.getElementById('widget-body').innerHTML = content;
@@ -2089,23 +2092,6 @@ function renderTrend() {
   const bfBox = document.getElementById('bf-chart-box');
   waistBox.innerHTML = '';
   bfBox.innerHTML = '';
-
-  if (anyBf) {
-    const c = buildDualChart(days, { read: (r, p) => (r ? r[p + '_bf'] : undefined), goals: false, dec: 1, unit: '%' });
-    if (!c.empty) {
-      const legend = PERSON_IDS.map(p => {
-        const last = lastKnownField(p + '_bf');
-        return '<span class="lg-item"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) +
-          (last ? ' <b>' + last.value.toFixed(1) + '</b> %' : '') + '</span>';
-      }).join('');
-      bfBox.innerHTML = '<div class="card chart-card">' +
-        '<div class="chart-head2"><h3 class="card-label">体脂率走势 · ' + rangeName + '</h3><div class="lg">' + legend + '</div></div>' +
-        '<p class="sub">来自你们的体脂秤数据 · 看趋势别看单日：早上空腹上秤最准</p>' +
-        '<div class="chart-wrap">' + c.svg + '<div class="chart-tip"></div></div>' +
-      '</div>';
-      attachScrub(bfBox.querySelector('.chart-wrap'), c);
-    } else bfBox.innerHTML = '';
-  } else bfBox.innerHTML = '';
 }
 
 function rangeSummaryHTML(days) {
