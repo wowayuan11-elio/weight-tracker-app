@@ -980,3 +980,37 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .food-chips .set-chip{ font-size:12px; padding:6px 10px; }
 .diet-say .text-input{ font-size:16px; padding:12px 14px; }
 .diet-say .btn{ min-width:72px; }
+/* V67: 赛博/终端/量子 —— 三套硬核科技主题 */
+body[data-theme='cyber']{
+  --bg:#030308; --card:rgba(0,240,255,.04); --text:#d7fdf6; --text2:#8fe8dc; --text3:#4a8a80;
+  --tint:#00f0ff; --line:rgba(0,240,255,.16); --accent:#00f0ff; --ok:#00ffcc; --warn:#ff2d95;
+  background-image:linear-gradient(rgba(0,240,255,.028) 1px, transparent 1px),linear-gradient(90deg, rgba(0,240,255,.028) 1px, transparent 1px);
+  background-size:32px 32px;
+}
+body[data-theme='cyber'] .hero-num, body[data-theme='cyber'] .diet-sum b, body[data-theme='cyber'] .big-num{
+  text-shadow:0 0 18px rgba(0,240,255,.55), 0 0 42px rgba(0,240,255,.25);
+  letter-spacing:.01em;
+}
+body[data-theme='cyber'] .card{ border:1px solid rgba(0,240,255,.14); box-shadow:0 0 24px rgba(0,240,255,.05) inset; }
+body[data-theme='cyber'] .page-head h1, body[data-theme='cyber'] .card-label{ letter-spacing:.08em; }
+
+body[data-theme='terminal']{
+  --bg:#040804; --card:rgba(0,255,136,.04); --text:#c8ffd9; --text2:#8fe0a8; --text3:#4d8a63;
+  --tint:#00ff88; --line:rgba(0,255,136,.2); --accent:#00ff88; --ok:#00ff88; --warn:#ffd166;
+  background-image:repeating-linear-gradient(0deg, rgba(0,255,136,.02) 0 1px, transparent 1px 3px);
+}
+body[data-theme='terminal'] .hero-num, body[data-theme='terminal'] .diet-sum b, body[data-theme='terminal'] .big-num{
+  font-family:ui-monospace,'SF Mono',Menlo,monospace; text-shadow:0 0 14px rgba(0,255,136,.5);
+}
+body[data-theme='terminal'] .card, body[data-theme='terminal'] .tile, body[data-theme='terminal'] .text-input, body[data-theme='terminal'] .btn{ border-radius:2px !important; }
+body[data-theme='terminal'] .page-head h1, body[data-theme='terminal'] .card-label{ font-family:ui-monospace,'SF Mono',Menlo,monospace; letter-spacing:.12em; }
+
+body[data-theme='quantum']{
+  --bg:#0a0614; --card:rgba(168,85,247,.06); --text:#e6ddff; --text2:#b9a5e8; --text3:#6e5a9e;
+  --tint:#a855f7; --line:rgba(168,85,247,.18); --accent:#a855f7; --ok:#22d3ee; --warn:#f472b6;
+  background-image:radial-gradient(ellipse 90% 55% at 50% -8%, rgba(168,85,247,.16), transparent 62%);
+}
+body[data-theme='quantum'] .hero-num, body[data-theme='quantum'] .diet-sum b, body[data-theme='quantum'] .big-num{
+  text-shadow:0 0 20px rgba(168,85,247,.5), 0 0 48px rgba(34,211,238,.18);
+}
+body[data-theme='quantum'] .card{ border:1px solid rgba(168,85,247,.16); box-shadow:0 8px 32px rgba(168,85,247,.08); }
