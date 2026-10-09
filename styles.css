@@ -1108,3 +1108,147 @@ body[data-theme='arc'] .hero-num{ background:linear-gradient(120deg,#c084fc,#5ee
   pointer-events:none;
 }
 .tt-spark{ position:absolute; left:12px; right:12px; bottom:34px; height:26px; opacity:.5; pointer-events:none; }
+
+/* ================================================================
+   V72 装修 2.0 —— 视觉底座全面重做
+   理念：材质（噪点+双层光）→ 排版（收紧字距+重字重）→ 光效（渐变数字+点光晕）
+   ================================================================= */
+/* 1) 全局噪点材质层 —— 所有主题获得"纸感/胶片感" */
+body::before{
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+}
+body[data-theme='onyx']::before, body[data-theme='cyber']::before, body[data-theme='terminal']::before,
+body[data-theme='quantum']::before, body[data-theme='linear']::before, body[data-theme='whoop']::before,
+body[data-theme='arc']::before, body[data-theme='midnight']::before, body[data-theme='aurora']::before{
+  opacity:.9;
+}
+/* 2) 卡片 v2：大圆角+双层漫射+内顶光 */
+body .card{
+  border-radius:22px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 1px 3px rgba(0,0,0,.05),
+    0 12px 32px -8px rgba(0,0,0,.10) !important;
+}
+body[data-theme='onyx'] .card, body[data-theme='cyber'] .card, body[data-theme='terminal'] .card,
+body[data-theme='quantum'] .card, body[data-theme='linear'] .card, body[data-theme='whoop'] .card,
+body[data-theme='arc'] .card, body[data-theme='midnight'] .card, body[data-theme='aurora'] .card{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.09);
+  backdrop-filter:blur(20px) saturate(1.5);
+  -webkit-backdrop-filter:blur(20px) saturate(1.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 16px 40px -12px rgba(0,0,0,.5) !important;
+}
+/* 3) 排版 v2 */
+body .page-head h1{ font-size:30px; font-weight:850; letter-spacing:-.035em; }
+body .card-label{ font-size:15.5px; font-weight:700; letter-spacing:-.01em; }
+/* 4) 身份圆点光晕 */
+body .dotc{
+  box-shadow:0 0 0 2.5px rgba(255,255,255,.28), 0 0 10px 1px currentColor;
+}
+/* 5) 按钮按压手感 */
+body .btn{ transition:transform .14s cubic-bezier(.34,1.4,.64,1), box-shadow .14s; }
+body .btn:active{ transform:scale(.96); }
+
+/* ================================================================
+   旗舰主题 · 极光 AURORA v2（完整设计语言：流体极光+玻璃+发光渐变数字）
+   ================================================================ */
+body[data-theme='aurora']{
+  --bg:#05060e; --card:rgba(255,255,255,.045); --segbg:rgba(255,255,255,.06);
+  --text:#eef0ff; --text2:#a8adcf; --text3:#5f6488;
+  --sep:rgba(255,255,255,.10); --chipbg:rgba(255,255,255,.07);
+  --bar:rgba(5,6,14,.88);
+  --tint:#67e8f9; --tint-rgb:103,232,249;
+  --me:#67e8f9; --partner:#c4b5fd;
+  --down:#6ee7b7; --up:#fda4af;
+  --shadow:none;
+  --card-border:1px solid rgba(255,255,255,.09);
+  --radius-card:22px; --radius-tile:18px;
+  --num-weight:800;
+}
+body[data-theme='aurora'] body, body[data-theme='aurora']{
+  background-image:none;
+}
+/* 流体极光：两层大 blob，缓慢漂移 */
+body[data-theme='aurora'] .page, body[data-theme='aurora'] #app{
+  position:relative;
+}
+body[data-theme='aurora']::after{
+  content:''; position:fixed; inset:-20%; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 42% 30% at 18% 12%, rgba(34,211,238,.32), transparent 62%),
+    radial-gradient(ellipse 48% 34% at 82% 22%, rgba(167,139,250,.26), transparent 64%),
+    radial-gradient(ellipse 55% 34% at 50% 92%, rgba(244,114,182,.16), transparent 66%);
+  animation:auroraDrift 22s ease-in-out infinite alternate;
+  filter:blur(46px);
+}
+@keyframes auroraDrift{
+  0%{ transform:translate3d(-3%,-2%,0) scale(1); opacity:.92; }
+  50%{ transform:translate3d(2%,3%,0) scale(1.06); opacity:1; }
+  100%{ transform:translate3d(4%,-3%,0) scale(1.02); opacity:.9; }
+}
+body[data-theme='aurora'] main{ position:relative; z-index:1; }
+/* 数字：白→青→紫三段渐变+光晕 */
+body[data-theme='aurora'] .hero-num, body[data-theme='aurora'] .big-num{
+  background:linear-gradient(115deg,#f8fafc 10%,#67e8f9 45%,#c4b5fd 80%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+  filter:drop-shadow(0 0 22px rgba(103,232,249,.30));
+}
+body[data-theme='aurora'] .hero-num{ font-weight:800; }
+body[data-theme='aurora'] .hero-col{
+  background:linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02) 60%);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:24px;
+  backdrop-filter:blur(22px) saturate(1.6);
+  -webkit-backdrop-filter:blur(22px) saturate(1.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 18px 44px -14px rgba(0,0,0,.55);
+}
+body[data-theme='aurora'] .page-head h1{ background:linear-gradient(115deg,#f8fafc,#67e8f9 70%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+body[data-theme='aurora'] .tab.active{ color:#67e8f9; }
+
+/* ================================================================
+   旗舰主题 · 曜石 ONYX v2（黑金+噪点+金渐变数字）
+   ================================================================ */
+body[data-theme='onyx'] .hero-num, body[data-theme='onyx'] .big-num{
+  background:linear-gradient(115deg,#f5ead1 15%,#c9a961 55%,#8a6d35 90%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+  filter:drop-shadow(0 2px 14px rgba(201,169,97,.22));
+}
+body[data-theme='onyx'] .hero-col{
+  background:linear-gradient(165deg, rgba(201,169,97,.08), rgba(201,169,97,.02) 55%);
+  border:1px solid rgba(201,169,97,.26);
+  border-radius:16px;
+  box-shadow:inset 0 1px 0 rgba(245,234,209,.10), 0 14px 36px -10px rgba(0,0,0,.6);
+}
+
+/* ================================================================
+   旗舰主题 · 晨雾 CRÈME v2（奶油+900字重+陶橘渐变数字+彩影）
+   ================================================================ */
+body[data-theme='creme'] .hero-num, body[data-theme='creme'] .big-num{
+  background:linear-gradient(120deg,#3a2417 20%,#d9724a 75%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+}
+body[data-theme='creme'] .hero-col{
+  background:linear-gradient(160deg,#fffdf9,#fdf3e7);
+  border:1px solid rgba(217,114,74,.14);
+  border-radius:28px;
+  box-shadow:inset 0 1px 0 #fff, 0 6px 14px rgba(160,110,70,.06), 0 20px 44px -12px rgba(217,114,74,.18);
+}
+body[data-theme='creme'] .page-head h1{ font-weight:900; }
+
+/* 通用 hero 数字渐变（其余主题：me 色→浅色） */
+body .hero-num{
+  font-weight:800;
+}
+body .hero-num small{ font-weight:600; opacity:.5; }
+/* V72: 分组标题+hero迷你曲线 */
+.tg-name{ font-size:12.5px; font-weight:700; color:var(--text3,#86868b); letter-spacing:.04em; margin:14px 2px 8px; }
+.tg-name:first-child{ margin-top:2px; }
+.hero-spark{ width:110px; height:30px; display:block; margin:2px 0 6px; opacity:.9; }
+body .hero-col{ border-radius:24px; }
