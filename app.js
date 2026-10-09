@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V68';
+const APP_VERSION = 'V69';
 const CHANGELOG = [
+  { v: 'V69', d: '10月10日', items: [
+    '统计页大瘦身：顶部只留「大屏 + 重点变化」两张结论卡，其余 8 个板块收进「数据宫格」——格子上只放一个核心数，点哪个看哪个的完整分析'
+  ]},
   { v: 'V68', d: '10月10日', items: [
     '趋势页新增「一句话总结」：这 30 天谁降了多少、算不算有效，自动说人话+一键复制',
     '周对比卡新增「复制周报」：生成能直接发微信的周报文本（本周 vs 上周·每人平均·合计变化）'
@@ -2269,71 +2272,61 @@ function monthlyReviewHTML() {
   '</div>';
 }
 
-function renderStats() {
-  const keys = sortedKeys();
-  let html = '';
+/* ================= V69 统计页组件化重构 =================
+   顶部只留「大屏 + 重点变化」两张结论卡，其余全部收进宫格，点开看详情 */
 
-  /* 30 天总览大屏 + 本周对比（V60）：顶部前两张 */
-  html += overviewHTML();
-  html += weekCompareHTML();
-
-  /* 本月复盘 · 顶部第一张卡（可复盘） */
-  html += monthlyReviewHTML();
-
-  /* 俩人对比 · 横条图 */
+function statCompareBody() {
   const curMe = lastKnown('me'), curPa = lastKnown('partner');
-  if (curMe !== null || curPa !== null) {
-    const vals = [curMe, curPa].filter(v => v !== null);
-    if (vals.length) {
-      const lo = Math.min.apply(null, vals) - 0.6, hi = Math.max.apply(null, vals) + 0.6;
-      const bar = (p, v) => {
-        if (v === null) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><div class="cmp-track"></div><span class="cmp-val s-dim">还没记</span></div>';
-        const w = Math.max(6, (v - lo) / (hi - lo) * 100);
-        return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-          '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
-          '<span class="cmp-val">' + v.toFixed(1) + ' kg</span></div>';
-      };
-      let diffLine = '';
-      if (curMe !== null && curPa !== null) {
-        const d = curMe - curPa;
-        const heavier = d > 0 ? state.names.me : state.names.partner;
-        const lighter = d > 0 ? state.names.partner : state.names.me;
-        diffLine = Math.abs(d) < 0.05
-          ? '<p class="cmp-diff">最新体重一模一样，齐头并进</p>'
-          : '<p class="cmp-diff">' + esc(lighter) + ' 比 ' + esc(heavier) + ' 轻 <b>' + Math.abs(d).toFixed(1) + '</b> kg</p>';
-      }
-      html += '<div class="card"><h3 class="card-label">俩人对比 · 最新一次体重</h3>' +
-        '<p class="sub">条越长 = 体重越大 · 对比的是最新一次记录</p>' +
-        bar('me', curMe) + bar('partner', curPa) + diffLine + '</div>';
-    }
+  if (curMe === null && curPa === null) return '';
+  const vals = [curMe, curPa].filter(v => v !== null);
+  const lo = Math.min.apply(null, vals) - 0.6, hi = Math.max.apply(null, vals) + 0.6;
+  const bar = (p, v) => {
+    if (v === null) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><div class="cmp-track"></div><span class="cmp-val s-dim">还没记</span></div>';
+    const w = Math.max(6, (v - lo) / (hi - lo) * 100);
+    return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+      '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
+      '<span class="cmp-val">' + v.toFixed(1) + ' kg</span></div>';
+  };
+  let diffLine = '';
+  if (curMe !== null && curPa !== null) {
+    const d = curMe - curPa;
+    const heavier = d > 0 ? state.names.me : state.names.partner;
+    const lighter = d > 0 ? state.names.partner : state.names.me;
+    diffLine = Math.abs(d) < 0.05
+      ? '<p class="cmp-diff">最新体重一模一样，齐头并进</p>'
+      : '<p class="cmp-diff">' + esc(lighter) + ' 比 ' + esc(heavier) + ' 轻 <b>' + Math.abs(d).toFixed(1) + '</b> kg</p>';
   }
+  return '<div class="card"><h3 class="card-label">俩人对比 · 最新一次体重</h3>' +
+    '<p class="sub">条越长 = 体重越大 · 对比的是最新一次记录</p>' +
+    bar('me', curMe) + bar('partner', curPa) + diffLine + '</div>';
+}
 
-  /* 腰围对比 · 最新一次测量（有腰围数据才出现） */
+function statWaistBody() {
   const wMe = lastKnownField('me_waist'), wPa = lastKnownField('partner_waist');
-  if (wMe || wPa) {
-    const vals = [wMe, wPa].filter(Boolean).map(x => x.value);
-    const lo = Math.min.apply(null, vals) - 4, hi = Math.max.apply(null, vals) + 4;
-    const wbar = (p, rec) => {
-      const who = esc(state.names[p]);
-      if (!rec) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + who + '</span><div class="cmp-track"></div><span class="cmp-val s-dim">还没量</span></div>';
-      const w = Math.max(6, (rec.value - lo) / (hi - lo) * 100);
-      const first = firstKnownField(p + '_waist');
-      let chg = '';
-      if (first && first.key !== rec.key) {
-        const d = rec.value - first.value;
-        chg = d <= -0.5 ? '（比首次 ↓' + Math.abs(d).toFixed(1) + '）' : d >= 0.5 ? '（比首次 ↑' + d.toFixed(1) + '）' : '（和首次基本持平）';
-      }
-      return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + who + '</span>' +
-        '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
-        '<span class="cmp-val">' + rec.value.toFixed(1) + ' cm</span></div>' +
-        '<div class="cmp-sub">' + fmtMD(rec.key) + '记录' + chg + ' · 腰围减小=肚子脂肪在掉</div>';
-    };
-    html += '<div class="card"><h3 class="card-label">腰围对比 · 最新一次测量</h3>' +
-      '<p class="sub">腰围是肚子脂肪的硬指标 · 健康参考：男性 &lt; 90cm，女性 &lt; 85cm</p>' +
-      wbar('me', wMe) + wbar('partner', wPa) + '</div>';
-  }
+  if (!wMe && !wPa) return '';
+  const vals = [wMe, wPa].filter(Boolean).map(x => x.value);
+  const lo = Math.min.apply(null, vals) - 4, hi = Math.max.apply(null, vals) + 4;
+  const wbar = (p, rec) => {
+    const who = esc(state.names[p]);
+    if (!rec) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + who + '</span><div class="cmp-track"></div><span class="cmp-val s-dim">还没量</span></div>';
+    const w = Math.max(6, (rec.value - lo) / (hi - lo) * 100);
+    const first = firstKnownField(p + '_waist');
+    let chg = '';
+    if (first && first.key !== rec.key) {
+      const d = rec.value - first.value;
+      chg = d <= -0.5 ? '（比首次 ↓' + Math.abs(d).toFixed(1) + '）' : d >= 0.5 ? '（比首次 ↑' + d.toFixed(1) + '）' : '（和首次基本持平）';
+    }
+    return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + who + '</span>' +
+      '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
+      '<span class="cmp-val">' + rec.value.toFixed(1) + ' cm</span></div>' +
+      '<div class="cmp-sub">' + fmtMD(rec.key) + '记录' + chg + ' · 腰围减小=肚子脂肪在掉</div>';
+  };
+  return '<div class="card"><h3 class="card-label">腰围对比 · 最新一次测量</h3>' +
+    '<p class="sub">腰围是肚子脂肪的硬指标 · 健康参考：男性 &lt; 90cm，女性 &lt; 85cm</p>' +
+    wbar('me', wMe) + wbar('partner', wPa) + '</div>';
+}
 
-  /* 体成分 · 最新报告（有完整报告数据才出现，来源：小米秤体成分页） */
+function statCompBody() {
   const compTiles = [];
   const VF_REF = '健康 <5级';
   PERSON_IDS.forEach(p => {
@@ -2344,9 +2337,7 @@ function renderStats() {
       '<div class="tile">' +
         '<span class="tile-label"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + ' · 内脏脂肪</span>' +
         '<div class="tile-num">' + vf.value.toFixed(0) + '<small>级</small></div>' +
-        tileFoot((vf.value < 5
-          ? '<span class="delta down">达标</span>'
-          : '<span class="delta up">警戒</span>') + '<span>' + VF_REF + ' · ' + fmtMD(vf.key) + '</span>') +
+        tileFoot((vf.value < 5 ? '<span class="delta down">达标</span>' : '<span class="delta up">警戒</span>') + '<span>' + VF_REF + ' · ' + fmtMD(vf.key) + '</span>') +
       '</div>');
     if (mm) compTiles.push(
       '<div class="tile">' +
@@ -2361,21 +2352,81 @@ function renderStats() {
         tileFoot('<span>躺着也消耗的热量，每天吃别低于它 · ' + fmtMD(bmr.key) + '</span>') +
       '</div>');
   });
-  if (compTiles.length) {
-    html += '<div class="card"><h3 class="card-label">体成分 · 最新报告</h3>' +
-      '<p class="sub">来自小米秤完整报告 · 记录页「+ 记腰围 / 体脂」最下面一栏抄数</p>' +
-      '<div class="tile-grid">' + compTiles.join('') + '</div></div>';
-  }
+  if (!compTiles.length) return '';
+  return '<div class="card"><h3 class="card-label">体成分 · 最新报告</h3>' +
+    '<p class="sub">来自小米秤完整报告 · 记录页「+ 记腰围 / 体脂」最下面一栏抄数</p>' +
+    '<div class="tile-grid">' + compTiles.join('') + '</div></div>';
+}
 
-  /* 周报表 · 最近 6 周 */
+function statWeeklyBody() {
   const wkRows = weeklyTableHTML();
-  if (wkRows) {
-    html += '<div class="card"><h3 class="card-label">周报 · 每周平均</h3>' +
-      '<p class="sub">一人一列 · 「比上周」= 和上一个有记录的周平均比，中间没记的周自动跳过（↓瘦 ↑胖）</p>' +
-      '<div class="wk-head"><span>周</span><span>' + esc(state.names.me) + '</span><span>' + esc(state.names.partner) + '</span></div>' + wkRows + weekDuelHTML() + '</div>';
-  }
+  if (!wkRows) return '';
+  return '<div class="card"><h3 class="card-label">周报 · 每周平均</h3>' +
+    '<p class="sub">一人一列 · 「比上周」= 和上一个有记录的周平均比，中间没记的周自动跳过（↓瘦 ↑胖）</p>' +
+    '<div class="wk-head"><span>周</span><span>' + esc(state.names.me) + '</span><span>' + esc(state.names.partner) + '</span></div>' + wkRows + weekDuelHTML() + '</div>';
+}
 
-  /* 重点变化 · 一张结论卡（V22：合并周/月/累计三张卡，砍掉无对比意义的行，结论式大字） */
+/* 宫格：每格只放一个核心值，点开看完整卡 */
+function statGridHTML() {
+  const curMe = lastKnown('me'), curPa = lastKnown('partner');
+  const wMe = lastKnownField('me_waist'), wPa = lastKnownField('partner_waist');
+  const vfMe = lastKnownField('me_vf'), vfPa = lastKnownField('partner_vf');
+  const wf = vfMe || vfPa;
+  const cell = (k, icon, name, val, foot, cls) =>
+    '<button class="stat-cell' + (cls ? ' ' + cls : '') + '" data-action="open-stat" data-v="' + k + '">' +
+      '<span class="sc-ico">' + icon + '</span>' +
+      '<span class="sc-name">' + name + '</span>' +
+      '<span class="sc-val">' + val + '</span>' +
+      '<span class="sc-foot">' + foot + '</span>' +
+    '</button>';
+  const hasAny = sortedKeys().length > 0;
+  const cells = [];
+  cells.push(cell('compare', '⚖️', '俩人对比', (curMe !== null ? curMe.toFixed(1) : '--') + ' / ' + (curPa !== null ? curPa.toFixed(1) : '--'), '最新一次体重，谁的条更长'));
+  const ws = weekStartOf(new Date());
+  const wkMe = avgBetween(dateKey(ws), todayKey(), 'me'), wkPa = avgBetween(dateKey(ws), todayKey(), 'partner');
+  const wkTxt = (wkMe || wkPa) ? (wkMe ? wkMe.avg.toFixed(1) : '--') + ' / ' + (wkPa ? wkPa.avg.toFixed(1) : '--') : '还没记';
+  cells.push(cell('weekly', '📅', '本周 vs 上周', wkTxt, '本周平均，和上周比谁在掉'));
+  cells.push(cell('monthly', '🗓️', '本月复盘', hasAny ? '复盘' : '暂无', '这个月的节奏总结'));
+  cells.push(cell('waist', '📏', '腰围', (wMe ? wMe.value.toFixed(1) : (wPa ? wPa.value.toFixed(1) : '没量')), '肚子的硬指标，每周量 1~2 次'));
+  cells.push(cell('comp', wf ? (wf.value < 5 ? '🫀' : '⚠️') : '🫀', '体成分', wf ? wf.value.toFixed(0) + ' 级' : '没录', wf ? (wf.value < 5 ? '内脏脂肪达标' : '内脏脂肪警戒，主战场') : '小米秤报告抄进来'));
+  cells.push(cell('table', '📊', '周报表', hasAny ? '看趋势' : '暂无', '每周平均一行行对比'));
+  cells.push(cell('plan', '💪', '周计划', '打开', '按器械排的一周安排'));
+  cells.push(cell('history', '📜', '历史记录', sortedKeys().length + ' 天', '每一天的原始记录'));
+  return '<div class="card"><h3 class="card-label">数据 · 点开看详情</h3>' +
+    '<p class="sub">格子上一眼只放最关键的数 · 点哪个看哪个的完整分析</p>' +
+    '<div class="stat-grid">' + cells.join('') + '</div></div>';
+}
+
+/* 点格子 → 弹出该组件完整内容 */
+function openStatSheet(key) {
+  const map = {
+    compare: [statCompareBody(), '俩人对比'],
+    weekly:  [weekCompareHTML(), '本周 vs 上周'],
+    monthly: [monthlyReviewHTML(), '本月复盘'],
+    waist:   [statWaistBody(), '腰围'],
+    comp:    [statCompBody(), '体成分'],
+    table:   [statWeeklyBody(), '周报 · 每周平均'],
+    plan:    [weekPlanHTML(), '周计划'],
+    history: [historyHTML(), '历史记录']
+  };
+  const m = map[key];
+  if (!m || !m[0]) { toast('这里还没有数据，先记几笔再来'); return; }
+  const el = document.getElementById('widget-sheet');
+  document.getElementById('widget-sheet-title').textContent = m[1];
+  document.getElementById('widget-body').innerHTML = m[0];
+  el.classList.add('show');
+  document.getElementById('sheet-mask').classList.add('show');
+  bindFoldToggle(document.getElementById('widget-body'));
+}
+
+function renderStats() {
+  const keys = sortedKeys();
+  let html = '';
+
+  /* 30 天总览大屏（结论式，直出） */
+  html += overviewHTML();
+
+  /* 重点变化 · 结论卡（V22 合并版，直出） */
   if (keys.length) {
     const ws = weekStartOf(new Date());
     const we = dateKey(addDays(ws, 6));
@@ -2390,7 +2441,6 @@ function renderStats() {
       const spanDays = Math.max(1, Math.round((parseKey(lk) - parseKey(first.key)) / 86400000));
       const weeks = spanDays / 7;
       const rate = weeks >= 1 ? (delta / weeks) : null;
-      /* 一句话结论：这个数字意味着什么 */
       const verdict = delta <= -0.5 ? '有效果，照这个劲头继续'
         : delta >= 0.5 ? '比起点高了，先看趋势线别慌'
         : '基本持平，身体在适应期';
@@ -2398,7 +2448,6 @@ function renderStats() {
       const rateTxt = rate !== null && Math.abs(rate) >= 0.005
         ? ' · 约 <b>' + (rate < 0 ? '↓' : '↑') + Math.abs(rate).toFixed(2) + '</b> kg/周'
         : '';
-      /* 本周 vs 上周：有上期数据才有意义，没有就不显示这行 */
       const wkCur = avgBetween(dateKey(ws), we, p), wkPrev = avgBetween(ps, pe, p);
       let wkLine = '';
       if (wkCur && wkPrev) {
@@ -2432,8 +2481,8 @@ function renderStats() {
     }
   }
 
-  html += weekPlanHTML();
-  html += historyHTML();
+  /* 其余全部收进宫格（V69） */
+  html += statGridHTML();
   document.getElementById('stats-body').innerHTML = html;
   bindFoldToggle(document.getElementById("stats-body"));
 }
@@ -3722,6 +3771,9 @@ document.addEventListener('click', e => {
     }
     else if (a === 'open-theme') {
       openThemeSheet();
+    }
+    else if (a === 'open-stat') {
+      openStatSheet(act.getAttribute('data-v'));
     }
     else if (a === 'copy-summary') {
       const card = act.closest('.card');
