@@ -16,8 +16,17 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V71';
+const APP_VERSION = 'V73';
 const CHANGELOG = [
+  { v: 'V73', d: '10月12日', items: [
+    '深夜称重护栏：晚上 11 点到凌晨 5 点记体重会提醒「深夜体重比晨重高 0.5~1kg，不作数」——别让半夜的秤吓到自己',
+    '饮食日记新增最近 7 天摄入小柱图：哪天吃多了、哪天控得好，一眼看穿',
+    '修正版本号显示：V72 的内容（装修 2.0 / 首页迷你走势线 / 主题分组）上线时版本号没跟上，现在设置页看到的是真实版本'
+  ]},
+  { v: 'V72', d: '10月10日', items: [
+    '装修 2.0：噪点材质+双层光影+极光流体动画，主题面板按旗舰/暗色/亮色/科技四组归类',
+    '首页新增 14 天迷你走势线，不点进去也能看趋势'
+  ]},
   { v: 'V71', d: '10月10日', items: [
     '修复趋势页切换时偶发的白屏兜底（清理了旧渲染残留代码）'
   ]},
@@ -1281,6 +1290,14 @@ function renderRecord() {
     '<div class="card">' +
       '<h3 class="card-label">记录 · ' + when + '</h3>' +
       '<p class="sub" style="margin-bottom:8px">' + recHint + '</p>' +
+      /* V73 深夜称重护栏：23点~5点 且今天还没存体重时提醒——深夜值不作数，别被吓到 */
+      (function () {
+        if (currentDate !== todayKey()) return '';
+        if (r && PERSON_IDS.some(p => typeof r[p] === 'number')) return '';
+        const hr = new Date().getHours();
+        if (!(hr >= 23 || hr < 5)) return '';
+        return '<div class="late-bar"><b>🌙 深夜体重不作数</b><span>现在是深夜——这时候称出来比明早晨重高 0.5~1kg（一天的饭和水都还在身上），是正常生理现象不是胖了。去睡吧，明早空腹称的数才官方</span></div>';
+      })() +
       PERSON_IDS.map(p => {
         const has = r && typeof r[p] === 'number';
         const prev = prevRecord(currentDate, p);
@@ -3496,8 +3513,33 @@ function dietBody() {
     '<div class="diet-date"><button class="icon-btn" data-action="diet-day" data-d="-1" aria-label="前一天">‹</button>' +
     '<b>' + (dietDate === todayKey() ? '今天' : fmtCN(dietDate)) + '</b>' +
     '<button class="icon-btn" data-action="diet-day" data-d="1" aria-label="后一天"' + (dietDate >= todayKey() ? ' disabled' : '') + '>›</button></div></div>';
+  /* V73: 减脂参考按人给——你们共用组件，女生的参考线不该用男生的数 */
+  const target = dietWho === 'me' ? 1800 : 1500;
   h += '<div class="diet-sum"><b>' + sum + '</b><span>kcal 今天合计 · ' + esc(state.names[dietWho]) + '</span></div>' +
-    '<div class="diet-ref"><b>减脂参考</b>175cm / 72kg 每天吃 1500-1800 kcal 大概率掉秤 · 最近 7 天平均 <b>' + avg7 + ' kcal</b> · 都是估算，量准了再抠</div>';
+    '<div class="diet-ref"><b>减脂参考</b>' + (dietWho === 'me'
+      ? '175cm / 72kg 每天吃 1500-1800 kcal 大概率掉秤'
+      : '女生减脂每天 1200-1500 kcal 比较稳（比男生低，代谢差在肌肉量）') +
+    ' · 最近 7 天平均 <b>' + avg7 + ' kcal</b> · 都是估算，量准了再抠</div>';
+  /* V73: 最近 7 天摄入迷你柱图——哪天吃爆了一眼看穿，点柱子跳到那天 */
+  (function () {
+    const days7 = lastNDays(7);
+    const vals = days7.map(k => dietDaySum(k, dietWho));
+    const maxV = Math.max(target * 1.3, ...vals, 200);
+    h += '<div class="sec-title" style="margin-top:14px">最近 7 天吃了多少<i>点柱子看那天</i></div>';
+    h += '<div class="diet-bars">' + days7.map((k, i) => {
+      const v = vals[i];
+      const pct = v ? Math.max(8, Math.round(v / maxV * 100)) : 0;
+      const d = parseKey(k);
+      return '<div class="diet-bar' + (v > target ? ' over' : '') + (k === dietDate ? ' cur' : '') +
+        '" data-action="diet-goto" data-key="' + k + '" role="button" aria-label="' + k + ' 摄入 ' + v + ' 千卡">' +
+        '<i>' + (v ? v : '·') + '</i>' +
+        '<div class="bar-zone"><div class="bar-fill"' + (v ? ' style="height:' + pct + '%"' : ' style="height:3px;opacity:.25"') + '></div></div>' +
+        '<b>' + (d.getMonth() + 1) + '/' + d.getDate() + '</b></div>';
+    }).join('') + '</div>';
+    const overDays = days7.filter((k, i) => vals[i] > target).length;
+    h += '<div class="diet-ref"><b>怎么看</b>橙色柱 = 超过参考线 ' + target + ' kcal · ' +
+      (overDays ? '最近 7 天有 ' + overDays + ' 天超线，超线不等于前功尽弃，第二天回来就行' : '最近 7 天全部在线内，控得很稳') + ' · 没柱 = 那天没记饮食</div>';
+  })();
   /* 餐段标签页：点谁显示谁 */
   h += '<div class="diet-tabs">' + ['b', 'l', 'd', 's'].map(mk =>
     '<button class="diet-tab' + (dietMeal === mk ? ' on' : '') + '" data-action="diet-meal" data-m="' + mk + '">' +
@@ -3985,6 +4027,10 @@ document.addEventListener('click', e => {
       const t = new Date(dietDate); t.setDate(t.getDate() + dd);
       const nk = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2);
       if (nk <= todayKey()) { dietDate = nk; renderWidgetSheet('饮食日记'); }
+    }
+    else if (a === 'diet-goto') {
+      const nk = act.getAttribute('data-key');
+      if (nk && nk <= todayKey()) { dietDate = nk; renderWidgetSheet('饮食日记'); }
     }
     else if (a === 'diet-meal') {
       const sv = (document.getElementById('diet-say') || {}).value || '';
