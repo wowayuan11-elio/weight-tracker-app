@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V74';
+const APP_VERSION = 'V75';
 const CHANGELOG = [
+  { v: 'V75', d: '10月13日', items: [
+    '修好两个「点了没反应」：历史记录里列表/日历切换、月份展开收起，点完立刻变，不用再退出重进',
+    '修好月历点日期：点 12 号看 12 号、点 13 号看 13 号，点谁显示谁',
+    '「从最开始到现在」全面收敛：只在趋势页切「全部」时保留一处总账；腰围对比从「比首次」改成「比上次」并带上日期'
+  ]},
   { v: 'V74', d: '10月13日', items: [
     '趋势页置顶新增「昨天 → 今天」对比卡：昨天多少、今天多少、差多少，一眼直出——不用再翻图表按来按去'
   ]},
@@ -1552,21 +1557,27 @@ function latestWaistOf() {
 }
 
 /* 腰围一句话解读：每人「最新值 vs 首次」，变化 ≥0.5cm 才报涨跌 */
+function prevKnownField(f) {
+  /* V75: 倒数第二次测量——腰围是低频指标，「比上次」比「比首次」有用得多 */
+  const ks = sortedKeys().filter(k => typeof (state.records[k] || {})[f] === 'number');
+  return ks.length >= 2 ? { key: ks[ks.length - 2], value: state.records[ks[ks.length - 2]][f] } : null;
+}
 function waistInterpText() {
   const parts = PERSON_IDS.map(p => {
     const last = lastKnownField(p + '_waist');
     if (!last) return null;
     let txt = esc(state.names[p]) + ' 最新 ' + last.value.toFixed(1) + 'cm（' + fmtMD(last.key) + '）';
-    const first = firstKnownField(p + '_waist');
-    if (first && first.key !== last.key) {
-      const d = last.value - first.value;
-      if (d <= -0.5) txt += '，比首次 ↓' + Math.abs(d).toFixed(1) + '，肚子在缩小';
-      else if (d >= 0.5) txt += '，比首次 ↑' + d.toFixed(1) + '，最近留意饮食';
-      else txt += '，与首次基本持平';
+    const prev = prevKnownField(p + '_waist');
+    if (prev) {
+      const d = last.value - prev.value;
+      const cmp = '比上次（' + fmtMD(prev.key) + ' ' + prev.value.toFixed(1) + '）';
+      if (d <= -0.5) txt += '，' + cmp + ' ↓' + Math.abs(d).toFixed(1) + '，肚子在缩小';
+      else if (d >= 0.5) txt += '，' + cmp + ' ↑' + d.toFixed(1) + '，最近留意饮食';
+      else txt += '，与上次（' + fmtMD(prev.key) + '）基本持平';
     }
     return txt;
   }).filter(Boolean);
-  return parts.join(' · ') || '量过第一次后，这里会自动出解读';
+  return parts.join(' · ') || '量过一次之后，这里会自动出解读';
 }
 
 function saveAll() {
@@ -2058,7 +2069,16 @@ function trendGridHTML() {
     '<p class="sub">格上一眼一个数 · 点哪个看哪个的完整走势</p>' +
     '<div class="stat-grid">' + cells.join('') + '</div></div>';
 }
-function openTrendSheet(key) {
+let curTrendSheet = null, curStatSheet = null;
+/* V75: 弹层开着时点击交互必须刷新弹层本身——只刷底页=用户看着毫无反应 */
+function refreshOpenSheet() {
+  const el = document.getElementById('widget-sheet');
+  if (!el || !el.classList.contains('show')) return false;
+  if (curTrendSheet) { openTrendSheet(curTrendSheet); return true; }
+  if (curStatSheet) { openStatSheet(curStatSheet); return true; }
+  return false;
+}
+function openTrendSheet(key) { curTrendSheet = key; curStatSheet = null;
   let content = '', title = '';
   if (key === 'cal') { title = '月历'; content = calendarHTML(); }
   else if (key === 'goal') { title = '目标进度'; content = goalProgressHTML(); }
@@ -2213,8 +2233,11 @@ function rangeSummaryHTML(days) {
     if (lines.length) verdict = '<div class="verdict"><b>一句话：</b>' + lines.join(' · ') +
       '<button class="btn ghost sm" data-action="copy-summary" style="margin-top:8px">复制这段话</button></div>';
   } catch (e) {}
-  return '<div class="card"><h3 class="card-label">' + (trendRange === 0 ? '全部' : trendRange + '天') + '概览 · 期初 → 现在</h3>' +
-    '<p class="sub" style="margin-bottom:6px">「起点 → 最新」这段总共的变化 · 箭头=瘦了↓ / 胖了↑ · 「均」= 这段平均</p>' + rows + verdict + '</div>';
+  const isAll = trendRange === 0;
+return '<div class="card"><h3 class="card-label">' + (isAll ? '全部记录 · 从第一斤到现在' : trendRange + '天概览 · 期初 → 现在') + '</h3>' +
+    '<p class="sub" style="margin-bottom:6px">' + (isAll
+      ? '全期总账只在这一个地方看 · 想看近期对比，上面切「7天」或「30天」'
+      : '「起点 → 最新」这段总共的变化 · 箭头=瘦了↓ / 胖了↑ · 「均」= 这段平均') + '</p>' + rows + verdict + '</div>';
 }
 
 /* ================= 统计页 ================= */
@@ -2433,11 +2456,12 @@ function statWaistBody() {
     const who = esc(state.names[p]);
     if (!rec) return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + who + '</span><div class="cmp-track"></div><span class="cmp-val s-dim">还没量</span></div>';
     const w = Math.max(6, (rec.value - lo) / (hi - lo) * 100);
-    const first = firstKnownField(p + '_waist');
+    const prev = prevKnownField(p + '_waist');
     let chg = '';
-    if (first && first.key !== rec.key) {
-      const d = rec.value - first.value;
-      chg = d <= -0.5 ? '（比首次 ↓' + Math.abs(d).toFixed(1) + '）' : d >= 0.5 ? '（比首次 ↑' + d.toFixed(1) + '）' : '（和首次基本持平）';
+    if (prev && prev.key !== rec.key) {
+      const d = rec.value - prev.value;
+      const cmp = '比上次（' + fmtMD(prev.key) + ' ' + prev.value.toFixed(1) + '）';
+      chg = d <= -0.5 ? '（' + cmp + ' ↓' + Math.abs(d).toFixed(1) + '）' : d >= 0.5 ? '（' + cmp + ' ↑' + d.toFixed(1) + '）' : '（和上次基本持平）';
     }
     return '<div class="cmp-row"><span class="cmp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + who + '</span>' +
       '<div class="cmp-track"><div class="cmp-fill" style="width:' + w.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
@@ -2521,7 +2545,7 @@ function statGridHTML() {
 }
 
 /* 点格子 → 弹出该组件完整内容 */
-function openStatSheet(key) {
+function openStatSheet(key) { curStatSheet = key; curTrendSheet = null;
   const map = {
     compare: [statCompareBody(), '俩人对比'],
     weekly:  [weekCompareHTML(), '本周 vs 上周'],
@@ -3905,7 +3929,7 @@ document.addEventListener('click', e => {
   const calCell = e.target.closest('[data-cal]');
   if (calCell && !calCell.disabled) {
     selectedCalDay = selectedCalDay === calCell.dataset.cal ? null : calCell.dataset.cal;
-    renderTrend();
+    if (!refreshOpenSheet()) renderTrend(); /* V75: 弹层开着刷弹层，点哪天当天内容立刻跟上 */
     return;
   }
 
@@ -3935,12 +3959,12 @@ document.addEventListener('click', e => {
     else if (a === 'close-sheets') { closeSettings(); closeDateSheet(); closeHeroSet(); }
     else if (a === 'ds-prev') { dsYM.m--; if (dsYM.m < 0) { dsYM.m = 11; dsYM.y--; } renderDateSheet(); }
     else if (a === 'ds-next') { dsYM.m++; if (dsYM.m > 11) { dsYM.m = 0; dsYM.y++; } renderDateSheet(); }
-    else if (a === 'cal-close') { selectedCalDay = null; renderTrend(); }
+    else if (a === 'cal-close') { selectedCalDay = null; if (!refreshOpenSheet()) renderTrend(); }
     else if (a === 'edit-cal-day') {
       if (selectedCalDay) { currentDate = selectedCalDay; resetDrafts(); switchTab('record'); renderAll(); }
     }
-    else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } selectedCalDay = null; renderTrend(); }
-    else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } selectedCalDay = null; renderTrend(); }
+    else if (a === 'cal-prev') { calYM.m--; if (calYM.m < 0) { calYM.m = 11; calYM.y--; } selectedCalDay = null; if (!refreshOpenSheet()) renderTrend(); }
+    else if (a === 'cal-next') { calYM.m++; if (calYM.m > 11) { calYM.m = 0; calYM.y++; } selectedCalDay = null; if (!refreshOpenSheet()) renderTrend(); }
     else if (a === 'set-theme') {
       state.ui.theme = act.dataset.v;
       state.ui.themeDate = todayKey(); /* 手动选完当天不再被轮换覆盖 */
@@ -4000,8 +4024,8 @@ document.addEventListener('click', e => {
       renderStats();
       toast('✓ 周计划已按你的器械重排');
     }
-    else if (a === 'toggle-month') { const mk = act.dataset.mkey; expandedMonths[mk] = !expandedMonths[mk]; renderStats(); }
-    else if (a === 'month-view') { const mk = act.dataset.mkey; monthView[mk] = monthView[mk] === 'cal' ? 'list' : 'cal'; if (!expandedMonths[mk]) expandedMonths[mk] = true; renderStats(); }
+    else if (a === 'toggle-month') { const mk = act.dataset.mkey; expandedMonths[mk] = !expandedMonths[mk]; renderStats(); refreshOpenSheet(); }
+    else if (a === 'month-view') { const mk = act.dataset.mkey; monthView[mk] = monthView[mk] === 'cal' ? 'list' : 'cal'; if (!expandedMonths[mk]) expandedMonths[mk] = true; renderStats(); refreshOpenSheet(); }
     else if (a === 'plan-day') { planEditDow = +act.dataset.dow; renderPlanSheet(); document.getElementById('sheet-mask').classList.add('show'); document.getElementById('plan-sheet').classList.add('show'); }
     else if (a === 'plan-pick-custom') {
       const v = (document.getElementById('plan-custom-input') || {}).value || '';
@@ -4047,7 +4071,7 @@ document.addEventListener('click', e => {
     else if (a === 'widget-close') {
       document.getElementById('widget-sheet').classList.remove('show');
       document.getElementById('sheet-mask').classList.remove('show');
-      curWidget = null; widgetBack = null;
+      curWidget = null; widgetBack = null; curTrendSheet = null; curStatSheet = null;
     }
     else if (a === 'widget-back') {
       const bw = WIDGETS.find(x => x.id === widgetBack);
