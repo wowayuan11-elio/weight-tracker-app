@@ -16,8 +16,11 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V73';
+const APP_VERSION = 'V74';
 const CHANGELOG = [
+  { v: 'V74', d: '10月13日', items: [
+    '趋势页置顶新增「昨天 → 今天」对比卡：昨天多少、今天多少、差多少，一眼直出——不用再翻图表按来按去'
+  ]},
   { v: 'V73', d: '10月12日', items: [
     '深夜称重护栏：晚上 11 点到凌晨 5 点记体重会提醒「深夜体重比晨重高 0.5~1kg，不作数」——别让半夜的秤吓到自己',
     '饮食日记新增最近 7 天摄入小柱图：哪天吃多了、哪天控得好，一眼看穿',
@@ -2079,6 +2082,8 @@ function renderTrend() {
   const days = rangeDays();
   const anyData = PERSON_IDS.some(p => lastKnown(p) !== null);
   const box = document.getElementById('chart-box');
+  const dcEmpty = document.getElementById('day-compare');
+  if (dcEmpty) dcEmpty.innerHTML = dayCompareHTML();
   if (!anyData) {
     box.innerHTML = '<div class="card chart-card"><div class="chart-empty">还没有数据<br>记下第一笔，曲线就会长出来</div></div>';
     document.getElementById('range-summary').innerHTML = '';
@@ -2117,6 +2122,9 @@ function renderTrend() {
     attachScrub(wrap, c);
   }
 
+  /* V74: 昨天→今天对比卡置顶（图表上方），7 天概览保持原位 */
+  const dcBox = document.getElementById('day-compare');
+  if (dcBox) dcBox.innerHTML = dayCompareHTML();
   document.getElementById('range-summary').innerHTML = rangeSummaryHTML(days);
 
   /* V70: 趋势页组件化——日历/目标/腰围/体脂收进宫格，点开看详情 */
@@ -2128,6 +2136,36 @@ function renderTrend() {
   const bfBox = document.getElementById('bf-chart-box');
   waistBox.innerHTML = '';
   bfBox.innerHTML = '';
+}
+
+/* V74: 昨天→今天对比卡——TA 要的是"昨天多少、今天多少、差多少"，一眼直出 */
+function dayCompareHTML() {
+  const ks = sortedKeys().filter(k => PERSON_IDS.some(p => typeof (state.records[k] || {})[p] === 'number'));
+  if (!ks.length) return '';
+  const latest = ks[ks.length - 1], prev = ks.length > 1 ? ks[ks.length - 2] : null;
+  const isToday = latest === todayKey();
+  const title = !prev ? '最近一次' : (prev === shiftKey(latest, -1) && isToday ? '昨天 → 今天' : fmtMD(prev) + ' → ' + fmtMD(latest));
+  const rows = PERSON_IDS.map(p => {
+    const cur = state.records[latest] ? state.records[latest][p] : undefined;
+    if (typeof cur !== 'number') return '';
+    const pv = prev && state.records[prev] ? state.records[prev][p] : undefined;
+    const d = typeof pv === 'number' ? cur - pv : null;
+    return '<div class="rs-row">' +
+      '<span class="rs-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
+      '<span class="rs-main">' + (typeof pv === 'number' ? pv.toFixed(1) + ' → ' : '') + '<b>' + cur.toFixed(1) + '</b> kg</span>' +
+      (d === null ? '<span class="s-dim">上一次没记</span>' : deltaChip(d)) +
+    '</div>';
+  }).filter(Boolean).join('');
+  if (!rows) return '';
+  const hint = isToday ? '' : '<p class="sub" style="margin-top:6px">最新一条是 ' + fmtMD(latest) + ' · 今天还没记，去「记录」页称一个</p>';
+  return '<div class="card" style="margin-bottom:12px"><h3 class="card-label">' + title + '</h3>' +
+    '<p class="sub">最近两次记录直出 · ' + (prev ? fmtMD(prev) + ' ' : '') + '→ ' + fmtMD(latest) + (isToday ? '（今天）' : '') + '</p>' +
+    rows + hint + '</div>';
+}
+/* 日期键平移工具：shiftKey('2026-10-13', -1) === '2026-10-12' */
+function shiftKey(key, n) {
+  const d = parseKey(key); d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
 }
 
 function rangeSummaryHTML(days) {
