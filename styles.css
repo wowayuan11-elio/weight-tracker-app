@@ -1276,3 +1276,16 @@ body .hero-col{ border-radius:24px; }
 .diet-bar b{ font-size:9.5px; font-weight:500; text-align:center; opacity:.55; margin-top:5px; white-space:nowrap; }
 .diet-bar.cur{ background:var(--hov,rgba(120,120,128,.12)); }
 .diet-bar.cur b{ opacity:1; font-weight:700; }
+
+/* ===== V76: 标题层级回归传统——标题必须最黑最粗，一眼分清标题和正文 ===== */
+/* 之前 .card-label 基础是 12px 灰色小字+各主题叠加 uppercase，标题比正文还弱——全部压平 */
+.card-label, .ws-title, .cal-title b {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+.sec-title { font-weight: 800 !important; color: var(--text) !important; font-size: 15.5px !important; }
+/* 弹层头标题 */
+#widget-sheet-title { font-weight: 800 !important; font-size: 17px !important; color: var(--text) !important; }
