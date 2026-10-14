@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V82';
+const APP_VERSION = 'V82b';
 const CHANGELOG = [
+  { v: 'V82b', d: '10月14日', items: [
+    '修好「说一句就记」看不到输入框：识别按钮占满整行把输入框挤没了（V65 起的老 bug），现在输入框正常显示、按钮恢复正常宽度',
+    '输入框加了边框底色——以前是透明的，不点根本看不出那里能打字'
+  ]},
   { v: 'V82', d: '10月14日', items: [
     '说一句就记大升级：随便怎么说都行——「今天在海底捞吃了毛肚和虾滑，喝了两瓶啤酒」直接识别出全部食物和热量，「在」「吃了」「今天」这些废话自动忽略',
     '食物库 60 → 190 种：家常菜/餐厅菜/火锅菜/水果奶茶零食全进了',
@@ -3850,7 +3854,7 @@ function dietBody() {
   h += '</div>';
   /* 说话式识别 */
   h += '<div class="sec-title">说一句就记<i>自动算热量</i></div>' +
-    '<div class="diet-say"><input class="text-input" id="diet-say" placeholder="例：两个鸡蛋 一个玉米 一杯牛奶" enterkeyhint="done">' +
+    '<div class="diet-say"><input class="text-input" id="diet-say" placeholder="如：在海底捞吃了毛肚和虾滑，喝了两瓶啤酒" enterkeyhint="done">' +
     '<button class="btn" data-action="diet-parse">识别</button></div>';
   if (dietParsed.length) {
     h += '<div class="diet-pv"><div class="sec-title">识别结果<i>' + dietParsed.length + ' 样 · 核对后记上</i></div>' + dietParsed.map((p, i) =>
