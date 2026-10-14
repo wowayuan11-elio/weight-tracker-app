@@ -16,8 +16,17 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V82b';
+const APP_VERSION = 'V83';
+/* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
+const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const CHANGELOG = [
+  { v: 'V83', d: '10月15日', items: [
+    'AI 管家入驻：能聊天、能帮你记体重/腰围/饮食、能改目标——说「帮我记今天午饭吃了三菜一汤」直接办妥',
+    '语音说一句就记：点麦克风说话自动变文字（不支持的设备用键盘自带麦克风一样用）',
+    '食物识别升级成 AI 认菜：「三菜一汤」「食堂随便吃的」这种模糊说法也能估',
+    '钥匙在 AI 管家里填，只存你手机本地，不上传不进代码'
+  ]},
   { v: 'V82b', d: '10月14日', items: [
     '修好「说一句就记」看不到输入框：识别按钮占满整行把输入框挤没了（V65 起的老 bug），现在输入框正常显示、按钮恢复正常宽度',
     '输入框加了边框底色——以前是透明的，不点根本看不出那里能打字'
@@ -3855,6 +3864,7 @@ function dietBody() {
   /* 说话式识别 */
   h += '<div class="sec-title">说一句就记<i>自动算热量</i></div>' +
     '<div class="diet-say"><input class="text-input" id="diet-say" placeholder="如：在海底捞吃了毛肚和虾滑，喝了两瓶啤酒" enterkeyhint="done">' +
+    (voiceSupport() ? '<button class="mic-btn" data-action="voice" data-for="diet-say" aria-label="语音输入">' + MIC_SVG + '</button>' : '') +
     '<button class="btn" data-action="diet-parse">识别</button></div>';
   if (dietParsed.length) {
     h += '<div class="diet-pv"><div class="sec-title">识别结果<i>' + dietParsed.length + ' 样 · 核对后记上</i></div>' + dietParsed.map((p, i) =>
@@ -3935,7 +3945,9 @@ function remindBody() {
 /* ============ 健康营组件宫格（V62）：点组件弹大弹层 ============ */
 function W_ICON(d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>'; }
 const WIDGET_ICONS = {
+  ai: W_ICON('<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/><path d="M5 16l.7 1.6L7.4 18l-1.7.4L5 20l-.7-1.6L2.6 18l1.7-.4z"/>'),
   diet: W_ICON('<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>'),
+    'fit-hub': W_ICON('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
   'gym-lib': W_ICON('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
   'gym-plan': W_ICON('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),
   equip: W_ICON('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
@@ -3945,6 +3957,7 @@ const WIDGET_ICONS = {
   remind: W_ICON('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>')
 };
 const WIDGETS = [
+  { id: 'ai', t: 'AI 管家', sub: '说话就能记 · 问什么答什么' },
   { id: 'fit-hub', t: '跟练库', sub: '权威视频直接练 · 全网找课' },
   { id: 'diet', t: '饮食日记', sub: '三餐+热量，减脂第一线' },
   { id: 'gym-plan', t: '智能训练规划', sub: '按你的器械排一周' },
@@ -3977,7 +3990,8 @@ function renderWidgetSheet(title, backLabel) {
   let body = '';
   if (backLabel) body += '<button class="btn ghost sm" data-action="widget-back" style="width:auto;display:inline-block;padding:7px 12px;font-size:12px;margin-bottom:10px">‹ ' + backLabel + '</button>';
   try {
-    if (curWidget === 'diet') body += dietBody();
+    if (curWidget === 'ai') body += aiChatBody();
+    else if (curWidget === 'diet') body += dietBody();
     else if (curWidget === 'fit-hub') body += fitHubBody();
     else if (curWidget === 'gym-lib') body += fitHubBody();
     else if (curWidget === 'gym-plan') body += gymPlanBody();
@@ -4345,6 +4359,7 @@ document.addEventListener('click', e => {
     else if (a === 'diet-parse') {
       const say = ((document.getElementById('diet-say') || {}).value || '').trim();
       if (!say) { toast('先说说吃了啥'); return; }
+      if (aiHas()) { aiParseFood(say); return; }
       const res = parseDietText(say);
       if (!res.length) { toast('没认出来，换个说法试试'); return; }
       dietParsed = dietParsed.concat(res);
@@ -4393,6 +4408,35 @@ document.addEventListener('click', e => {
       const arr = (state.records[dietDate] || {}).diet || [];
       if (arr[idx]) { arr.splice(idx, 1); if (!arr.length) delete state.records[dietDate].diet; persist(); renderWidgetSheet('饮食日记'); toast('已删除'); }
     }
+    else if (a === 'ai-send') { aiSend(); }
+    else if (a === 'ai-quick') {
+      const q = act.getAttribute('data-q') || '';
+      const el = document.getElementById('ai-input');
+      if (el) { el.value = q; el.focus(); }
+    }
+    else if (a === 'ai-cfg-save') {
+      const k = (document.getElementById('ai-key-in') || {}).value || '';
+      const m = (document.getElementById('ai-model-in') || {}).value || 'glm-4-flash';
+      if (k.trim().length < 20) { toast('钥匙不对劲，检查下是不是复制全了'); return; }
+      aiSetCfg(k, m);
+      renderWidgetSheet('AI 管家');
+      toast('✓ 钥匙已保存（只存本机）· 开聊！');
+    }
+    else if (a === 'ai-cfg-test') {
+      const tip = document.getElementById('ai-test-tip');
+      const k = (document.getElementById('ai-key-in') || {}).value || '';
+      const m = (document.getElementById('ai-model-in') || {}).value || 'glm-4-flash';
+      if (tip) { tip.textContent = '测试中…'; tip.style.color = '#b45309'; }
+      fetch(AI_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + k.trim() },
+        body: JSON.stringify({ model: m, messages: [{ role: 'user', content: '回复ok' }], max_tokens: 8 }) })
+        .then(r => r.json().then(j => ({ ok: r.ok, j: j }))).then(x => {
+          if (tip) {
+            if (x.ok) { tip.textContent = '✓ 钥匙能用！点上面「保存并开始用」'; tip.style.color = '#1d7a3a'; }
+            else { tip.textContent = '✗ 不通：' + ((x.j && x.j.error && x.j.error.message) || 'HTTP ' + x.ok); tip.style.color = '#b45309'; }
+          }
+        }).catch(function (e) { if (tip) { tip.textContent = '✗ 网络不通：' + (e.message || e); tip.style.color = '#b45309'; } });
+    }
+    else if (a === 'voice') { voiceStart(act.getAttribute('data-for') || 'ai-input'); }
     else if (a === 'gym-filter') {
       gymFilter = act.getAttribute('data-c') || '全部';
       renderWidgetSheet('居家动作库');
@@ -4603,3 +4647,315 @@ if (navigator.storage && navigator.storage.persist) { try { navigator.storage.pe
 renderAll();
 handleQuickRecord();
 autoRestore();
+
+/* ===================== V83: AI 管家 ===================== */
+const MIC_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+
+function aiCfg() {
+  try { const o = JSON.parse(localStorage.getItem('wt_ai') || '{}'); return { key: String(o.key || ''), model: String(o.model || 'glm-4-flash') }; }
+  catch (e) { return { key: '', model: 'glm-4-flash' }; }
+}
+function aiSetCfg(key, model) {
+  try { localStorage.setItem('wt_ai', JSON.stringify({ key: (key || '').trim(), model: model || 'glm-4-flash' })); }
+  catch (e) { toast('存不上钥匙：' + e.message); }
+}
+function aiHas() { const c = aiCfg(); return c.key.length > 20; }
+function aiMsgs() {
+  try { const a = JSON.parse(localStorage.getItem('wt_ai_chat') || '[]'); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+}
+function aiPushMsg(role, content) {
+  try {
+    const a = aiMsgs(); a.push({ role: role, c: content, t: Date.now() });
+    while (a.length > 24) a.shift();
+    localStorage.setItem('wt_ai_chat', JSON.stringify(a));
+  } catch (e) { /* 存储满等情况：聊天记录丢就丢，不阻断 */ }
+}
+
+/* —— 用户数据上下文：让 AI 知道你们俩最近什么情况 —— */
+function aiContext() {
+  const tk = todayKey();
+  const d7 = lastNDays(7);
+  const line = [];
+  const wk = ['周日','周一','周二','周三','周四','周五','周六'];
+  const me7 = d7.map(k => { const v = state.records[k] ? state.records[k]['me'] : null; return k + '(' + wk[parseKey(k).getDay()] + '):' + (typeof v === 'number' ? v : '没称'); });
+  const pa7 = d7.map(k => { const v = state.records[k] ? state.records[k]['partner'] : null; return k + ':' + (typeof v === 'number' ? v : '没称'); });
+  line.push('今天是 ' + tk + ' ' + wk[parseKey(tk).getDay()] + '。');
+  line.push('用户名：' + state.names.me + '（me），对象：' + state.names.partner + '（partner）。目标体重：' + state.goals.me + ' / ' + state.goals.partner + ' kg。');
+  line.push('' + state.names.me + ' 近7天体重：' + me7.join('，') + '。');
+  line.push('' + state.names.partner + ' 近7天体重：' + pa7.join('，') + '。');
+  const wm = lastKeyOf ? null : null; /* no-op 占位防压缩误删 */
+  [ 'me', 'partner' ].forEach(function (p) {
+    const keys = sortedKeys();
+    for (let i = keys.length - 1; i >= 0; i--) {
+      const v = state.records[keys[i]][p + '_waist'];
+      if (typeof v === 'number') { line.push((p === 'me' ? state.names.me : state.names.partner) + ' 最近一次腰围：' + v + ' cm（' + keys[i] + '）。'); break; }
+    }
+  });
+  const dToday = (state.records[tk] || {}).diet || [];
+  const dYst = (state.records[d7[6]] || {}).diet || [];
+  line.push('今日已记饮食：' + (dToday.length ? dToday.map(x => x.n + '约' + x.k + 'kcal(' + (x.w === 'me' ? state.names.me : state.names.partner) + DIET_MEALS[x.m] + ')').join('，') : '还没记。'));
+  line.push('昨日饮食：' + (dYst.length ? dYst.length + ' 项，合计约 ' + dYst.reduce((a, b) => a + b.k, 0) + ' kcal' : '没记。'));
+  return line.join('\n');
+}
+
+function aiSystemPrompt() {
+  return [
+    '你是「双人体重小本本」App 内置的 AI 管家，一对年轻情侣（用户 ' + state.names.me + ' 和 TA 的对象 ' + state.names.partner + '）的健康助手。',
+    '目标：陪他们减脂（重点减腰腹内脏脂肪）、保持肌肉、养成长期习惯。语气：朋友式，简洁、具体、不说教、不灌鸡汤。',
+    '规则：',
+    '1. 回答要用上他们真实数据（下面给你），结论先行，一段说完，不超过 5 句。数字要说明是谁的、哪天的。',
+    '2. 只有当用户明确要求记录/修改时，才在回复末尾附加动作块，格式（可多个动作放数组）：',
+    '```action\n[{"type":"log_weight","who":"me","v":73.2},{"type":"log_waist","who":"me","v":83},{"type":"log_diet","who":"me","items":[{"n":"米饭","k":200,"m":"l"}]},{"type":"set_goal","me":65,"partner":63}]\n```',
+    '3. 动作说明：log_weight 记体重(kg)、log_waist 记腰围(cm)、log_diet 记饮食(m 是餐段：b早餐/l午餐/d晚餐/s零食，k 是估算千卡，必须有数字)、set_goal 改目标。who 只能是 "me" 或 "partner"，不确定问谁时默认 me。',
+    '3b. 「记体重/今天称了/体重是X」用 log_weight；只有用户明确说到"目标"两个字且数值远低于当前体重才用 set_goal。「把体重改成X」按 log_weight 理解。绝不用 set_goal 记当天体重。',
+    '4. 估算食物热量要给合理数字；用户没说份数就按常见一份估。',
+    '5. 动作块必须放在回复最后，动作块之后不要再写正文。没有动作就别输出动作块。',
+    '5b. 严禁在正文里写「已记上/✓/已修改」这类执行确认——动作是否成功由 App 系统反馈行告知用户，你只写建议和结论。',
+    '6. 动作块的开头必须是三个反引号紧跟单词 action（即 ```action），结尾三个反引号。绝对不要用单个反引号包 JSON。',
+    '示例——用户说「帮我记今天体重73.2」，你回复：',
+    '已记上 73.2 kg。最近 7 天你在 72.8~73.6 之间，趋势平稳。今晚早点睡，明早空腹再称会更准。\n```action\n[{"type":"log_weight","who":"me","v":73.2}]\n```',
+    '—— 以下是他们的真实数据 ——',
+    aiContext()
+  ].join('\n');
+}
+
+/* —— 调 API —— */
+function aiCallAPI(sysPrompt, msgs, cb) {
+  const c = aiCfg();
+  fetch(AI_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + c.key },
+    body: JSON.stringify({ model: c.model, messages: [{ role: 'system', content: sysPrompt }].concat(msgs), temperature: 0.3, max_tokens: 900 })
+  }).then(r => r.json().then(j => ({ ok: r.ok, j: j }))).then(x => {
+    if (!x.ok) { const m = (x.j && x.j.error && x.j.error.message) || ('HTTP ' + x.ok); cb(null, m); return; }
+    const t = x.j.choices && x.j.choices[0] && x.j.choices[0].message && x.j.choices[0].message.content;
+    cb(typeof t === 'string' ? t : null, t === undefined ? '回复为空' : null);
+  }).catch(e => cb(null, e.message || '网络错误'));
+}
+
+/* —— 解析并执行动作块 —— */
+const AI_ACT_TYPES = ['log_weight', 'log_waist', 'log_diet', 'set_goal'];
+function aiParseActions(text) {
+  const out = [];
+  const push = function (j) {
+    (Array.isArray(j) ? j : [j]).forEach(function (a) {
+      if (a && AI_ACT_TYPES.indexOf(a.type) > -1) out.push(a);
+    });
+  };
+  const re = /```(?:action)?\s*([\s\S]*?)```/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    try { push(JSON.parse(m[1].trim())); } catch (e) { /* 继续其他块 */ }
+  }
+  if (out.length) return out;
+  /* 兜底：模型不守格式时，抓文本里含动作 type 的 JSON（裸 {} 或反引号包的 {}） */
+  const re2 = /(\[[\s\S]{2,600}?\]|\{[\s\S]{2,400}?\})/g;
+  let m2;
+  while ((m2 = re2.exec(text)) !== null) {
+    const frag = m2[1];
+    if (frag.indexOf('"type"') === -1 && frag.indexOf("'type'") === -1) continue;
+    let fragOk = frag.replace(/([{,]\s*)([A-Za-z_]+)(\s*:)/g, '$1"$2"$3').replace(/'/g, '"');
+    try { push(JSON.parse(fragOk)); } catch (e) { /* 非动作 JSON 忽略 */ }
+  }
+  return out;
+}
+function aiStripActions(text) {
+  let t = text.replace(/```action[\s\S]*?```/g, '').replace(/```[\s\S]*?```/g, function (b) {
+    return (b.indexOf('"type"') > -1 || b.indexOf("'type'") > -1) ? '' : b;
+  });
+  t = t.replace(/`(\[[^\`]{2,600}?\]|\{[^\`]{2,400}?\})`/g, function (b, j) {
+    return (j.indexOf('"type"') > -1) ? '' : b;
+  });
+  return t.trim();
+}
+
+function aiRunActions(acts) {
+  const done = [];
+  const tk = todayKey();
+  acts.forEach(function (a) {
+    try {
+      const who = (a.who === 'partner') ? 'partner' : 'me';
+      const name = who === 'me' ? state.names.me : state.names.partner;
+      if (a.type === 'log_weight') {
+        const v = Number(a.v);
+        if (!isFinite(v) || v < 20 || v > 300) { done.push('⚠️ 体重数字 ' + a.v + ' 不合理，没记'); return; }
+        state.records[tk] = state.records[tk] || {};
+        const had = typeof state.records[tk][who] === 'number';
+        state.records[tk][who] = v;
+        done.push('✓ 已' + (had ? '更新' : '记上') + ' ' + name + ' 今天体重 ' + v + ' kg');
+      } else if (a.type === 'log_waist') {
+        const v = Number(a.v);
+        if (!isFinite(v) || v < 40 || v > 200) { done.push('⚠️ 腰围数字不合理，没记'); return; }
+        state.records[tk] = state.records[tk] || {};
+        state.records[tk][who + '_waist'] = v;
+        done.push('✓ 已记 ' + name + ' 今天腰围 ' + v + ' cm');
+      } else if (a.type === 'log_diet') {
+        const items = Array.isArray(a.items) ? a.items : [];
+        const ok = [];
+        items.forEach(it => {
+          const k = Math.round(Number(it.k));
+          if (it.n && isFinite(k) && k > 0 && k <= 5000) ok.push({ n: String(it.n).slice(0, 24), k: k, m: DIET_MEALS[it.m] ? it.m : 's', w: who });
+        });
+        if (!ok.length) { done.push('⚠️ 饮食没认出能记的项'); return; }
+        state.records[tk] = state.records[tk] || {};
+        state.records[tk].diet = state.records[tk].diet || [];
+        ok.forEach(o => state.records[tk].diet.push(o));
+        done.push('✓ 已记 ' + name + ' 今天 ' + ok.length + ' 样饮食（约 ' + ok.reduce((x, y) => x + y.k, 0) + ' kcal）');
+      } else if (a.type === 'set_goal') {
+        const nm = (isFinite(Number(a.me)) && a.me !== null) ? Number(a.me) : ((isFinite(Number(a.v)) && (a.who === 'me' || !a.who)) ? Number(a.v) : null);
+        const np = (isFinite(Number(a.partner)) && a.partner !== null) ? Number(a.partner) : ((isFinite(Number(a.v)) && a.who === 'partner') ? Number(a.v) : null);
+        const bad = [];
+        if (nm !== null && isFinite(nm)) {
+          const cw = lastKnown('me');
+          if (nm < 40 || nm > 120 || (cw !== null && nm >= cw)) bad.push(state.names.me + '(' + nm + ')');
+          else state.goals.me = nm;
+        }
+        if (np !== null && isFinite(np)) {
+          const cw2 = lastKnown('partner');
+          if (np < 40 || np > 120 || (cw2 !== null && np >= cw2)) bad.push(state.names.partner + '(' + np + ')');
+          else state.goals.partner = np;
+        }
+        if (bad.length) {
+          persist(); done.push('⚠️ 目标没改：' + bad.join('、') + ' 不合理（目标要比现在的体重低才对）。要改去「名字与目标」页手动填');
+        } else {
+          persist(); done.push('✓ 目标已改为 ' + state.goals.me + ' / ' + state.goals.partner + ' kg');
+        }
+      }
+    } catch (err) { done.push('⚠️ 一项没执行成功：' + (err.message || err)); }
+  });
+  if (done.some(x => x.indexOf('✓') === 0)) { persist(); refreshOpenSheet(); }
+  return done;
+}
+
+/* —— 聊天界面 —— */
+function aiChatBody() {
+  if (!aiHas()) return aiSetupHTML();
+  const msgs = aiMsgs();
+  let h = '<div class="ai-wrap">';
+  h += '<div class="ai-hero"><b>AI 管家</b><span>说话就能记 · 问什么答什么</span><i onclick="aiResetKey()" style="cursor:pointer">重新配置钥匙</i></div>';
+  h += '<div class="ai-msgs" id="ai-msgs">';
+  if (!msgs.length) {
+    h += '<div class="ai-msg ai"><div class="ai-bub">我是你们的 AI 管家 🧑‍🍳 不对，是教练+记账员。可以：<br>· 说「帮我记今天午饭三菜一汤」——我直接记上<br>· 问「我这周吃得怎么样」——我看数据说话<br>· 说「帮 ' + esc(state.names.partner) + ' 记体重 68.2」——分人记，不会乱<br>下面输入框可以直接打字，也可以点 🎤 说。</div></div>';
+  }
+  msgs.forEach(function (m) {
+    h += '<div class="ai-msg ' + (m.role === 'user' ? 'user' : 'ai') + '"><div class="ai-bub">' + nl2brAI(m.c) + '</div></div>';
+  });
+  h += '</div>';
+  h += '<div class="ai-quick">' + ['这周我们吃得怎么样', '帮我记今天午饭：', '最近趋势怎么样，该注意啥'].map(q =>
+    '<button class="set-chip" data-action="ai-quick" data-q="' + q + '">' + q + '</button>').join('') + '</div>';
+  h += '<div class="ai-inrow">' +
+    (voiceSupport() ? '<button class="mic-btn" data-action="voice" data-for="ai-input" aria-label="语音输入">' + MIC_SVG + '</button>' : '') +
+    '<input class="text-input" id="ai-input" placeholder="说话或打字，比如：帮我记今天体重73.2" enterkeyhint="send">' +
+    '<button class="btn" data-action="ai-send">发送</button></div>';
+  h += '</div>';
+  return h;
+}
+function nl2brAI(t) { return esc(t).replace(/\n/g, '<br>'); }
+function aiSetupHTML() {
+  const c = aiCfg();
+  return '<div class="ai-wrap"><div class="ai-hero"><b>AI 管家</b><span>接入智谱 AI，像跟我聊天一样操作这个 App</span></div>' +
+    '<div class="card" style="margin-top:14px"><div class="card-label">第一步 · 填钥匙</div>' +
+    '<p class="s-dim" style="margin:0 0 10px">钥匙就是 API Key。填一次就存进这部手机，<b>只存本机</b>，不上传、不进代码。聊天内容会发给智谱换取回答。</p>' +
+    '<div class="field"><span>API Key</span><input class="text-input" id="ai-key-in" type="password" placeholder="粘贴你的智谱 API Key" value="' + esc(c.key) + '"></div>' +
+    '<div class="field"><span>模型</span><select class="text-input" id="ai-model-in" style="padding:10px 12px">' + AI_MODELS.map(m =>
+      '<option value="' + m + '"' + (m === c.model ? ' selected' : '') + '>' + m + (m.indexOf('flash') > -1 ? '（免费）' : '') + '</option>').join('') + '</select></div>' +
+    '<button class="btn" data-action="ai-cfg-save" style="margin-top:12px">保存并开始用</button>' +
+    '<button class="btn ghost" data-action="ai-cfg-test" style="margin-top:8px">先测测钥匙通不通</button>' +
+    '<p class="set-tip" id="ai-test-tip">没有钥匙？智谱开放平台 open.bigmodel.cn 注册就能领，免费模型日常用不完。</p>' +
+    '</div></div>';
+}
+function aiResetKey() {
+  if (!confirm('重新配置会保留聊天记录，只清掉钥匙。要继续吗？')) return;
+  aiSetCfg('', aiCfg().model);
+  renderWidgetSheet('AI 管家');
+}
+function aiMsgsScroll() { const el = document.getElementById('ai-msgs'); if (el) el.scrollTop = el.scrollHeight; }
+
+function aiSend() {
+  const el = document.getElementById('ai-input');
+  const val = el ? el.value.trim() : '';
+  if (!val) { toast('先说点什么'); return; }
+  if (val.length > 500) { toast('说得太长啦，砍到 500 字以内'); return; }
+  aiPushMsg('user', val);
+  el.value = '';
+  renderWidgetSheet('AI 管家');
+  const box = document.getElementById('ai-msgs');
+  if (box) box.insertAdjacentHTML('beforeend', '<div class="ai-msg ai" id="ai-thinking"><div class="ai-bub dim">正在想…</div></div>');
+  aiMsgsScroll();
+  const hist = aiMsgs().slice(-8).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.c }));
+  aiCallAPI(aiSystemPrompt(), hist, function (text, err) {
+    if (err !== null) {
+      aiPushMsg('ai', '⚠️ 连不上 AI（' + err + '）。检查钥匙是否填对/是否欠费，或者过会儿再试。');
+      renderWidgetSheet('AI 管家');
+      return;
+    }
+    const acts = aiParseActions(text);
+    let feed = '';
+    if (acts.length) {
+      const done = aiRunActions(acts);
+      feed = done.length ? '\nApp 系统反馈：\n' + done.join('\n') : '';
+    }
+    aiPushMsg('ai', aiStripActions(text) + feed);
+    renderWidgetSheet('AI 管家');
+  });
+}
+
+/* —— AI 食物识别（无钥匙时回退本地词典，调用方已处理） —— */
+function aiParseFood(say) {
+  const btn = document.querySelector('[data-action=diet-parse]');
+  if (btn) { btn.disabled = true; btn.textContent = 'AI 认菜中…'; }
+  const sys = '你是食物热量估算器。用户说一段吃了什么的话，你输出 JSON 数组，不要输出任何别的文字。格式：[{"n":"食物名","k":千卡数字}]。规则：1. 只算用户本人这顿吃的；2. 份数词（两个/一碗/半份）要折算进 k；3. 常见家常菜/餐厅菜/零食都要能估；4. 实在无法判断的给常见做法的中位估算；5. k 必须是 20~5000 的数字；6. n 保持用户原词或通用名，别加做法修饰。';
+  aiCallAPI(sys, [{ role: 'user', content: say }], function (text, err) {
+    if (btn) { btn.disabled = false; btn.textContent = '识别'; }
+    if (err !== null) {
+      const res = parseDietText(say);
+      if (res.length) { dietParsed = dietParsed.concat(res); renderWidgetSheet('饮食日记'); toast('AI 没接上，词典认出 ' + res.length + ' 样'); }
+      else toast('AI 没接上：' + err);
+      return;
+    }
+    let arr = null;
+    try {
+      const m = text.match(/\[[\s\S]*\]/);
+      arr = JSON.parse(m[0]);
+    } catch (e) { arr = null; }
+    if (!Array.isArray(arr) || !arr.length) { toast('AI 也没认出来，换个说法试试'); return; }
+    const res = arr.filter(x => x && x.n && isFinite(Number(x.k)) && Number(x.k) > 0)
+      .map(x => ({ n: String(x.n).slice(0, 24), k: Math.min(5000, Math.max(20, Math.round(Number(x.k)))), guessed: true }));
+    if (!res.length) { toast('AI 也没认出来，换个说法试试'); return; }
+    dietParsed = dietParsed.concat(res);
+    renderWidgetSheet('饮食日记');
+    toast('✓ AI 认出 ' + res.length + ' 样，核对后记上');
+  });
+}
+
+/* —— 语音输入（iOS Safari 14.5+ / Chrome 可用；不支持的设备隐藏按钮，用键盘自带听写兜底） —— */
+function voiceSupport() { return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+let voiceRec = null, voiceBusy = false;
+function voiceStart(forId) {
+  if (!voiceSupport()) { toast('这台设备不支持网页语音，用键盘上的麦克风按钮一样能说'); return; }
+  if (voiceBusy) { try { voiceRec.stop(); } catch (e) {} return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  voiceRec = new SR();
+  voiceRec.lang = 'zh-CN';
+  voiceRec.interimResults = false;
+  voiceRec.maxAlternatives = 1;
+  const btn = document.querySelector('.mic-btn[data-for="' + forId + '"]');
+  voiceRec.onstart = function () { voiceBusy = true; if (btn) btn.classList.add('rec'); toast('开始说…说完自动停'); };
+  voiceRec.onend = function () { voiceBusy = false; if (btn) btn.classList.remove('rec'); };
+  voiceRec.onerror = function (e) {
+    voiceBusy = false; if (btn) btn.classList.remove('rec');
+    if (e.error === 'not-allowed') toast('麦克风权限被拒：设置 → Safari → 麦克风 打开，或用键盘麦克风');
+    else if (e.error === 'no-speech') toast('没听到声音，再点一次说');
+    else toast('语音没接上（' + e.error + '），可以用键盘麦克风');
+  };
+  voiceRec.onresult = function (ev) {
+    const t = ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript || '';
+    const el = document.getElementById(forId);
+    if (el && t) { el.value = (el.value ? el.value + ' ' : '') + t; el.focus(); }
+  };
+  try { voiceRec.start(); } catch (e) { voiceBusy = false; toast('语音没启动成功，再点一次'); }
+}
+
+/* —— 事件：AI 相关 —— */
+/* ai-send / ai-quick / ai-cfg-save / ai-cfg-test / voice —— 挂进主委托，见下方注入 */
