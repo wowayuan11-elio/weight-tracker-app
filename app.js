@@ -4436,6 +4436,14 @@ document.addEventListener('click', e => {
           }
         }).catch(function (e) { if (tip) { tip.textContent = '✗ 网络不通：' + (e.message || e); tip.style.color = '#b45309'; } });
     }
+    else if (a === 'ai-cycle-model') {
+      const cur = aiCfg().model || 'glm-4-flash';
+      const idx = AI_MODELS.indexOf(cur);
+      const nxt = AI_MODELS[(idx + 1 + AI_MODELS.length) % AI_MODELS.length] || AI_MODELS[0];
+      aiSetCfg(aiCfg().key, nxt);
+      renderWidgetSheet('AI 管家');
+      toast('已切换到 ' + nxt + '（更强更聪明，稍慢一点点）');
+    }
     else if (a === 'voice') { voiceStart(act.getAttribute('data-for') || 'ai-input'); }
     else if (a === 'gym-filter') {
       gymFilter = act.getAttribute('data-c') || '全部';
@@ -4736,7 +4744,7 @@ function aiCallAPI(sysPrompt, msgs, cb) {
   fetch(AI_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + c.key },
-    body: JSON.stringify({ model: c.model, messages: [{ role: 'system', content: sysPrompt }].concat(msgs), temperature: 0.3, max_tokens: 900 })
+    body: JSON.stringify({ model: c.model, messages: [{ role: 'system', content: sysPrompt }].concat(msgs), temperature: 0.3, max_tokens: 1500, thinking: { type: 'disabled' } })
   }).then(r => r.json().then(j => ({ ok: r.ok, j: j }))).then(x => {
     if (!x.ok) { const m = (x.j && x.j.error && x.j.error.message) || ('HTTP ' + x.ok); cb(null, m); return; }
     const t = x.j.choices && x.j.choices[0] && x.j.choices[0].message && x.j.choices[0].message.content;
@@ -4789,7 +4797,9 @@ function aiRunActions(acts) {
   const tk = todayKey();
   acts.forEach(function (a) {
     try {
-      const who = (a.who === 'partner') ? 'partner' : 'me';
+      let who = (a.who === 'partner') ? 'partner' : 'me';
+      const _wstr = String(a.who || '');
+      if (/(Tina|她|女友|女伴|对象|老婆|partner)/i.test(_wstr) && !/(Elio|我|me)/i.test(_wstr)) who = 'partner';
       const name = who === 'me' ? state.names.me : state.names.partner;
       if (a.type === 'log_weight') {
         const v = Number(a.v);
@@ -4811,7 +4821,7 @@ function aiRunActions(acts) {
         items.forEach(it => {
           let k = Math.round(Number(it.k));
           if (it.n && (!isFinite(k) || k <= 0 || k > 5000)) k = 150; /* AI 没估出热量给保守默认，先记上 */
-          if (it.n) ok.push({ n: String(it.n).slice(0, 24), k: k, m: DIET_MEALS[it.m] ? it.m : 's', w: who });
+          if (it.n) { const _ms = String(it.m || ''); const _mm = DIET_MEALS[_ms] ? _ms : (/早/.test(_ms) ? 'b' : (/中|午/.test(_ms) ? 'l' : (/晚|餐|聚/.test(_ms) ? 'd' : 's'))); ok.push({ n: String(it.n).slice(0, 24), k: k, m: _mm, w: who }); }
         });
         if (!ok.length) { done.push('⚠️ 饮食没认出能记的项'); return; }
         const dk = aiDateOf(a.date, tk);
@@ -4851,7 +4861,7 @@ function aiChatBody() {
   if (!aiHas()) return aiSetupHTML();
   const msgs = aiMsgs();
   let h = '<div class="ai-wrap">';
-  h += '<div class="ai-hero"><b>AI 管家</b><span>说话就能记 · 问什么答什么</span><i onclick="aiResetKey()" style="cursor:pointer">重新配置钥匙</i></div>';
+  h += '<div class="ai-hero"><b>AI 管家</b><span>说话就能记 · 问什么答什么</span><i data-action="ai-cycle-model" style="cursor:pointer">模型：' + (aiCfg().model || 'glm-4-flash') + '</i><i onclick="aiResetKey()" style="cursor:pointer;margin-left:8px">换钥匙</i></div>';
   h += '<div class="ai-msgs" id="ai-msgs">';
   if (!msgs.length) {
     h += '<div class="ai-msg ai"><div class="ai-bub">我是你们的 AI 管家 🧑‍🍳 不对，是教练+记账员。可以：<br>· 说「帮我记今天午饭三菜一汤」——我直接记上<br>· 问「我这周吃得怎么样」——我看数据说话<br>· 说「帮 ' + esc(state.names.partner) + ' 记体重 68.2」——分人记，不会乱<br>下面输入框可以直接打字，也可以点 🎤 说。</div></div>';
