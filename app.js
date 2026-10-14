@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V76';
+const APP_VERSION = 'V77';
 const CHANGELOG = [
+  { v: 'V77', d: '10月14日', items: [
+    '视觉全面去廉价：纸纹噪点材质永久下线，所有卡片描边砍掉——分层只靠留白和柔影，干净就是高级',
+    '记录页说明书式文案全砍：改成一句话状态，备注说明行和底部凑数小字删除'
+  ]},
   { v: 'V76', d: '10月13日', items: [
     '标题全面加黑加粗加大：所有卡片标题（昨天→今天 / 7天概览 / 体重走势…）回归传统标题层级——最黑最粗，一眼和正文分开，全主题统一'
   ]},
@@ -1288,13 +1292,13 @@ function renderRecord() {
   /* 这天是什么状态，一句话说清 */
   let recHint;
   if (both) {
-    recHint = '这天已记录：' + esc(state.names.me) + ' ' + r.me.toFixed(1) + ' kg · ' + esc(state.names.partner) + ' ' + r.partner.toFixed(1) + ' kg。数字有错直接改，改完点保存';
+    recHint = '已记录 · 数字可直接改，改完点保存';
   } else if (r) {
-    recHint = '这天只记了一半（缺的人填上即可），改完点保存';
+    recHint = '只记了一半 · 缺的人填上';
   } else if (currentDate === todayKey()) {
-    recHint = '今天还没记。灰字是上次称的数，只是参考——照着改或清空重输，点保存才算数';
+    recHint = '今天还没记 · 灰字是上次称的，仅供参考';
   } else {
-    recHint = '这天没记过。灰字是上次（' + (prevMe ? fmtMD(prevMe.key) + ' ' + prevMe.value.toFixed(1) + ' kg' : '暂无') + '）的参考值，要补录就照着改，点保存才算数';
+    recHint = '这天没记 · 灰字是上次（' + (prevMe ? fmtMD(prevMe.key) + ' ' + prevMe.value.toFixed(1) : '暂无') + '）';
   }
 
   document.getElementById('record-card').innerHTML =
@@ -1339,7 +1343,7 @@ function renderRecord() {
             const wPrev = lastKnownField(p + '_waist');
             return '<div class="in-row x-row">' +
               '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-              '<input class="w-input x-input" type="number" step="0.5" inputmode="decimal" placeholder="' + (wPrev ? '腰围 · 上次 ' + wPrev.value.toFixed(1) : '腰围 cm') + '" data-person="' + p + '_waist" value="' + (wHas ? r[p + '_waist'] : esc(drafts[p + '_waist'] || '')) + '">' +
+              '<input class="w-input x-input" type="number" step="0.5" inputmode="decimal" placeholder="' + (wPrev ? '上次 ' + wPrev.value.toFixed(1) : '腰围') + '" data-person="' + p + '_waist" value="' + (wHas ? r[p + '_waist'] : esc(drafts[p + '_waist'] || '')) + '">' +
               '<span class="unit">cm</span>' +
             '</div>';
           }).join('') +
@@ -1349,7 +1353,7 @@ function renderRecord() {
             const bPrev = lastKnownField(p + '_bf');
             return '<div class="in-row x-row">' +
               '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-              '<input class="w-input x-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (bPrev ? '体脂 · 上次 ' + bPrev.value.toFixed(1) : '体脂率 %') + '" data-person="' + p + '_bf" value="' + (bHas ? r[p + '_bf'] : esc(drafts[p + '_bf'] || '')) + '">' +
+              '<input class="w-input x-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (bPrev ? '上次 ' + bPrev.value.toFixed(1) : '体脂') + '" data-person="' + p + '_bf" value="' + (bHas ? r[p + '_bf'] : esc(drafts[p + '_bf'] || '')) + '">' +
               '<span class="unit">%</span>' +
             '</div>';
           }).join('') +
@@ -1358,19 +1362,18 @@ function renderRecord() {
             const vf = lastKnownField(p + '_vf'), mm = lastKnownField(p + '_mm'), bmr = lastKnownField(p + '_bmr');
             return '<div class="in-row x-row">' +
               '<span class="in-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-              '<input class="w-input x-input" type="number" step="1" inputmode="numeric" placeholder="' + (vf ? '内脏 · 上次 ' + vf.value.toFixed(0) : '内脏脂肪 级') + '" data-person="' + p + '_vf" value="' + (r && typeof r[p + '_vf'] === 'number' ? r[p + '_vf'] : esc(drafts[p + '_vf'] || '')) + '">' +
-              '<input class="w-input x-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (mm ? '肌肉 · 上次 ' + mm.value.toFixed(1) : '肌肉 kg') + '" data-person="' + p + '_mm" value="' + (r && typeof r[p + '_mm'] === 'number' ? r[p + '_mm'] : esc(drafts[p + '_mm'] || '')) + '">' +
-              '<input class="w-input x-input" type="number" step="1" inputmode="numeric" placeholder="' + (bmr ? '代谢 · 上次 ' + bmr.value.toFixed(0) : '代谢 千卡') + '" data-person="' + p + '_bmr" value="' + (r && typeof r[p + '_bmr'] === 'number' ? r[p + '_bmr'] : esc(drafts[p + '_bmr'] || '')) + '">' +
+              '<input class="w-input x-input" type="number" step="1" inputmode="numeric" placeholder="' + (vf ? '上次 ' + vf.value.toFixed(0) : '内脏') + '" data-person="' + p + '_vf" value="' + (r && typeof r[p + '_vf'] === 'number' ? r[p + '_vf'] : esc(drafts[p + '_vf'] || '')) + '">' +
+              '<input class="w-input x-input" type="number" step="0.1" inputmode="decimal" placeholder="' + (mm ? '上次 ' + mm.value.toFixed(1) : '肌肉') + '" data-person="' + p + '_mm" value="' + (r && typeof r[p + '_mm'] === 'number' ? r[p + '_mm'] : esc(drafts[p + '_mm'] || '')) + '">' +
+              '<input class="w-input x-input" type="number" step="1" inputmode="numeric" placeholder="' + (bmr ? '上次 ' + bmr.value.toFixed(0) : '代谢') + '" data-person="' + p + '_bmr" value="' + (r && typeof r[p + '_bmr'] === 'number' ? r[p + '_bmr'] : esc(drafts[p + '_bmr'] || '')) + '">' +
             '</div>';
           }).join('') +
           '<button class="linklike extra-toggle" data-action="toggle-extra">收起</button>' +
         '</div>';
       })() +
-      '<p class="sub" style="margin:12px 0 6px">备注（选填）：写完自动保存 · 显示在统计页「全部记录」和月历的点日详情里</p>' +
-      '<input class="note-input" type="text" maxlength="60" enterkeyhint="done" placeholder="如：昨晚吃火锅 / 熬夜了 / 开始力量训练" value="' + (r && r.note ? esc(r.note) : '') + '">' +
+            '<input class="note-input" type="text" maxlength="60" enterkeyhint="done" placeholder="如：昨晚吃火锅 / 熬夜了 / 开始力量训练" value="' + (r && r.note ? esc(r.note) : '') + '">' +
       '<button class="btn save-btn' + (Date.now() - (window.__savedFlashAt || 0) < 1600 ? ' saved' : '') + '" data-action="save-all">' +
         (Date.now() - (window.__savedFlashAt || 0) < 1600 ? '✓ 已保存' : '保存') + '</button>' +
-      (both ? '<div class="card-foot">这天的记录：你们俩相差 ' + Math.abs(r.me - r.partner).toFixed(1) + ' kg</div>' : '') +
+      
     '</div>';
 
   document.getElementById('hero-row').innerHTML = heroHTML();
