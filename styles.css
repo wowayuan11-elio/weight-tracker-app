@@ -1383,3 +1383,27 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 /* V82b: 修识别输入框被按钮挤没——按钮吃掉整行(width:100%)，input 只剩 28px。从 V65 起的老 bug */
 .diet-say .btn{ width:auto !important; flex:none; min-width:76px; }
 .diet-say .text-input{ flex:1; min-width:0; width:auto; background:var(--bg); border:1px solid var(--sep); border-radius:14px; padding:12px 14px; }
+
+/* ===== V83: AI 管家 ===== */
+.ai-wrap{ display:flex; flex-direction:column; min-height:calc(100% - 10px); }
+.ai-hero{ display:flex; align-items:baseline; gap:8px; margin:6px 2px 4px; }
+.ai-hero b{ font-size:17px; font-weight:800; color:var(--text); }
+.ai-hero span{ font-size:12px; color:var(--text3); flex:1; }
+.ai-hero i{ font-style:normal; font-size:11px; color:var(--tint); }
+.ai-msgs{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:10px 2px 6px; max-height:46vh; }
+.ai-msg{ display:flex; }
+.ai-msg.user{ justify-content:flex-end; }
+.ai-bub{ max-width:82%; padding:9px 12px; border-radius:16px; font-size:14px; line-height:1.55; color:var(--text); background:var(--card-2, rgba(127,127,127,.07)); border:1px solid var(--card-border, rgba(120,120,128,.14)); word-break:break-word; }
+.ai-msg.user .ai-bub{ background:var(--tint); color:#fff; border-color:transparent; border-bottom-right-radius:6px; }
+.ai-msg.ai .ai-bub{ border-bottom-left-radius:6px; }
+.ai-bub.dim{ color:var(--text3); font-style:italic; }
+.ai-quick{ display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 4px; }
+.ai-quick .set-chip{ font-size:12px; padding:7px 11px; }
+.ai-inrow{ display:flex; gap:8px; align-items:center; margin-top:6px; position:sticky; bottom:0; background:var(--bg); padding:6px 0 4px; }
+.ai-inrow .text-input{ flex:1; min-width:0; width:auto; background:var(--bg); border:1px solid var(--sep); border-radius:14px; padding:12px 14px; }
+.ai-inrow .btn{ width:auto !important; flex:none; min-width:70px; }
+/* 麦克风按钮：细线图标（feather 风），录音中红点脉动 */
+.mic-btn{ flex:none; width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; border:1px solid var(--sep); background:var(--bg); color:var(--text2); -webkit-tap-highlight-color:transparent; }
+.mic-btn.rec{ color:#e5484d; border-color:#e5484d; animation:micPulse 1.2s ease-in-out infinite; }
+@keyframes micPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(229,72,77,.35);} 50%{ box-shadow:0 0 0 7px rgba(229,72,77,0);} }
+.diet-say .mic-btn{ width:44px; height:44px; }
