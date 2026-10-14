@@ -1289,3 +1289,13 @@ body .hero-col{ border-radius:24px; }
 .sec-title { font-weight: 800 !important; color: var(--text) !important; font-size: 15.5px !important; }
 /* 弹层头标题 */
 #widget-sheet-title { font-weight: 800 !important; font-size: 17px !important; color: var(--text) !important; }
+
+/* ===== V77: 纸感/描边/报刊框全部下线——纯净分层 ===== */
+/* 1) V72 全局噪点材质层（feTurbulence 纸感）永久下线：纹理=廉价 */
+body::before{ display:none !important; content:none !important; }
+/* 2) 描边全砍：分层只靠底色差+阴影，一线 App 做法就是无边框 */
+.card, .tile, .stat-cell, .hero-card, .list-card{ border:none !important; }
+
+/* V77b: 扩展区输入框 placeholder 精简——框里只放「上次 数值」，名称靠上节说明+框外单位 */
+.x-input{ font-size:17px !important; }
+.x-input::placeholder{ font-size:13px; font-weight:500; color:var(--text3); letter-spacing:0; }
