@@ -4700,7 +4700,14 @@ function aiContext() {
 }
 
 function aiSystemPrompt() {
+  const _today = new Date();
+  const _fmt = function (d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+  const _td = _fmt(_today);
+  const _yd = _fmt(new Date(_today.getTime() - 86400000));
+  const _qtd = _fmt(new Date(_today.getTime() - 172800000));
+  const _wk = ['日', '一', '二', '三', '四', '五', '六'][_today.getDay()];
   return [
+    '今天是 ' + _td + ' 星期' + _wk + '。「昨天」指 ' + _yd + '，「前天」指 ' + _qtd + '。提到非今天的日期，动作里必须带 date 字段填对应日期。',
     '你是「双人体重小本本」App 内置的 AI 管家，一对年轻情侣（用户 ' + state.names.me + ' 和 TA 的对象 ' + state.names.partner + '）的健康助手。',
     '目标：陪他们减脂（重点减腰腹内脏脂肪）、保持肌肉、养成长期习惯。语气：朋友式，简洁、具体、不说教、不灌鸡汤。',
     '规则：',
@@ -4709,6 +4716,9 @@ function aiSystemPrompt() {
     '```action\n[{"type":"log_weight","who":"me","v":73.2},{"type":"log_waist","who":"me","v":83},{"type":"log_diet","who":"me","items":[{"n":"米饭","k":200,"m":"l"}]},{"type":"set_goal","me":65,"partner":63}]\n```',
     '3. 动作说明：log_weight 记体重(kg)、log_waist 记腰围(cm)、log_diet 记饮食(m 是餐段：b早餐/l午餐/d晚餐/s零食，k 是估算千卡，必须有数字)、set_goal 改目标。who 只能是 "me" 或 "partner"，不确定问谁时默认 me。',
     '3b. 「记体重/今天称了/体重是X」用 log_weight；只有用户明确说到"目标"两个字且数值远低于当前体重才用 set_goal。「把体重改成X」按 log_weight 理解。绝不用 set_goal 记当天体重。',
+    '3c. log_diet 关键规则：用户提到任何吃的（哪怕模糊如"大量牛肉鸡肉茄子"、"吃了顿火锅"），必须拆成 items 逐条记录，每条都要给出 k 的估算数字（模糊说法按常见分量估），绝不能因为说不清分量就不记。记完后在正文里说明你的估算假设，让用户可以纠正。',
+    '3d. 提到非今天的日子（昨天/前天等），log_weight/log_waist/log_diet 动作里都必须带 date 字段（YYYY-MM-DD，按开头的日期换算）。m 餐段按语境判断：早餐=b、午饭/中午=l、晚饭/晚上/请客吃饭聚餐下馆子=d、零食加餐=s，说不清用 s。',
+    '3e. 缺信息时最多问一个问题，而且能按合理假设先记就先记（记完说明假设），不要连环反问。',
     '4. 估算食物热量要给合理数字；用户没说份数就按常见一份估。',
     '5. 动作块必须放在回复最后，动作块之后不要再写正文。没有动作就别输出动作块。',
     '5b. 严禁在正文里写「已记上/✓/已修改」这类执行确认——动作是否成功由 App 系统反馈行告知用户，你只写建议和结论。',
@@ -4770,6 +4780,10 @@ function aiStripActions(text) {
   return t.trim();
 }
 
+function aiDateOf(d, tk) {
+  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && d <= tk && d >= '2024-01-01') return d;
+  return tk;
+}
 function aiRunActions(acts) {
   const done = [];
   const tk = todayKey();
@@ -4780,28 +4794,32 @@ function aiRunActions(acts) {
       if (a.type === 'log_weight') {
         const v = Number(a.v);
         if (!isFinite(v) || v < 20 || v > 300) { done.push('⚠️ 体重数字 ' + a.v + ' 不合理，没记'); return; }
-        state.records[tk] = state.records[tk] || {};
-        const had = typeof state.records[tk][who] === 'number';
-        state.records[tk][who] = v;
-        done.push('✓ 已' + (had ? '更新' : '记上') + ' ' + name + ' 今天体重 ' + v + ' kg');
+        const dk = aiDateOf(a.date, tk);
+        state.records[dk] = state.records[dk] || {};
+        const had = typeof state.records[dk][who] === 'number';
+        state.records[dk][who] = v;
+        done.push('✓ 已' + (had ? '更新' : '记上') + ' ' + name + ' ' + (dk === tk ? '今天' : dk) + '体重 ' + v + ' kg');
       } else if (a.type === 'log_waist') {
         const v = Number(a.v);
         if (!isFinite(v) || v < 40 || v > 200) { done.push('⚠️ 腰围数字不合理，没记'); return; }
-        state.records[tk] = state.records[tk] || {};
-        state.records[tk][who + '_waist'] = v;
+        state.records[aiDateOf(a.date, tk)] = state.records[aiDateOf(a.date, tk)] || {};
+        state.records[aiDateOf(a.date, tk)][who + '_waist'] = v;
         done.push('✓ 已记 ' + name + ' 今天腰围 ' + v + ' cm');
       } else if (a.type === 'log_diet') {
         const items = Array.isArray(a.items) ? a.items : [];
         const ok = [];
         items.forEach(it => {
-          const k = Math.round(Number(it.k));
-          if (it.n && isFinite(k) && k > 0 && k <= 5000) ok.push({ n: String(it.n).slice(0, 24), k: k, m: DIET_MEALS[it.m] ? it.m : 's', w: who });
+          let k = Math.round(Number(it.k));
+          if (it.n && (!isFinite(k) || k <= 0 || k > 5000)) k = 150; /* AI 没估出热量给保守默认，先记上 */
+          if (it.n) ok.push({ n: String(it.n).slice(0, 24), k: k, m: DIET_MEALS[it.m] ? it.m : 's', w: who });
         });
         if (!ok.length) { done.push('⚠️ 饮食没认出能记的项'); return; }
-        state.records[tk] = state.records[tk] || {};
-        state.records[tk].diet = state.records[tk].diet || [];
-        ok.forEach(o => state.records[tk].diet.push(o));
-        done.push('✓ 已记 ' + name + ' 今天 ' + ok.length + ' 样饮食（约 ' + ok.reduce((x, y) => x + y.k, 0) + ' kcal）');
+        const dk = aiDateOf(a.date, tk);
+        state.records[dk] = state.records[dk] || {};
+        state.records[dk].diet = state.records[dk].diet || [];
+        ok.forEach(o => state.records[dk].diet.push(o));
+        persist();
+        done.push('✓ 已记 ' + name + ' ' + (dk === tk ? '今天' : dk) + ' ' + ok.length + ' 样饮食（约 ' + ok.reduce((x, y) => x + y.k, 0) + ' kcal）');
       } else if (a.type === 'set_goal') {
         const nm = (isFinite(Number(a.me)) && a.me !== null) ? Number(a.me) : ((isFinite(Number(a.v)) && (a.who === 'me' || !a.who)) ? Number(a.v) : null);
         const np = (isFinite(Number(a.partner)) && a.partner !== null) ? Number(a.partner) : ((isFinite(Number(a.v)) && a.who === 'partner') ? Number(a.v) : null);
