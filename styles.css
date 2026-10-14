@@ -19,8 +19,8 @@
   --tint:#007aff;
   --shadow:0 1px 2px rgba(23,23,40,.04), 0 6px 20px rgba(23,23,40,.05);
   --tint-rgb:0,122,255;
-  /* V42 设计语言变量：每套主题可独立定义（卡片圆角/边框/数字字体/标签排版） */
-  --card-border:none;
+  /* V42 设计语言变量：每套主题可独立定义（卡片圆角/边框/数字字体/标签排版）；V79: 默认也给 hairline */
+  --card-border:rgba(60,60,67,.10);
   --radius-card:18px;
   --radius-tile:14px;
   --num-font:inherit;
@@ -1290,11 +1290,14 @@ body .hero-col{ border-radius:24px; }
 /* 弹层头标题 */
 #widget-sheet-title { font-weight: 800 !important; font-size: 17px !important; color: var(--text) !important; }
 
-/* ===== V77: 纸感/描边/报刊框全部下线——纯净分层 ===== */
+/* ===== V77→V79: 噪点纸感永久下线；边框回归但做细做高级 ===== */
 /* 1) V72 全局噪点材质层（feTurbulence 纸感）永久下线：纹理=廉价 */
 body::before{ display:none !important; content:none !important; }
-/* 2) 描边全砍：分层只靠底色差+阴影，一线 App 做法就是无边框 */
-.card, .tile, .stat-cell, .hero-card, .list-card{ border:none !important; }
+/* 2) V79: 边框回归——统一 1px hairline（比之前各主题的 1.5px/不透明粗框细腻），并保留柔影分层 */
+.card, .hero-card, .list-card{ border:1px solid var(--card-border, rgba(120,120,128,.14)) !important; }
+.tile{ border:1px solid var(--sep, rgba(60,60,67,.12)) !important; }
+/* 细腻化：压掉任何 >1px 的粗框 */
+.card, .tile, .hero-card, .list-card{ border-width:1px !important; }
 
 /* V77b: 扩展区输入框 placeholder 精简——框里只放「上次 数值」，名称靠上节说明+框外单位 */
 .x-input{ font-size:17px !important; }
@@ -1309,3 +1312,6 @@ body::before{ display:none !important; content:none !important; }
 .gp-num{ font-variant-numeric: tabular-nums; }
 .gp-eta{ font-weight:600; }
 .gp-hit{ color:#34c759; font-weight:700; }
+
+/* V79: 边框立体感——顶部 1px 内高光，边框不再是死线 */
+body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(--hi,transparent), 0 1px 3px rgba(0,0,0,.05), 0 12px 32px -8px rgba(0,0,0,.10) !important; }
