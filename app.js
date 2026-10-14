@@ -16,8 +16,13 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V77';
+const APP_VERSION = 'V78';
 const CHANGELOG = [
+  { v: 'V78', d: '10月14日', items: [
+    '修好目标进度条 0%：进度基准从「最早记录」改成「历史最高」——涨过再降也能看到真实进度（从最高已减多少）',
+    '预测升级为数据驱动：7 天移动平均抹掉日常波动 + 线性回归算趋势 + 质量门槛——趋势稳才给周数（注明依据），在涨就诚实说，波动大就不猜',
+    '进度条打开时有生长动画，弹层弹出更顺滑'
+  ]},
   { v: 'V77', d: '10月14日', items: [
     '视觉全面去廉价：纸纹噪点材质永久下线，所有卡片描边砍掉——分层只靠留白和柔影，干净就是高级',
     '记录页说明书式文案全砍：改成一句话状态，备注说明行和底部凑数小字删除'
@@ -1685,7 +1690,44 @@ function saveAll() {
 }
 
 /* ================= 目标进度卡 ================= */
-function goalRate(p) { /* 最近14天斜率 kg/天，用最小二乘 */
+function peakKnown(p) {
+  /* V78: 进度基准=历史最高体重——涨过再降的人用「最早记录」会算出负进度（0% 元凶） */
+  let best = null;
+  sortedKeys().forEach(k => {
+    const v = (state.records[k] || {})[p];
+    if (typeof v === 'number' && (!best || v > best.value)) best = { key: k, value: v };
+  });
+  return best;
+}
+
+function goalRate2(p) {
+  /* V78: 预测升级——先 7 日移动平均抹掉日波动（深夜称重/聚餐），再对平滑线做最小二乘，带 R² 质量门槛：不达标不出数，宁缺毋滥 */
+  const days = lastNDays(28);
+  const raw = [];
+  days.forEach(k => {
+    const r = state.records[k];
+    if (r && typeof r[p] === 'number') raw.push({ t: parseKey(k).getTime() / 86400000, v: r[p] });
+  });
+  if (raw.length < 7) return null;
+  const pts = [];
+  for (let i = 6; i < raw.length; i++) {
+    const seg = raw.slice(i - 6, i + 1);
+    pts.push({ t: seg[seg.length - 1].t, v: seg.reduce((s, x) => s + x.v, 0) / seg.length });
+  }
+  if (pts.length < 5) return null;
+  const n = pts.length;
+  const mt = pts.reduce((s, x) => s + x.t, 0) / n, mv = pts.reduce((s, x) => s + x.v, 0) / n;
+  let num = 0, den = 0;
+  pts.forEach(x => { num += (x.t - mt) * (x.v - mv); den += (x.t - mt) * (x.t - mt); });
+  if (!den) return null;
+  const slope = num / den;
+  const ssTot = pts.reduce((s, x) => s + Math.pow(x.v - mv, 2), 0);
+  const ssRes = pts.reduce((s, x) => s + Math.pow(x.v - (mv + slope * (x.t - mt)), 2), 0);
+  const r2 = ssTot ? Math.max(0, 1 - ssRes / ssTot) : 0;
+  return { slope: slope, r2: r2, n: raw.length };
+}
+
+function goalRateOld(p) { /* 最近14天斜率 kg/天，用最小二乘 */
   const days = lastNDays(14);
   const pts = [];
   days.forEach((k, i) => {
@@ -1724,12 +1766,13 @@ function goalProgressHTML() {
   const rows = PERSON_IDS.map(p => {
     const g = state.goals[p];
     if (g === null || g === undefined) return '';
-    const start = firstKnown(p), cur = lastKnown(p);
-    if (!start || !cur) return '<div class="gp-row"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">记一笔体重后开始算进度</span></div>';
+    const peak = peakKnown(p), cur = lastKnown(p);
+    if (!peak || !cur) return '<div class="gp-row"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">记一笔体重后开始算进度</span></div>';
 
-    const done = start.value - cur;       /* 已减（正=瘦了） */
-    const need = start.value - g;         /* 总任务 */
-    if (need <= 0) return '<div class="gp-row"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">目标应低于起点，回设置里改一下</span></div>';
+    /* V78: 基准=历史最高。每个数字自带解释（从最高 X） */
+    const done = peak.value - cur;   /* 从峰值已减（≥0） */
+    const need = peak.value - g;           /* 总任务 */
+    if (need <= 0) return '<div class="gp-row"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span><span class="s-dim">目标应低于体重，回设置里改一下</span></div>';
 
     const pct = Math.max(0, Math.min(100, done / need * 100));
     const remain = cur - g;
@@ -1748,25 +1791,27 @@ function goalProgressHTML() {
           : '本周均比上周 ↑' + dw.toFixed(1) + '，波动很正常';
     }
 
-    /* 预测：只在实际稳定下降且结果不荒谬时才说 */
+    /* V78: 预测三态——稳定降=给周数（注明依据）/ 在涨=诚实说+建设性 / 数据乱=不猜 */
     let eta = '';
     if (remain <= 0.05) {
       eta = '<span class="gp-hit">目标已达成，保持住</span>';
     } else {
-      const rate = goalRate(p);
-      const rateW = rate !== null ? rate * 7 : null; /* kg/周 */
-      if (rateW !== null && rateW <= -0.15) {
-        const w = Math.ceil(remain / (-rateW));
-        if (w <= 26) eta = '按最近速度约 ' + w + ' 周达成';
-        else eta = weekly || '保持记录，让曲线说话';
+      const r2r = goalRate2(p);
+      if (r2r && r2r.r2 >= 0.45 && r2r.slope <= -0.02) {
+        const rateW = -r2r.slope * 7; /* kg/周，正=在减 */
+        const w = Math.ceil(remain / rateW);
+        if (w <= 52) eta = '按近 4 周趋势（-' + rateW.toFixed(2) + ' kg/周）约 ' + w + ' 周达成';
+        else eta = weekly || '趋势在但很慢 · 保持记录，让曲线说话';
+      } else if (r2r && r2r.r2 >= 0.45 && r2r.slope >= 0.02) {
+        eta = '最近一个月在涨（+' + (r2r.slope * 7).toFixed(2) + ' kg/周）· 回到下降趋势这里会自动出预测';
       } else {
-        eta = weekly || '保持记录，让曲线说话';
+        eta = r2r ? '波动太大，趋势还不够清晰 · 多记几天预测会更准' : (weekly || '再记几天就能预测了');
       }
     }
 
     return '<div class="gp-row">' +
       '<div class="gp-head"><span class="gp-name"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + '</span>' +
-      '<span class="gp-num">进度 ' + pct.toFixed(0) + '% · 已减 ' + Math.max(0, done).toFixed(1) + ' kg</span></div>' +
+      '<span class="gp-num">进度 ' + pct.toFixed(0) + '% · 从最高 ' + peak.value.toFixed(1) + ' 已减 ' + done.toFixed(1) + ' kg</span></div>' +
       '<div class="gbar"><div class="gfill" style="width:' + pct.toFixed(1) + '%;background:' + COLORS[p] + '"></div></div>' +
       '<div class="gp-foot"><span class="gp-eta">' + eta + '</span> <span class="s-dim">还差 ' + remain.toFixed(1) + ' kg · 目标 ' + g.toFixed(1) + '</span></div>' +
     '</div>';
