@@ -1299,3 +1299,13 @@ body::before{ display:none !important; content:none !important; }
 /* V77b: 扩展区输入框 placeholder 精简——框里只放「上次 数值」，名称靠上节说明+框外单位 */
 .x-input{ font-size:17px !important; }
 .x-input::placeholder{ font-size:13px; font-weight:500; color:var(--text3); letter-spacing:0; }
+
+/* ===== V78: 目标进度——生长动画+质感打磨 ===== */
+.goal-card .gfill{
+  animation: gbarGrow 1s cubic-bezier(.22,.9,.32,1) both;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 0 8px -2px currentColor;
+}
+@keyframes gbarGrow{ from{ width:0 !important; } }
+.gp-num{ font-variant-numeric: tabular-nums; }
+.gp-eta{ font-weight:600; }
+.gp-hit{ color:#34c759; font-weight:700; }
