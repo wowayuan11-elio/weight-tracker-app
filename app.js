@@ -16,8 +16,12 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V80';
+const APP_VERSION = 'V81';
 const CHANGELOG = [
+  { v: 'V81', d: '10月14日', items: [
+    '选中态全面清晰化：筛选标签选中变成深色实底反白，点了哪个一眼可见；跟练库顶部换成 iOS 分段控件',
+    '课程卡封面重做：大号时长数字做主角+双层光晕+斜纹肌理，不再是干巴巴的纯色块'
+  ]},
   { v: 'V80', d: '10月14日', items: [
     '跟练库上线：12 个 B 站人工核过的权威跟练视频（帕梅拉/周六野），点开直接播——燃脂HIIT/有氧舞蹈/腹肌马甲线/拉伸四大类',
     '全网找课：搜「减脂」等词，B站/知乎/小红书/抖音/快手/微博一键直达搜索结果；抖音小红书无开放接口，只能跳转直达（诚实说明）',
@@ -3617,13 +3621,13 @@ const FIT_LINKS = [
 const FIT_CAT_COLOR = { '燃脂HIIT': '#ff5a4e', '有氧舞蹈': '#ff8a3d', '腹肌马甲线': '#7c5cff', '低冲击友好': '#34a853', '拉伸放松': '#5aa0ff' };
 
 function fitHubBody() {
-  let h = '<div class="diet-tabs">' +
-    '<button class="set-chip' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">跟练视频</button>' +
-    '<button class="set-chip' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">36 个动作</button>' +
+  let h = '<div class="fit-seg" role="tablist">' +
+    '<button class="fit-seg-btn' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">▶ 跟练视频</button>' +
+    '<button class="fit-seg-btn' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">动作库 36</button>' +
     '</div>';
   if (fitTab === 'moves') return h + gymLibBody();
   /* 搜索框：内置库先查，全网一键直达 */
-  h += '<div class="fit-searchrow">' +
+  h += '<p class="fit-sec">想练什么，直接搜</p><div class="fit-searchrow">' +
     '<input class="text-input" id="fit-q" type="search" placeholder="搜：减脂 / 马甲线 / 拉伸…" value="' + esc(fitQ) + '" onkeydown="if(event.key===\'Enter\'){this.blur();document.querySelector(\'[data-action=fit-search]\').click()}">' +
     '<button class="btn sm" data-action="fit-search" style="width:auto">搜</button></div>';
   const q = fitQ.trim().toLowerCase();
@@ -3654,8 +3658,10 @@ function fitVideoCards(vs) {
     const open = fitOpenBv === v.bv && fitOpenCat === v.t;
     let h = '<div class="fit-card' + (open ? ' open' : '') + '">';
     h += '<button class="fit-cover" data-action="fit-open" data-bv="' + v.bv + '" data-t="' + esc(v.t) + '" style="--fitc:' + c + '">' +
+      '<span class="fit-min"><b>' + v.min + '</b><i>分钟</i></span>' +
       '<span class="fit-play">▶</span>' +
-      '<span class="fit-cat-chip" style="background:' + c + '">' + v.cat + '</span></button>';
+      '<span class="fit-lvl">' + v.lvl + '</span>' +
+      '<span class="fit-cat-chip">' + v.cat + '</span></button>';
     h += '<div class="fit-info"><b>' + esc(v.t) + '</b>' +
       '<div class="fit-meta"><span>' + v.by + '</span><span>' + v.min + ' 分钟</span><span>' + v.lvl + '</span><span>≈' + v.kcal + ' 大卡</span></div></div>';
     if (open) {
