@@ -16,8 +16,14 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V79';
+const APP_VERSION = 'V80';
 const CHANGELOG = [
+  { v: 'V80', d: '10月14日', items: [
+    '跟练库上线：12 个 B 站人工核过的权威跟练视频（帕梅拉/周六野），点开直接播——燃脂HIIT/有氧舞蹈/腹肌马甲线/拉伸四大类',
+    '全网找课：搜「减脂」等词，B站/知乎/小红书/抖音/快手/微博一键直达搜索结果；抖音小红书无开放接口，只能跳转直达（诚实说明）',
+    '权威知识卡：热量缺口/有氧+力量/局部减脂不存在/体重波动——都是公认口径，不是网上随便抄的',
+    '36 个动作库并入跟练库，健身内容从此一个入口'
+  ]},
   { v: 'V79', d: '10月14日', items: [
     '卡片边框回归，但重做成 1px 细线 hairline + 顶部内高光——有边界感但不廉价，柔影分层保留'
   ]},
@@ -2130,6 +2136,11 @@ function refreshOpenSheet() {
   if (!el || !el.classList.contains('show')) return false;
   if (curTrendSheet) { openTrendSheet(curTrendSheet); return true; }
   if (curStatSheet) { openStatSheet(curStatSheet); return true; }
+  /* V80: 健康营组件弹层也在刷新名单——漏了就是「点了没反应」重演 */
+  if (curWidget) {
+    const w = WIDGETS.find(x => x.id === curWidget);
+    if (w) { renderWidgetSheet(w.t); return true; }
+  }
   return false;
 }
 function openTrendSheet(key) { curTrendSheet = key; curStatSheet = null;
@@ -3571,6 +3582,90 @@ function genGymPlan() {
   days.push({ f: '休息日', ex: [{ t: '散步 / 拉伸', s: '每周休息 2 天，练得久才练得住' }] });
   return { gen: todayKey(), days };
 }
+/* ============ 跟练库（V80）：内置权威跟练视频 + 全网聚合搜索 ============
+   视频均为 B 站人工核过的正规教学（帕梅拉官方搬运/周六野），B 站官方播放器嵌入 */
+let fitTab = 'video', fitQ = '', fitCat = '全部', fitOpenBv = null, fitOpenCat = null, fitFactsOpen = false;
+const FIT_CATS = ['全部', '燃脂HIIT', '有氧舞蹈', '腹肌马甲线', '低冲击友好', '拉伸放松'];
+const FIT_VIDEOS = [
+  { bv: 'BV1yp4y1k7Gp', t: '20分钟全身初级 HIIT · 有休息', by: '帕梅拉', cat: '燃脂HIIT', min: 20, lvl: '入门', kcal: 180 },
+  { bv: 'BV1uc411W7Hd', t: '20分钟全身燃脂 · 初级无装备', by: '帕梅拉', cat: '燃脂HIIT', min: 20, lvl: '入门', kcal: 170 },
+  { bv: 'BV1kg4y1m7y5', t: '35分钟高效燃脂 + HIIT', by: '帕梅拉', cat: '燃脂HIIT', min: 35, lvl: '进阶', kcal: 320 },
+  { bv: 'BV117411q7et', t: '40分钟 HIIT · 消耗400大卡', by: '周六野Zoey', cat: '燃脂HIIT', min: 40, lvl: '进阶', kcal: 400 },
+  { bv: 'BV1wL9sYEE8t', t: '20分钟有氧两千步 · 暴汗燃脂', by: '帕梅拉', cat: '有氧舞蹈', min: 20, lvl: '入门', kcal: 150 },
+  { bv: 'BV1xV411C7e9', t: '15分钟舞蹈燃脂 · 新手友好', by: '帕梅拉', cat: '有氧舞蹈', min: 15, lvl: '入门', kcal: 110 },
+  { bv: 'BV1H7411E7uZ', t: '10分钟新手腹部训练', by: '帕梅拉', cat: '腹肌马甲线', min: 10, lvl: '入门', kcal: 70 },
+  { bv: 'BV1kA411q7cH', t: '10分钟腹部训练 · 练就钢铁核心', by: '帕梅拉', cat: '腹肌马甲线', min: 10, lvl: '中级', kcal: 80 },
+  { bv: 'BV1C14y157Kx', t: '20分钟腹部训练 · 15天马甲线', by: '帕梅拉', cat: '腹肌马甲线', min: 20, lvl: '进阶', kcal: 160 },
+  { bv: 'BV13L4y1g72R', t: '10分钟侧腰曲线 · 马甲线线条', by: '帕梅拉', cat: '腹肌马甲线', min: 10, lvl: '中级', kcal: 80 },
+  { bv: 'BV1X142147nu', t: '20分钟久坐全身拉伸 · 改善体态助眠', by: 'B站精选', cat: '拉伸放松', min: 20, lvl: '入门', kcal: 60 },
+  { bv: 'BV1Sx411r7yZ', t: '5分钟运动前后热身拉伸', by: '周六野Zoey', cat: '拉伸放松', min: 5, lvl: '入门', kcal: 20 }
+];
+const FIT_FACTS = [
+  { t: '减脂唯一原理：热量缺口', d: '每天少摄入 300~500 大卡，每周掉 0.5~1 斤是可持续速度。饿到掉头发那种会反弹。' },
+  { t: '有氧和力量要一起练', d: '有氧烧脂肪效率高；力量练肌肉守住基础代谢——减脂期不练力量，掉的是肌肉不是肥肉。' },
+  { t: '局部减脂不存在', d: '脂肪是全身一起消耗的，练哪瘦哪是伪科学。腹肌训练是练肌肉线条，减肚子靠整体缺口。' },
+  { t: '体重每天波动很正常', d: '盐吃多了、睡前喝水、生理期都会让体重涨 1 斤上下——看趋势（7天平均），别看单天数字。' }
+];
+const FIT_LINKS = [
+  { n: 'B站', u: 'https://search.bilibili.com/all?keyword=' },
+  { n: '知乎', u: 'https://www.zhihu.com/search?type=content&q=' },
+  { n: '小红书', u: 'https://www.xiaohongshu.com/search_result?keyword=' },
+  { n: '抖音', u: 'https://www.douyin.com/search/' },
+  { n: '快手', u: 'https://www.kuaishou.com/search/video?searchKey=' },
+  { n: '微博', u: 'https://s.weibo.com/weibo?q=' }
+];
+const FIT_CAT_COLOR = { '燃脂HIIT': '#ff5a4e', '有氧舞蹈': '#ff8a3d', '腹肌马甲线': '#7c5cff', '低冲击友好': '#34a853', '拉伸放松': '#5aa0ff' };
+
+function fitHubBody() {
+  let h = '<div class="diet-tabs">' +
+    '<button class="set-chip' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">跟练视频</button>' +
+    '<button class="set-chip' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">36 个动作</button>' +
+    '</div>';
+  if (fitTab === 'moves') return h + gymLibBody();
+  /* 搜索框：内置库先查，全网一键直达 */
+  h += '<div class="fit-searchrow">' +
+    '<input class="text-input" id="fit-q" type="search" placeholder="搜：减脂 / 马甲线 / 拉伸…" value="' + esc(fitQ) + '" onkeydown="if(event.key===\'Enter\'){this.blur();document.querySelector(\'[data-action=fit-search]\').click()}">' +
+    '<button class="btn sm" data-action="fit-search" style="width:auto">搜</button></div>';
+  const q = fitQ.trim().toLowerCase();
+  if (q) {
+    const hit = FIT_VIDEOS.filter(v => (v.t + v.by + v.cat).toLowerCase().indexOf(q) > -1);
+    h += hit.length ? '<p class="sub" style="margin:10px 2px 4px">内置库 ' + hit.length + ' 个 · 点开直接练</p>' + fitVideoCards(hit) : '';
+    h += '<div class="divider">全网找「' + esc(fitQ.trim()) + '」· 一键直达</div><div class="fit-links">' +
+      FIT_LINKS.map(l => '<a class="fit-link" href="' + l.u + encodeURIComponent(fitQ.trim()) + '" target="_blank" rel="noopener">' + l.n + ' ↗</a>').join('') + '</div>' +
+      '<p class="set-tip">抖音/小红书没有开放接口，App 里抓不了内容——点平台名直接跳到它们的搜索结果，看到好的视频号告诉我，我加进内置库</p>';
+    return h;
+  }
+  /* 无搜索词：分类浏览 */
+  h += '<div class="diet-tabs">' + FIT_CATS.map(c =>
+    '<button class="set-chip' + (fitCat === c ? ' on' : '') + '" data-action="fit-cat" data-c="' + c + '">' + c + '</button>').join('') + '</div>';
+  const vs = fitCat === '全部' ? FIT_VIDEOS : FIT_VIDEOS.filter(v => v.cat === fitCat);
+  h += vs.length ? fitVideoCards(vs) : '<p class="sub" style="margin:14px 2px">这个分类的视频还在核实中（宁缺毋滥）· 想现在练就用上面搜索直达全网</p>';
+  /* 权威知识卡 */
+  h += '<button class="btn ghost sm" data-action="fit-facts" style="width:auto;display:inline-block;padding:8px 12px;font-size:12.5px;margin-top:14px">' + (fitFactsOpen ? '收起' : '为什么跟这些视频有用？') + '</button>';
+  if (fitFactsOpen) {
+    h += '<div class="fit-facts">' + FIT_FACTS.map(f =>
+      '<div class="fit-fact"><b>' + f.t + '</b><span>' + f.d + '</span></div>').join('') + '</div>';
+  }
+  return h;
+}
+function fitVideoCards(vs) {
+  return '<div class="fit-list">' + vs.map(v => {
+    const c = FIT_CAT_COLOR[v.cat] || '#7c5cff';
+    const open = fitOpenBv === v.bv && fitOpenCat === v.t;
+    let h = '<div class="fit-card' + (open ? ' open' : '') + '">';
+    h += '<button class="fit-cover" data-action="fit-open" data-bv="' + v.bv + '" data-t="' + esc(v.t) + '" style="--fitc:' + c + '">' +
+      '<span class="fit-play">▶</span>' +
+      '<span class="fit-cat-chip" style="background:' + c + '">' + v.cat + '</span></button>';
+    h += '<div class="fit-info"><b>' + esc(v.t) + '</b>' +
+      '<div class="fit-meta"><span>' + v.by + '</span><span>' + v.min + ' 分钟</span><span>' + v.lvl + '</span><span>≈' + v.kcal + ' 大卡</span></div></div>';
+    if (open) {
+      h += '<div class="gym-video"><iframe src="https://player.bilibili.com/player.html?bvid=' + v.bv + '&autoplay=1&danmaku=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" title="' + esc(v.t) + ' 跟练视频"></iframe></div>' +
+        '<a class="btn ghost sm" href="https://www.bilibili.com/video/' + v.bv + '" target="_blank" rel="noopener" style="width:auto;display:inline-block;padding:8px 12px;font-size:12px;text-decoration:none;margin-top:8px">卡顿？去 B 站看原视频 ↗</a>';
+    }
+    return h + '</div>';
+  }).join('') + '</div>';
+}
+
 function gymMoveChip(m) {
   return '<button class="set-chip gym-chip" data-action="gym-open" data-id="' + m.id + '" data-back="' + (curWidget || 'gym-lib') + '">' + m.n + '<i>' + m.grp + '</i></button>';
 }
@@ -3760,8 +3855,8 @@ const WIDGET_ICONS = {
   remind: W_ICON('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>')
 };
 const WIDGETS = [
+  { id: 'fit-hub', t: '跟练库', sub: '权威视频直接练 · 全网找课' },
   { id: 'diet', t: '饮食日记', sub: '三餐+热量，减脂第一线' },
-  { id: 'gym-lib', t: '居家动作库', sub: '36 个动作 · 按部位筛选' },
   { id: 'gym-plan', t: '智能训练规划', sub: '按你的器械排一周' },
   { id: 'equip', t: '运动与器械', sub: '勾上家里有的，计划更准' },
   { id: 'trend', t: '趋势预测', sub: '几号到目标，按真实速度' },
@@ -3771,6 +3866,7 @@ const WIDGETS = [
 ];
 let curWidget = null, widgetBack = null;
 function openWidget(id) {
+  if (id === 'gym-lib') { id = 'fit-hub'; fitTab = 'moves'; } /* V80: 动作库并入跟练库 */
   const w = WIDGETS.find(x => x.id === id);
   if (!w) return;
   curWidget = id; widgetBack = null;
@@ -3792,7 +3888,8 @@ function renderWidgetSheet(title, backLabel) {
   if (backLabel) body += '<button class="btn ghost sm" data-action="widget-back" style="width:auto;display:inline-block;padding:7px 12px;font-size:12px;margin-bottom:10px">‹ ' + backLabel + '</button>';
   try {
     if (curWidget === 'diet') body += dietBody();
-    else if (curWidget === 'gym-lib') body += gymLibBody();
+    else if (curWidget === 'fit-hub') body += fitHubBody();
+    else if (curWidget === 'gym-lib') body += fitHubBody();
     else if (curWidget === 'gym-plan') body += gymPlanBody();
     else if (curWidget === 'equip') body += equipBody();
     else if (curWidget === 'trend') body += trendBody();
@@ -4213,6 +4310,11 @@ document.addEventListener('click', e => {
     else if (a === 'gym-open') {
       openGymSheet(act.getAttribute('data-id'), act.getAttribute('data-back'));
     }
+    else if (a === 'fit-tab') { fitTab = act.dataset.v === 'moves' ? 'moves' : 'video'; fitOpenBv = null; refreshOpenSheet(); }
+    else if (a === 'fit-cat') { fitCat = act.dataset.c; fitOpenBv = null; refreshOpenSheet(); }
+    else if (a === 'fit-open') { const bv = act.dataset.bv; const t = act.dataset.t; if (fitOpenBv === bv && fitOpenCat === t) { fitOpenBv = null; fitOpenCat = null; } else { fitOpenBv = bv; fitOpenCat = t; } refreshOpenSheet(); }
+    else if (a === 'fit-facts') { fitFactsOpen = !fitFactsOpen; refreshOpenSheet(); }
+    else if (a === 'fit-search') { fitQ = (document.getElementById('fit-q') || {}).value || ''; fitOpenBv = null; refreshOpenSheet(); }
     else if (a === 'gym-close') {
       document.getElementById('gym-sheet').classList.remove('show');
       document.getElementById('sheet-mask').classList.remove('show');
