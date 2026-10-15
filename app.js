@@ -16,7 +16,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V85';
+const APP_VERSION = 'V85d';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -26,6 +26,7 @@ const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c
 const CHANGELOG = [
   { v: 'V85b', d: '10月16日', items: [
     '打卡入口提到首页第一屏：体重录入区正下方，一键打卡不用进任何页面',
+    '训练日历上线（参考 Keep）：月历看每天打卡情况，点任何一天看当天练了什么，可翻月',
     '点条子看详情（圆点日历/撤销/说一句就记）'
   ]},
   { v: 'V85', d: '10月16日', items: [
@@ -3851,6 +3852,58 @@ function workoutDots() {
   return h;
 }
 const WORKOUT_DEFAULT = '健身棒上举20+前举20+下举20+单臂各5 · 俯卧撑30 · 胯下击掌60 · 提踵45';
+let wcalYM = null, wcalSel = null;
+const wkDateKey = d => d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+function workoutCalHTML() {
+  const now = parseKey(todayKey());
+  if (!wcalYM) wcalYM = { y: now.getFullYear(), m: now.getMonth() };
+  const tk = todayKey();
+  const first = new Date(wcalYM.y, wcalYM.m, 1);
+  const startPad = first.getDay();
+  const dim = new Date(wcalYM.y, wcalYM.m + 1, 0).getDate();
+  const isCurMonth = wcalYM.y === now.getFullYear() && wcalYM.m === now.getMonth();
+  let counted = 0;
+  for (let d = 1; d <= (isCurMonth ? now.getDate() : dim); d++) {
+    const r = state.records[wkDateKey(new Date(wcalYM.y, wcalYM.m, d))];
+    if (r && r.workout && r.workout.done) counted++;
+  }
+  const cntTxt = isCurMonth ? '这个月练了 ' + counted + ' 次（截至今天）' : '这个月练了 ' + counted + ' 次';
+  let cells = '';
+  for (let i = 0; i < startPad; i++) cells += '<span class="cal-cell cal-pad"></span>';
+  for (let d = 1; d <= dim; d++) {
+    const k = wkDateKey(new Date(wcalYM.y, wcalYM.m, d));
+    const r = state.records[k] || {};
+    const on = !!(r.workout && r.workout.done);
+    const future = k > tk;
+    const cls = 'cal-cell' + (k === tk ? ' cal-today' : '') + (k === wcalSel ? ' cal-sel' : '') + (future ? ' cal-future' : '');
+    cells += '<button class="' + cls + '" data-action="wcal-day" data-k="' + k + '"' + (future ? ' disabled' : '') + '>' +
+      '<span class="cal-d">' + d + '</span><span class="cal-dots"><i class="' + (on ? 'wcal-on' : '') + '"></i></span></button>';
+  }
+  let detailHTML = '';
+  if (wcalSel && wcalSel.slice(0, 7) === wcalYM.y + '-' + String(wcalYM.m + 1).padStart(2, '0')) {
+    const r = state.records[wcalSel] || {};
+    const dD = parseKey(wcalSel);
+    const w = r.workout || {};
+    detailHTML = '<div class="cal-detail">' +
+      '<div class="cdd-head"><b>' + (dD.getMonth() + 1) + '月' + dD.getDate() + '日 · ' + WEEK_LABELS[dD.getDay()] + ' 训练详情</b>' +
+        '<button class="cdd-close" data-action="wcal-close" aria-label="收起">✕</button></div>' +
+      (w.done
+        ? '<div class="cdd-person"><span class="wcal-badge">✓ 已打卡</span></div><p class="cdd-note">练了：' + esc(w.d || WORKOUT_DEFAULT) + '</p>'
+        : '<p class="s-dim" style="margin:4px 0 0">这天没练 · 想补打卡对 AI 管家说「补 ' + (dD.getMonth() + 1) + '月' + dD.getDate() + '日的健身」</p>') +
+    '</div>';
+  }
+  return '<div class="card">' +
+    '<div class="cal-head">' +
+      '<button class="cal-nav" data-action="wcal-prev" aria-label="上个月">‹</button>' +
+      '<div class="cal-title"><b>训练日历 · ' + wcalYM.y + ' 年 ' + (wcalYM.m + 1) + ' 月</b><span class="cal-count">' + cntTxt + '</span></div>' +
+      '<button class="cal-nav" data-action="wcal-next" aria-label="下个月">›</button>' +
+    '</div>' +
+    '<div class="cal-week">' + ['日','一','二','三','四','五','六'].map(w => '<span>' + w + '</span>').join('') + '</div>' +
+    '<div class="cal-grid">' + cells + '</div>' +
+    detailHTML +
+    '<p class="cal-legend">实心点 = 那天打了卡 · 点任何一天看当天练了什么</p>' +
+  '</div>';
+}
 function workoutCard() {
   const st = workoutStats();
   const rec = state.records[todayKey()] || {};
@@ -3874,6 +3927,7 @@ function workoutCard() {
 
 function fitHubBody() {
   let h = workoutCard();
+  h += '<div style="height:12px"></div>' + workoutCalHTML();
   h += '<div class="fit-seg" role="tablist" style="margin-top:12px">' +
     '<button class="fit-seg-btn' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">在家跟练</button>' +
     '<button class="fit-seg-btn' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">动作库 ' + GYM_MOVES.length + '</button>' +
@@ -4636,6 +4690,10 @@ document.addEventListener('click', e => {
     }
     else if (a === 'voice') { voiceStart(act.getAttribute('data-for') || 'ai-input'); }
     else if (a === 'wt-open-hub') { openWidget('fit-hub'); fitTab = 'video'; }
+    else if (a === 'wcal-prev') { wcalYM.m--; if (wcalYM.m < 0) { wcalYM.m = 11; wcalYM.y--; } wcalSel = null; refreshWorkoutUI(); }
+    else if (a === 'wcal-next') { wcalYM.m++; if (wcalYM.m > 11) { wcalYM.m = 0; wcalYM.y++; } wcalSel = null; refreshWorkoutUI(); }
+    else if (a === 'wcal-day') { wcalSel = act.getAttribute('data-k'); refreshWorkoutUI(); }
+    else if (a === 'wcal-close') { wcalSel = null; refreshWorkoutUI(); }
     else if (a === 'wt-punch') {
       const tk = todayKey();
       state.records[tk] = state.records[tk] || {};
