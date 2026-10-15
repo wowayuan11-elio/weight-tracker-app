@@ -16,11 +16,17 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V83';
+const APP_VERSION = 'V84';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const CHANGELOG = [
+  { v: 'V84', d: '10月15日', items: [
+    '跟练库重排：跟练视频（在家）与动作库分成两大板块，各管各的',
+    '动作库改成分区制：胸/背/肩/手臂/腿/臀/腹各一个区，一眼找到想练的部位',
+    '新增 14 个健身房器械动作（卧推/高位下拉/坐姿划船/腿举/罗马尼亚硬拉等），每个都配 B 站正规教学——教练频道逐一核实过',
+    '每个动作标注器械和场景：徒手/哑铃在家练，杠铃/器械去健身房'
+  ]},
   { v: 'V83', d: '10月15日', items: [
     'AI 管家入驻：能聊天、能帮你记体重/腰围/饮食、能改目标——说「帮我记今天午饭吃了三菜一汤」直接办妥',
     '语音说一句就记：点麦克风说话自动变文字（不支持的设备用键盘自带麦克风一样用）',
@@ -766,7 +772,64 @@ const GYM_MOVES = [
   { id: 'bearcrawl', n: '熊爬', grp: '全身', kind: 'core', need: null,
     sets: '3 组 × 爬 20-30 秒', rest: '组间休息 60 秒',
     tips: ['手膝着地微离地，像熊一样爬', '膝盖不着地，屁股别撅高', '全身核心肩带一起练，DNS 康复体系推荐'],
-    bv: 'BV1c34y1q73T', by: '康复学堂' }
+    bv: 'BV1c34y1q73T', by: '康复学堂' },
+  /* V84: 健身房器械动作（B站教学逐一核实：卓叔增重/ALEX健身频道/健助师小珂/Jeff Nippard搬运等） */
+  { id: 'bench-press', n: '杠铃卧推', grp: '胸部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
+    tips: ['肩胛骨后收下沉挺胸，双脚踩实地面，臀部全程贴凳', '杠铃下放到乳头上沿，小臂始终垂直地面，肘部约 45° 夹角', '推起时杠铃走一条微斜直线，顶端不锁肘悬停'],
+    bv: 'BV16i421h71B', by: '卓叔增重（54万播放）' },
+  { id: 'incline-db', n: '上斜哑铃卧推', grp: '胸部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['凳面调到 30-45°，太高会练到肩前束', '哑铃下放到胸口两侧，肘部略低于肩线', '顶端哑铃别相撞，保持胸部张力不卸'],
+    bv: 'BV1k5411m76e', by: '萝卜大神Robert' },
+  { id: 'cable-fly', n: '龙门架绳索夹胸', grp: '胸部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
+    tips: ['滑轮调到略高于肩，身体略前倾站稳', '肘部微屈角度全程不变，像抱一棵大树合拢', '合拢时挤压胸部 1 秒，回放要慢，别让配重片相撞'],
+    bv: 'BV1ZZ421N7T8', by: 'ALEX健身频道' },
+  { id: 'pec-deck', n: '蝴蝶机夹胸', grp: '胸部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
+    tips: ['座椅高度调到把手与胸口同高，背贴紧靠垫', '用肘部小臂发力合拢，不是用手抓把手硬掰', '中缝挤压感是关键，重量宁轻勿重'],
+    bv: 'BV1fqtGzXE3m', by: '古Gu教练' },
+  { id: 'lat-pulldown', n: '高位下拉', grp: '背部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['大腿压紧挡垫，上身略后倾约 15° 并固定', '先用肘往下「插」的意识启动，杠拉到锁骨附近', '背阔肌顶点挤压 1 秒，还原时完全伸展背阔肌'],
+    bv: 'BV1oa4y1z73J', by: 'ALEX健身频道（49万播放）' },
+  { id: 'seated-row', n: '坐姿划船', grp: '背部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['膝微屈，腰背挺直，躯干别前后大幅摇摆', '拉把手到腹部，肘部贴身往后收，肩胛骨夹紧', '还原时控制速度，肩胛骨充分前伸拉长背阔肌'],
+    bv: 'BV1m2421L7tw', by: 'ALEX健身频道' },
+  { id: 'pullup', n: '引体向上', grp: '背部', kind: 'strength', need: 'bar',
+    sets: '4 组 × 力竭（目标 5-8 个）', rest: '组间休息 90 秒',
+    tips: ['握距略宽于肩，先沉肩再启动，别耸肩', '想象肘部往下往里拉，下巴过杠即可', '下放控制 2-3 秒，做不了就用弹力带辅助或做离心'],
+    bv: 'BV1WF411b7jb', by: '曼巴yelomamba' },
+  { id: 'ohp', n: '杠铃站姿推肩', grp: '肩部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
+    tips: ['握距略宽于肩，杠放锁骨前，核心臀腿收紧像根柱子', '杠贴脸往上推，过头后微微后移把杠推到头顶正上方', '别塌腰借力——腰往前顶说明重量大了'],
+    bv: 'BV1jx4y1K7Jw', by: '运动科学' },
+  { id: 'lat-raise', n: '哑铃侧平举', grp: '肩部', kind: 'strength', need: 'dumb',
+    sets: '4 组 × 12-15 次', rest: '组间休息 45 秒',
+    tips: ['微屈肘并固定角度，向两侧抬到与肩同高', '想象用小指侧引领上抬，肩峰别耸起来', '下放慢 2-3 秒，中束的张力全在下放阶段'],
+    bv: 'BV1aQJKz6Ezj', by: '健助师_小珂（56万播放）' },
+  { id: 'leg-press', n: '倒蹬机腿举', grp: '腿部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 10-15 次', rest: '组间休息 90 秒',
+    tips: ['脚放踏板中上部与肩同宽，膝盖对准脚尖方向', '下放到大腿约贴胸口即可，臀部别离开座椅卷起来', '蹬起时膝盖别完全锁死，保持持续张力'],
+    bv: 'BV1gs4y167gt', by: 'ALEX健身频道' },
+  { id: 'rdl', n: '罗马尼亚硬拉', grp: '腿部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
+    tips: ['膝微屈固定不变，靠髋部往后折叠下放杠铃', '杠贴着大腿滑下去，感受大腿后侧被拉紧', '拉到腘绳肌极限（膝盖以下）就起，腰背始终平直'],
+    bv: 'BV1J3DaYWErt', by: 'Jeff Nippard（科学健身顶流·中文字幕）' },
+  { id: 'hack-squat', n: '哈克深蹲机', grp: '腿部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 10-12 次', rest: '组间休息 90 秒',
+    tips: ['背贴紧靠垫，脚位适中偏下，膝盖对脚尖', '下到大腿平行或略低，全程腰部不离开靠垫', '比自由深蹲友好，适合新手建立腿部力量'],
+    bv: 'BV1rr4y1e7Wq', by: 'SallyTalk' },
+  { id: 'barbell-curl', n: '杠铃弯举', grp: '手臂', kind: 'strength', need: 'gym',
+    sets: '3 组 × 10-12 次', rest: '组间休息 60 秒',
+    tips: ['肘部固定在身体两侧，只动前臂', '顶端用力挤压肱二头肌 1 秒，别甩腰借力', '下放慢速到底，手臂接近伸直再弯下一次'],
+    bv: 'BV1nb4y1M7By', by: '凯圣王（28万播放）' },
+  { id: 'rope-pushdown', n: '绳索下压（三头）', grp: '手臂', kind: 'strength', need: 'gym',
+    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
+    tips: ['大臂夹紧身体固定，只有肘关节在动', '下压到底时绳索往两侧分开，挤压三头 1 秒', '上身别前倾压重量，慢速还原到前臂贴近大臂'],
+    bv: 'BV1nVjEz5EBQ', by: 'Gandy__（17万播放）' },
 ];
 
 /* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
@@ -3715,8 +3778,8 @@ const FIT_CAT_COLOR = { '燃脂HIIT': '#ff5a4e', '有氧舞蹈': '#ff8a3d', '腹
 
 function fitHubBody() {
   let h = '<div class="fit-seg" role="tablist">' +
-    '<button class="fit-seg-btn' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">▶ 跟练视频</button>' +
-    '<button class="fit-seg-btn' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">动作库 36</button>' +
+    '<button class="fit-seg-btn' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">▶ 在家跟练</button>' +
+    '<button class="fit-seg-btn' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">🏋 动作库 ' + GYM_MOVES.length + '</button>' +
     '</div>';
   if (fitTab === 'moves') return h + gymLibBody();
   /* 搜索框：内置库先查，全网一键直达 */
@@ -3768,20 +3831,48 @@ function fitVideoCards(vs) {
 function gymMoveChip(m) {
   return '<button class="set-chip gym-chip" data-action="gym-open" data-id="' + m.id + '" data-back="' + (curWidget || 'gym-lib') + '">' + m.n + '<i>' + m.grp + '</i></button>';
 }
-/* V66: 动作库（部位筛选 + 全部展示） */
+/* V84: 动作库（场景+部位 双筛选，分区行式列表） */
 let gymFilter = '全部';
+let gymScene = 'all';
+const GYM_HOME_NEEDS = [null, 'dumb', 'band', 'jump', 'bar'];
+const GYM_NEED_NAME = { dumb: '哑铃', band: '弹力带', jump: '跳绳', bar: '单杠', gym: '健身房器械' };
+function gymSceneOf(m) { return GYM_HOME_NEEDS.indexOf(m.need) > -1 ? 'home' : 'gym'; }
+function gymNeedName(m) { return m.need ? (GYM_NEED_NAME[m.need] || m.need) : '徒手'; }
 const GYM_CATS = ['全部', '腹肌', '腿部', '臀部', '胸部', '背部', '肩部', '手臂', '有氧', '全身'];
 function gymLibBody() {
-  let h = '<p class="sub">每个动作都配了 B 站正规教学视频（教练/康复师人工核过）· 几组几次几点休息都写清了 · 点动作看视频</p>';
+  let h = '<p class="sub">每个动作配 B 站正规教学视频（教练/科学健身频道逐一核实）· 点动作看视频，组次休息都写清</p>';
+  /* 场景：在家 / 健身房 */
+  h += '<div class="fit-seg" role="tablist">' +
+    '<button class="fit-seg-btn' + (gymScene === 'all' ? ' on' : '') + '" data-action="gym-scene" data-v="all">全部 ' + GYM_MOVES.length + '</button>' +
+    '<button class="fit-seg-btn' + (gymScene === 'home' ? ' on' : '') + '" data-action="gym-scene" data-v="home">🏠 在家练</button>' +
+    '<button class="fit-seg-btn' + (gymScene === 'gym' ? ' on' : '') + '" data-action="gym-scene" data-v="gym">🏋 健身房</button>' +
+    '</div>';
+  /* 部位筛选 */
   h += '<div class="diet-tabs">' + GYM_CATS.map(c =>
     '<button class="set-chip' + (gymFilter === c ? ' on' : '') + '" data-action="gym-filter" data-c="' + c + '">' + c + '</button>').join('') + '</div>';
-  const ms = gymFilter === '全部' ? GYM_MOVES : GYM_MOVES.filter(m => m.grp === gymFilter);
-  if (!ms.length) h += '<p class="sub">这个部位还没录，先用相邻部位练</p>';
-  else {
-    h += '<p class="sub" style="margin:10px 2px 4px">' + gymFilter + ' · ' + ms.length + ' 个动作</p>';
-    h += '<div class="gym-chips">' + ms.map(gymMoveChip).join('') + '</div>';
+  const pool = GYM_MOVES.filter(m => (gymScene === 'all' || gymSceneOf(m) === gymScene) && (gymFilter === '全部' || m.grp === gymFilter));
+  if (!pool.length) {
+    h += '<p class="sub" style="margin:14px 2px">这个组合暂时没动作——换个部位或场景看看</p>';
+  } else if (gymFilter !== '全部') {
+    h += gymSection(gymFilter, pool);
+  } else {
+    /* 部位分区：胸→背→肩→手臂→腿→臀→腹肌→全身→有氧 */
+    GYM_CATS.filter(c => c !== '全部').forEach(c => {
+      const ms = pool.filter(m => m.grp === c);
+      if (ms.length) h += gymSection(c, ms);
+    });
   }
   h += '<p class="set-tip">腹部新手路径：卷腹摸膝 → 卷腹 → 反向卷腹 → 空中蹬车 → 平板支撑，每组都能保证动作质量再加难度</p>';
+  return h;
+}
+function gymSection(title, ms) {
+  let h = '<div class="gym-sec">';
+  h += '<div class="gym-sec-h"><b>' + title + '</b><span>' + ms.length + ' 个动作</span></div>';
+  h += ms.map(m =>
+    '<button class="gym-row" data-action="gym-open" data-id="' + m.id + '" data-back="' + (curWidget || 'gym-lib') + '">' +
+    '<span class="gym-row-t"><b>' + m.n + '</b><em>' + gymNeedName(m) + ' · ' + m.sets + '</em></span>' +
+    '<i class="gym-row-p">▶</i></button>').join('');
+  h += '</div>';
   return h;
 }
 /* V62: 训练规划内容 */
@@ -4445,6 +4536,10 @@ document.addEventListener('click', e => {
       toast('已切换到 ' + nxt + '（更强更聪明，稍慢一点点）');
     }
     else if (a === 'voice') { voiceStart(act.getAttribute('data-for') || 'ai-input'); }
+    else if (a === 'gym-scene') {
+      gymScene = act.getAttribute('data-v') || 'all';
+      renderWidgetSheet(curWidget === 'gym-lib' ? '居家动作库' : '跟练库');
+    }
     else if (a === 'gym-filter') {
       gymFilter = act.getAttribute('data-c') || '全部';
       renderWidgetSheet('居家动作库');
