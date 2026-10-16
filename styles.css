@@ -1574,3 +1574,42 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .as-shi.no em{ color:#C0392B; }
 .as-shi i{ display:block; font-style:normal; font-size:9.5px; color:var(--t-dim); margin-top:3px; line-height:1.4; }
 .as-rel-h .as-sel{ max-width:96px; }
+
+/* ===== V89: 星座板块 ===== */
+.zx-hero{ background:linear-gradient(160deg,#F3EFFE 0%,#FDF2F8 100%); }
+.zx-hero-top{ display:flex; gap:14px; align-items:center; }
+.zx-badge{ width:78px; height:78px; border-radius:20px; background:linear-gradient(135deg,#8B5CF6 0%,#D946EF 100%); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.zx-emoji{ font-size:40px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.2)); }
+.zx-hero-name b{ display:block; font-size:26px; line-height:1.2; }
+.zx-hero-name span{ font-size:13px; color:var(--t-dim); letter-spacing:2px; }
+.zx-range{ display:inline-block; font-style:normal; font-size:13px; font-weight:700; background:#EDE9FE; color:#7C3AED; padding:5px 12px; border-radius:9px; margin-top:7px; }
+.zx-facts{ display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+.zx-fact{ background:rgba(255,255,255,.8); border-radius:12px; padding:11px 14px; }
+.zx-fact span{ display:block; font-size:11.5px; color:var(--t-dim); }
+.zx-fact b{ display:block; font-size:16px; margin:3px 0 2px; }
+.zx-fact i{ font-style:normal; font-size:11.5px; color:var(--t-dim); }
+.zx-kw{ margin-top:14px; }
+.zx-kw p.card-label{ margin-bottom:8px; }
+.zx-kw-chip{ background:#F3EEFB; color:#5B3E9E; }
+.zx-switch{ display:flex; align-items:center; gap:6px; margin-top:12px; }
+.zx-sect{ display:flex; justify-content:space-between; align-items:center; margin:18px 2px 10px; }
+.zx-sect .card-label{ margin:0; }
+.zx-luck-grid{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.zx-luck{ background:#FFFFFF; border:1px solid #EBEDF1; border-radius:14px; padding:16px 10px; text-align:center; }
+.zx-luck-emoji{ display:block; font-size:26px; margin-bottom:6px; }
+.zx-luck b{ display:block; font-size:15px; margin-top:2px; }
+.zx-chart-txt .as-fact b{ font-weight:600; font-size:13px; line-height:1.7; }
+.zx-fort{ background:linear-gradient(150deg,#F6F1FC 0%,#FDF4F8 100%); }
+.zx-fort-top{ display:flex; gap:14px; align-items:center; }
+.zx-ring{ width:96px; height:96px; border-radius:50%; background:conic-gradient(#8B5CF6 var(--p), #EBEDF1 0); display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; position:relative; }
+.zx-ring::before{ content:''; position:absolute; inset:7px; background:#fff; border-radius:50%; }
+.zx-ring b{ position:relative; font-size:26px; color:#8B5CF6; line-height:1; }
+.zx-ring i{ position:relative; font-style:normal; font-size:10px; color:var(--t-dim); }
+.zx-fort-txt{ flex:1; min-width:0; }
+.zx-fort-label{ display:block; font-size:19px; margin:3px 0 5px; }
+.zx-bars{ margin-top:14px; display:flex; flex-direction:column; gap:9px; }
+.zx-bar-row{ display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.85); border-radius:11px; padding:10px 12px; }
+.zx-bar-l{ font-size:13px; font-weight:600; width:86px; flex-shrink:0; }
+.zx-bar-v{ font-size:16px; width:30px; text-align:right; flex-shrink:0; }
+.zx-bar{ flex:1; height:9px; background:#EDEFF3; border-radius:6px; overflow:hidden; }
+.zx-bar-fill{ height:100%; border-radius:6px; }
