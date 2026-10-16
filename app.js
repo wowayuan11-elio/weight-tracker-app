@@ -16,7 +16,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V90';
+const APP_VERSION = 'V91';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -24,6 +24,10 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V91', d: '10月17日', items: [
+    '宜忌每条自带白话翻译（术语在上、大白话在下），原文对照不用再点切换',
+    '彭祖百忌口诀配白话直译；顶部「原版/白话」开关删除——对比就在眼前，零切换'
+  ]},
   { v: 'V90', d: '10月17日', items: [
     '深色模式全面适配：手机黑色模式下黄历/星座全部清晰可读（贴纸卡文字锁定+变量名归位+浅底降亮度）'
   ]},
@@ -3815,6 +3819,8 @@ const JC_TABLE = [
 const HUANGDAO = [0,1,4,5,7,10]; /* 青龙0 明堂1 金匮4 天德5 玉堂7 司命10 为黄道 */
 const QD12 = ['青龙','明堂','天刑','朱雀','金匮','天德','白虎','玉堂','天牢','玄武','司命','勾陈'];
 const QD_START = { 0: 8, 1: 10, 2: 0, 3: 2, 4: 4, 5: 6, 6: 8, 7: 10, 8: 0, 9: 2, 10: 4, 11: 6 }; /* 月支/日支→青龙起支：(z*2+8)%12，协纪辨方书起例 */
+const PG_GAN_BAI = ['今天别开仓出货，容易破财','今天别种花栽树，难活','今天别动厨房灶台','今天别剃头','今天别买地置产','今天别签合同，容易两败俱伤','今天别赶工开新线','今天别腌制发酵东西','今天别放水开渠，防出岔子','今天别打官司，理亏难赢'];
+const PG_ZHI_BAI = ['今天别求签问卜，自寻烦恼','今天别正装赴宴远行','今天别祭拜','今天别打井挖泉','今天别大悲大哭','今天别出远门，管好财物','今天别盖屋顶动房顶','今天别乱吃药','今天别安新床','今天别宴请贪杯','今天别吃狗肉','今天别办婚事'];
 const PG_GAN = ['甲不开仓财物耗散','乙不栽植千株不长','丙不修灶必见灾殃','丁不剃头头必生疮','戊不受田田主不祥','己不破券二比并亡','庚不经络织机虚张','辛不合酱主人不尝','壬不泱水更难提防','癸不词讼理弱敌强'];
 const PG_ZHI = ['子不问卜自惹祸殃','丑不冠带主不还乡','寅不祭祀神鬼不尝','卯不穿井水泉不香','辰不哭泣必主重丧','巳不远行财物伏藏','午不苫盖屋主更张','未不服药毒气入肠','申不安床鬼祟入房','酉不会客醉坐颠狂','戌不吃犬作怪上床','亥不嫁娶不利新郎'];
 function dayAstro(k) {
@@ -4133,9 +4139,7 @@ function astroBody() {
   /* ---- 今日大卡 ---- */
   const yIdx = yearGZIdx(p);
   const luTxt = lu ? lu.mon + '月' + lu.day : '';
-  h += '<div class="card as-today"><div class="as-today-h"><b>今日</b>' +
-    '<div class="fit-seg as-seg"><button class="fit-seg-btn' + (!astroPlain ? ' on' : '') + '" data-action="astro-plain" data-v="0">原版</button>' +
-    '<button class="fit-seg-btn' + (astroPlain ? ' on' : '') + '" data-action="astro-plain" data-v="1">白话</button></div></div>' +
+  h += '<div class="card as-today"><div class="as-today-h"><b>今日黄历</b><span class="as-wx-sub">' + da.jc + '日 · ' + (da.isHuang ? '黄道 ' + da.qd : '黑道 ' + da.qd) + '</span></div>' +
     '<div class="as-big"><div class="as-date">' +
     '<span class="as-ym">' + p.getFullYear() + '年' + (p.getMonth() + 1) + '月 · ' + WEEK_LABELS[p.getDay()] + '</span>' +
     '<b class="as-num">' + p.getDate() + '</b>' +
@@ -4190,18 +4194,19 @@ function astroBody() {
   /* ---- 宜 · 忌 ---- */
   const jcT = JC_FULL[da.jcIdx];
   const chip = function (arr, cls) {
-    return '<div class="as-chips">' + arr.map(function (t) {
-      return '<span class="as-chip ' + cls + '">' + (astroPlain ? baihua(t) : t) + '</span>';
+    return '<div class="as-yj-grid">' + arr.map(function (t) {
+      const bai = baihua(t);
+      return '<div class="as-yj-item ' + cls + '"><b>' + t + '</b>' + (bai !== t ? '<i>' + bai + '</i>' : '') + '</div>';
     }).join('') + '</div>';
   };
-  h += '<div class="card"><h3 class="card-label">宜 · 忌<span class="as-wx-sub"> 建除十二神 · ' + da.jc + '日' + (astroPlain ? ' · 白话版' : '') + '</span></h3>' +
+  h += '<div class="card"><h3 class="card-label">宜 · 忌<span class="as-wx-sub"> 建除十二神 · ' + da.jc + '日 · 每条都带白话</span></h3>' +
     '<div class="as-yj-head yi"><b>宜</b>今日适合</div>' + chip(jcT.yi, 'ok') +
     '<div class="as-yj-head ji"><b>忌</b>今日避开</div>' + chip(jcT.ji, 'no') + '</div>';
   /* ---- 彭祖百忌 ---- */
-  h += '<div class="card"><h3 class="card-label">彭祖百忌</h3><div class="as-pg-box">' +
-    '<div class="as-pg-row"><b>【' + gz[0] + '】</b>' + PG_GAN[da.gan] + '</div>' +
-    '<div class="as-pg-row"><b>【' + gz[1] + '】</b>' + PG_ZHI[da.zhi] + '</div></div>' +
-    '<p class="as-src">按日干、日支各取一条 · 传统通书标准口诀</p></div>';
+  h += '<div class="card"><h3 class="card-label">彭祖百忌<span class="as-wx-sub"> 口诀 + 白话</span></h3><div class="as-pg-box">' +
+    '<div class="as-pg-row"><b>【' + gz[0] + '】</b><span class="as-pg-txt">' + PG_GAN[da.gan] + '</span><i>' + PG_GAN_BAI[da.gan] + '</i></div>' +
+    '<div class="as-pg-row"><b>【' + gz[1] + '】</b><span class="as-pg-txt">' + PG_ZHI[da.zhi] + '</span><i>' + PG_ZHI_BAI[da.zhi] + '</i></div></div>' +
+    '<p class="as-src">按日干、日支各取一条 · 传统通书标准口诀，白话为直译</p></div>';
   /* ---- 冲煞方位 ---- */
   const chongZ2 = (da.zhi + 6) % 12;
   h += '<div class="card"><h3 class="card-label">冲煞方位</h3><div class="as-pq-grid">' +
@@ -5309,7 +5314,6 @@ document.addEventListener('click', e => {
     else if (a === 'astro-next') { astroYM.m++; if (astroYM.m > 11) { astroYM.m = 0; astroYM.y++; } astroDay = null; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
     else if (a === 'astro-day') { astroDay = act.getAttribute('data-k'); if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
     else if (a === 'astro-close') { astroDay = null; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
-    else if (a === 'astro-plain') { astroPlain = act.getAttribute('data-v') === '1'; if (curWidget === 'astro') renderWidgetSheet('黄道吉日'); }
     else if (a === 'zx-repull') { zxLuckSeed++; if (curWidget === 'zodiac') renderWidgetSheet('星座运势'); }
     else if (a === 'wcal-prev') { wcalYM.m--; if (wcalYM.m < 0) { wcalYM.m = 11; wcalYM.y--; } wcalSel = null; refreshWorkoutUI(); }
     else if (a === 'wcal-next') { wcalYM.m++; if (wcalYM.m > 11) { wcalYM.m = 0; wcalYM.y++; } wcalSel = null; refreshWorkoutUI(); }
