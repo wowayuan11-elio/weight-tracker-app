@@ -16,7 +16,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V87d';
+const APP_VERSION = 'V88';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -24,6 +24,11 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V88', d: '10月17日', items: [
+    '黄历全面升级（对齐你做的工作台版式）：今日大卡带农历+红月牌，干支四柱+五行能量+脏腑，属相今日冲合+建议',
+    '宜忌标准术语胶囊（可切白话），彭祖百忌独立卡，冲煞方位（冲/煞/喜神/财神），十二时辰吉凶',
+    '农历表内置寿星天文历数据（2025-2028），九月初八与你的工作台逐字对上'
+  ]},
   { v: 'V87d', d: '10月17日', items: [
     '补打卡直达：训练日历点没练的日子，就地填一句+补打卡，不用绕 AI 管家',
     '补错可撤销；连续/周目标/日历即时刷新'
@@ -3801,7 +3806,7 @@ const JC_TABLE = [
 ];
 const HUANGDAO = [0,1,4,5,7,10]; /* 青龙0 明堂1 金匮4 天德5 玉堂7 司命10 为黄道 */
 const QD12 = ['青龙','明堂','天刑','朱雀','金匮','天德','白虎','玉堂','天牢','玄武','司命','勾陈'];
-const QD_START = { 0: 8, 1: 2, 2: 2, 3: 4, 4: 4, 5: 6, 6: 6, 7: 8, 8: 8, 9: 10, 10: 10, 11: 0 }; /* 月支→青龙起日支 */
+const QD_START = { 0: 8, 1: 10, 2: 0, 3: 2, 4: 4, 5: 6, 6: 8, 7: 10, 8: 0, 9: 2, 10: 4, 11: 6 }; /* 月支/日支→青龙起支：(z*2+8)%12，协纪辨方书起例 */
 const PG_GAN = ['甲不开仓财物耗散','乙不栽植千株不长','丙不修灶必见灾殃','丁不剃头头必生疮','戊不受田田主不祥','己不破券二比并亡','庚不经络织机虚张','辛不合酱主人不尝','壬不泱水更难提防','癸不词讼理弱敌强'];
 const PG_ZHI = ['子不问卜自惹祸殃','丑不冠带主不还乡','寅不祭祀神鬼不尝','卯不穿井水泉不香','辰不哭泣必主重丧','巳不远行财物伏藏','午不苫盖屋主更张','未不服药毒气入肠','申不安床鬼祟入房','酉不会客醉坐颠狂','戌不吃犬作怪上床','亥不嫁娶不利新郎'];
 function dayAstro(k) {
@@ -3871,6 +3876,100 @@ const SHENGXIAO = [
 const SX_YEAR = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
 function sxByYear(y) { return (y - 4) % 12; } /* 1999→(1995)%12=3→兔 */
 const NYN2 = { '戊寅': '城头土', '己卯': '城头土', '庚辰': '白蜡金', '辛巳': '白蜡金', '丙戌': '屋上土', '丁亥': '屋上土', '甲戌': '山头火', '乙亥': '山头火', '甲辰': '覆灯火', '乙巳': '覆灯火' };
+
+/* ============ 黄历扩展数据（V88，展示结构对齐 TA 工作台） ============ */
+const LUNAR_TBL = '2025.01.29|正|30;2025.02.28|二|29;2025.03.29|三|30;2025.04.28|四|29;2025.05.27|五|29;2025.06.25|六|30;2025.07.25|闰六|29;2025.08.23|七|30;2025.09.22|八|29;2025.10.21|九|30;2025.11.20|十|30;2025.12.20|冬|30;2026.01.19|腊|29;2026.02.17|正|30;2026.03.19|二|29;2026.04.17|三|30;2026.05.17|四|29;2026.06.15|五|29;2026.07.14|六|30;2026.08.13|七|29;2026.09.11|八|29;2026.10.10|九|30;2026.11.09|十|30;2026.12.09|冬|30;2027.01.08|腊|29;2027.02.06|正|30;2027.03.08|二|30;2027.04.07|三|29;2027.05.06|四|30;2027.06.05|五|29;2027.07.04|六|29;2027.08.02|七|30;2027.09.01|八|29;2027.09.30|九|29;2027.10.29|十|30;2027.11.28|冬|30;2027.12.28|腊|29;2028.01.26|正|30;2028.02.25|二|30;2028.03.26|三|30;2028.04.25|四|29;2028.05.24|五|30;2028.06.23|闰五|29;2028.07.22|六|29;2028.08.20|七|30;2028.09.19|八|29;2028.10.18|九|29;2028.11.16|十|30;2028.12.16|冬|30';
+const LUNAR_ROWS = (function () {
+  return LUNAR_TBL.split(';').map(function (line) {
+    const a = line.split('|');
+    const d = a[0].split('.');
+    return { d: new Date(+d[0], +d[1] - 1, +d[2]).getTime(), n: a[1], s: +a[2] };
+  });
+})();
+const LCN = ['一','二','三','四','五','六','七','八','九','十'];
+function lunarOf(k) {
+  const t = parseKey(k).getTime();
+  let cur = null, nxt = null;
+  for (let i = 0; i < LUNAR_ROWS.length; i++) {
+    if (LUNAR_ROWS[i].d <= t && (i + 1 === LUNAR_ROWS.length || LUNAR_ROWS[i + 1].d > t)) { cur = LUNAR_ROWS[i]; nxt = LUNAR_ROWS[i + 1]; break; }
+  }
+  if (!cur) return null;
+  const day = Math.round((t - cur.d) / 86400000) + 1;
+  let ds;
+  if (day <= 10) ds = '初' + LCN[day - 1];
+  else if (day === 20) ds = '二十';
+  else if (day === 30) ds = '三十';
+  else if (day < 20) ds = '十' + LCN[day - 11];
+  else ds = '二十' + LCN[day - 21];
+  return { mon: cur.n, day: ds, n: day };
+}
+function yearGZIdx(p) {
+  const mo = p.getMonth() + 1, dd = p.getDate();
+  const y = (mo < 2 || (mo === 2 && dd < 4)) ? p.getFullYear() - 1 : p.getFullYear();
+  return { g: (y - 4) % 10, z: (y - 4) % 12 };
+}
+const GAN5 = '木木火火土土金金水水';
+const ZHI5 = '水土木木土火火土金金土水';
+const NY30 = ['海中金','炉中火','大林木','路旁土','剑锋金','山头火','涧下水','城头土','白蜡金','杨柳木','泉中水','屋上土','霹雳火','松柏木','长流水','沙中金','山下火','平地木','壁上土','金箔金','覆灯火','天河水','大驿土','钗钏金','桑柘木','大溪水','沙中土','天上火','石榴木','大海水'];
+function nayinOf(gan, zhi) {
+  for (let i = 0; i < 60; i++) if (i % 10 === gan && i % 12 === zhi) return NY30[i >> 1];
+  return '';
+}
+const WX_ORGANS = [['金','肺·大肠','#F5EEDC'],['木','肝·胆','#E4F1E4'],['水','肾·膀胱','#E3ECF8'],['火','心·小肠','#FBE9E4'],['土','脾·胃','#F3EEE7']];
+const SX_LH = { 0: 1, 1: 0, 2: 11, 11: 2, 3: 10, 10: 3, 4: 9, 9: 4, 5: 8, 8: 5, 6: 7, 7: 6 }; /* 六合：子丑 寅亥 卯戌 辰酉 巳申 午未 */
+const SX_HAI = { 0: 7, 7: 0, 1: 6, 6: 1, 2: 5, 5: 2, 3: 4, 4: 3, 8: 11, 11: 8, 9: 10, 10: 9 };
+const SANHE_GRP = [[8, 0, 4], [5, 9, 1], [2, 6, 10], [11, 3, 7]];
+function sxRelation(dayZhi, myZhi) {
+  const rel = [];
+  if (dayZhi === myZhi) rel.push('同属');
+  if (SX_LH[myZhi] === dayZhi) rel.push('六合');
+  if (SANHE_GRP.some(g => g.indexOf(myZhi) > -1 && g.indexOf(dayZhi) > -1 && myZhi !== dayZhi)) rel.push('三合');
+  if ((myZhi + 6) % 12 === dayZhi) rel.push('六冲');
+  if (SX_HAI[myZhi] === dayZhi) rel.push('相害');
+  if ((myZhi === 0 && dayZhi === 3) || (myZhi === 3 && dayZhi === 0)) rel.push('相刑');
+  if ((myZhi === 2 && dayZhi === 5) || (myZhi === 5 && dayZhi === 2)) rel.push('相刑');
+  if ((myZhi === 1 && dayZhi === 10) || (myZhi === 10 && dayZhi === 1)) rel.push('相刑');
+  return rel;
+}
+const REL_ADVICE = {
+  '六冲': '诸事多变，大事别今天拍板，稳字当头',
+  '相刑': '容易较劲内耗，凡事求稳，说话过脑，低调行事，勿替人担保',
+  '相害': '提防口舌是非，话到嘴边留三分',
+  '六合': '贵人缘旺，适合主动约人谈事，推进计划',
+  '三合': '合作运顺，拉上搭子一起干更容易成',
+  '同属': '本命日，情绪易起伏，照常节奏走就好',
+  '无': '平平常常的一天，按自己的计划走就行'
+};
+const REL_LEVEL = { '六冲': ['忌', '#C0392B'], '相刑': ['注意', '#E67E22'], '相害': ['注意', '#E67E22'], '六合': ['吉', '#27864A'], '三合': ['顺', '#27864A'], '同属': ['本命日', '#8E6FB8'], '无': ['平', '#667'] };
+const JC_FULL = [
+  { yi: ['出行','上任','会友','立券','交易'], ji: ['动土','开仓'] },
+  { yi: ['沐浴','清洁','求医','治病','除旧布新'], ji: ['开市','嫁娶'] },
+  { yi: ['祭祀','祈福','纳畜','栽种','牧养','纳财','开市','立券','交易','纳采','订货','收债','进人口'], ji: ['安葬','服药'] },
+  { yi: ['修造','饰垣','平治道涂'], ji: ['词讼'] },
+  { yi: ['订盟','纳采','签约','安床','立券','交易'], ji: ['诉讼','远行'] },
+  { yi: ['捕捉','立券','专注攻坚'], ji: ['搬迁','开市'] },
+  { yi: ['拆卸','破屋','求医','治病'], ji: ['嫁娶','开市','出行','签约'] },
+  { yi: ['安床','置产','祭祀'], ji: ['登高','行船','冒险'] },
+  { yi: ['开市','立券','交易','嫁娶','入宅','签约','纳财'], ji: ['词讼'] },
+  { yi: ['纳财','收账','入学','纳畜','立券'], ji: ['安葬','行丧'] },
+  { yi: ['开市','开工','移徙','入宅','求医','出行'], ji: ['安葬'] },
+  { yi: ['安葬','修坟','筑堤','补垣','塞穴'], ji: ['开市','出行','问病'] }
+];
+const TERM_BAI = { '出行':'出门远行','上任':'入职到岗','会友':'约朋友','立券':'签合同','交易':'做买卖','动土':'动土施工','开仓':'开仓出货','沐浴':'洗头洗澡','清洁':'大扫除','求医':'去看病','治病':'治疗','除旧布新':'断舍离','开市':'开业开张','嫁娶':'办喜事','祭祀':'拜拜祈福','祈福':'求好运','纳畜':'添宠物','栽种':'种绿植','牧养':'养宠','纳财':'收钱进账','纳采':'提亲定亲','订货':'下订单','收债':'收欠款','进人口':'添丁进门','安葬':'下葬','服药':'吃药','修造':'装修修补','饰垣':'粉刷墙','平治道涂':'修路整院','词讼':'打官司','诉讼':'打官司','远行':'出远门','订盟':'订约定盟','签约':'签合同','安床':'安置床铺','捕捉':'抓虫灭鼠','专注攻坚':'啃硬骨头','搬迁':'搬家','拆卸':'拆旧','破屋':'破旧改造','置产':'买房置地','登高':'登高冒险','行船':'坐船水路','冒险':'冒险行事','入宅':'搬新家','纳采2':'提亲','收账':'收欠款','入学':'报名开学','开工':'动工','移徙':'搬家','修坟':'修整坟墓','筑堤':'修堤坝','补垣':'补墙','塞穴':'堵洞','问病':'探病' };
+function baihua(t) { return TERM_BAI[t] || t; }
+const ZHI_SHA = function (z) { return ([8,0,4].indexOf(z)>-1)?'南':([5,9,1].indexOf(z)>-1)?'东':([2,6,10].indexOf(z)>-1)?'北':'西'; };
+const XI_FANG = ['东北','西北','西南','正南','东南','东北','西北','西南','正南','东南'];
+const CAI_FANG = ['东北','东北','西南','西南','正北','正北','正东','正东','正南','正南'];
+const SHI12 = [
+  { g: 1, d: '祈福·嫁娶' }, { g: 1, d: '修造·安葬' }, { g: 0, d: '诸事不宜' },
+  { g: 0, d: '口舌是非，大事勿用' }, { g: 1, d: '订婚·嫁娶' }, { g: 1, d: '祭祀·祈福' },
+  { g: 0, d: '诸事不宜' }, { g: 1, d: '修造·盖屋' }, { g: 0, d: '诸事不宜' },
+  { g: 0, d: '暗耗小心，诸事不宜' }, { g: 1, d: '祭祀·祈福' }, { g: 0, d: '诸事不宜' }
+];
+const SHI_NAME = ['子时','丑时','寅时','卯时','辰时','巳时','午时','未时','申时','酉时','戌时','亥时'];
+const SHI_RANGE = ['23:00-01:00','01:00-03:00','03:00-05:00','05:00-07:00','07:00-09:00','09:00-11:00','11:00-13:00','13:00-15:00','15:00-17:00','17:00-19:00','19:00-21:00','21:00-23:00'];
+let astroPlain = false;
+
 let astroSelXZ = -1, astroSelSX = -1, astroYM = null, astroDay = null;
 function astroBody() {
   const tk = todayKey();
@@ -3880,34 +3979,127 @@ function astroBody() {
   const now = parseKey(tk);
   if (!astroYM) astroYM = { y: now.getFullYear(), m: now.getMonth() };
   const da = dayAstro(tk);
-  let h = '';
-  /* 个性档案 */
-  h += '<div class="card as-me"><div class="as-me-h"><b>' + esc(state.names.me) + ' 的档案</b><span class="as-fun">娱乐参考 · 开心为主</span></div>' +
-    '<div class="as-me-row"><div class="as-me-item"><span class="as-k">星座</span><b>' + xz.n + '</b><i>' + xz.e + ' · 守护星 ' + xz.star + '</i></div>' +
-    '<div class="as-me-item"><span class="as-k">生肖</span><b>属' + sx.n + '</b><i>' + yearGZ(1999) + '年 · 1999.10.19 · 农历九月十一</i></div></div>' +
-    '<div class="as-switch"><span class="as-k">换着看：</span>' +
-    '<select class="as-sel" data-astro="xz">' + XINGZUO.map((x, i) => '<option value="' + i + '"' + (i === astroSelXZ ? ' selected' : '') + '>' + x.n + '</option>').join('') + '</select>' +
-    '<select class="as-sel" data-astro="sx">' + SHENGXIAO.map((x, i) => '<option value="' + i + '"' + (i === astroSelSX ? ' selected' : '') + '>属' + x.n + '</option>').join('') + '</select></div></div>';
-  /* 今日黄历 */
+  const lu = lunarOf(tk);
   const p = parseKey(tk);
-  h += '<div class="card as-day' + (da.isHuang ? ' huang' : '') + '"><div class="as-day-h"><b>今天 · ' + (p.getMonth() + 1) + '月' + p.getDate() + '日 ' + WEEK_LABELS[p.getDay()] + '</b>' +
-    '<span class="as-badge ' + (da.isHuang ? 'hd' : 'hmd') + '">' + (da.isHuang ? '黄道日 · ' + da.qd : '黑道日 · ' + da.qd) + '</span></div>' +
-    '<div class="as-gz">' + da.yg + '</div>' +
-    '<div class="as-yj"><div class="as-yi"><b>宜</b>' + da.yi + '</div><div class="as-ji"><b>忌</b>' + da.ji + '</div></div>' +
-    '<div class="as-meta">' + da.chong + ' · ' + da.jc + '日 · 彭祖：' + da.peng + '</div>' +
-    '<p class="as-src">日柱/建除/黄黑道/彭祖百忌按《协纪辨方书》体系推算，日柱精确（甲子锚点校准）；节气取平均日，换月边界可能有 1 天出入</p></div>';
-  /* 吉日月历 */
+  let h = '';
+  /* ---- 今日大卡 ---- */
+  const yIdx = yearGZIdx(p);
+  const luTxt = lu ? lu.mon + '月' + lu.day : '';
+  h += '<div class="card as-today"><div class="as-today-h"><b>今日</b>' +
+    '<div class="fit-seg as-seg"><button class="fit-seg-btn' + (!astroPlain ? ' on' : '') + '" data-action="astro-plain" data-v="0">原版</button>' +
+    '<button class="fit-seg-btn' + (astroPlain ? ' on' : '') + '" data-action="astro-plain" data-v="1">白话</button></div></div>' +
+    '<div class="as-big"><div class="as-date">' +
+    '<span class="as-ym">' + p.getFullYear() + '年' + (p.getMonth() + 1) + '月 · ' + WEEK_LABELS[p.getDay()] + '</span>' +
+    '<b class="as-num">' + p.getDate() + '</b>' +
+    '<span class="as-lunar">' + luTxt + ' · 属' + SX12[yIdx.z] + '年</span>' +
+    '<span class="as-gzline">' + da.yg + '</span></div>' +
+    '<div class="as-plaque"><span class="as-pq-top">' + DZ12[yIdx.z] + ' ' + SX12[yIdx.z] + '</span><b class="as-pq-day">' + (lu ? (lu.n <= 10 ? LCN[lu.n - 1] : lu.n === 20 ? '廿' : lu.n === 30 ? '卅' : lu.n < 20 ? '十' + LCN[lu.n - 11] : '廿' + LCN[lu.n - 21]) : '') + '</b><span class="as-pq-mon">' + (lu ? lu.mon + '月' : '') + '</span></div>' +
+    '</div></div>';
+  /* ---- 干支 · 五行 ---- */
+  const gz = dayGZ(tk).gz;
+  const mGanIdx = (yIdx.g * 2 + 2 + (da.mz - 2) + 20) % 10;
+  const wxCount = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
+  [yIdx, { g: mGanIdx, z: da.mz }, { g: da.gan, z: da.zhi }].forEach(function (c) {
+    wxCount[GAN5[c.g]]++; wxCount[ZHI5[c.z]]++;
+  });
+  const dayNY = nayinOf(da.gan, da.zhi);
+  h += '<div class="card"><h3 class="card-label">干支 · 五行</h3>' +
+    '<div class="as-pq-grid">' +
+    '<div class="as-pq-item"><span>年柱</span><b>' + GZ10[yIdx.g] + DZ12[yIdx.z] + '</b><i>' + GAN5[yIdx.g] + ZHI5[yIdx.z] + ' · ' + nayinOf(yIdx.g, yIdx.z) + '</i></div>' +
+    '<div class="as-pq-item"><span>月柱</span><b>' + GZ10[mGanIdx] + DZ12[da.mz] + '</b><i>' + GAN5[mGanIdx] + ZHI5[da.mz] + ' · ' + nayinOf(mGanIdx, da.mz) + '</i></div>' +
+    '<div class="as-pq-item"><span>日柱</span><b>' + gz + '</b><i>' + GAN5[da.gan] + ZHI5[da.zhi] + ' · ' + dayNY + '</i></div>' +
+    '<div class="as-pq-item"><span>建除</span><b>' + da.jc + '日</b><i>' + (da.isHuang ? '黄道 · ' + da.qd : '黑道 · ' + da.qd) + '</i></div>' +
+    '</div>' +
+    '<p class="as-wx-title">今日五行能量 <span class="as-wx-sub">年 · 月 · 日 三柱干支</span></p>' +
+    '<div class="as-wx-grid">' + WX_ORGANS.map(function (o) {
+      return '<div class="as-wx-item" style="background:' + o[2] + '"><b>' + o[0] + '</b><i>' + o[1] + '</i><em>' + (wxCount[o[0]] || 0) + ' 个</em></div>';
+    }).join('') + '</div>' +
+    '<p class="as-dayzhu">今日日主为 <b>' + GAN5[da.gan] + '</b>（' + gz[0] + '），生于 <b>' + GZ10[mGanIdx] + DZ12[da.mz] + '</b> 月，日柱纳音 <b>' + dayNY + '</b></p>' +
+    '<p class="as-src">干支/纳音/建除按《协纪辨方书》体系，日柱甲子锚点校准可对万年历验证；农历表源自寿星天文历</p></div>';
+  /* ---- 属相今日专属冲合 ---- */
+  const myZhi = astroSelSX;
+  const rels = sxRelation(da.zhi, myZhi);
+  const mainRel = rels.length ? (rels.indexOf('六冲') > -1 ? '六冲' : rels.indexOf('相刑') > -1 ? '相刑' : rels.indexOf('相害') > -1 ? '相害' : rels[0]) : '无';
+  const lv = REL_LEVEL[mainRel];
+  const lhZ = SX_LH[myZhi], haiZ = SX_HAI[myZhi], chongZ = (myZhi + 6) % 12;
+  const shGrp = SANHE_GRP.filter(g => g.indexOf(myZhi) > -1)[0];
+  const xingWith = function (z) {
+    if (z === 0) return [3]; if (z === 3) return [0];
+    if ([2, 5, 8].indexOf(z) > -1) return [2, 5, 8].filter(x => x !== z);
+    if ([1, 10, 7].indexOf(z) > -1) return [1, 10, 7].filter(x => x !== z);
+    return [z];
+  };
+  const xw = xingWith(myZhi);
+  const detTxt = '六合：合' + SX12[lhZ] + '（' + DZ12[lhZ] + '） · 三合：' + shGrp.map(z => DZ12[z] + SX12[z]).join(' · ') +
+    ' · 六冲：冲' + SX12[chongZ] + '（' + DZ12[chongZ] + '） · 相害：害' + SX12[haiZ] + '（' + DZ12[haiZ] + '） · 相刑：刑' + xw.map(z => SX12[z]).join('、');
+  h += '<div class="card as-rel"><div class="as-rel-h"><h3 class="card-label">属' + sx.n + ' · 今日专属冲合</h3>' +
+    '<select class="as-sel" data-astro="sx">' + SHENGXIAO.map((x, i2) => '<option value="' + i2 + '"' + (i2 === astroSelSX ? ' selected' : '') + '>属' + x.n + '</option>').join('') + '</select></div>' +
+    '<div class="as-rel-row"><div class="as-rel-box"><span class="as-k">今日运势</span><b style="color:' + lv[1] + '">' + lv[0] + '</b></div>' +
+    '<div class="as-rel-box"><span class="as-k">与日支（' + DZ12[da.zhi] + '）关系</span><b>' + (rels.length ? '今日与' + sx.n + rels.join('、') : '无明显冲合') + '</b></div></div>' +
+    '<div class="as-rel-detail"><b>专属参考</b>' + detTxt +
+    '<div class="as-rel-adv"><b>建议：</b>' + REL_ADVICE[mainRel] + '</div></div>' +
+    '<p class="as-src">关系判定按地支六合/三合/六冲/相害/相刑标准，建议为规则化文案（非预测）</p></div>';
+  /* ---- 宜 · 忌 ---- */
+  const jcT = JC_FULL[da.jcIdx];
+  const chip = function (arr, cls) {
+    return '<div class="as-chips">' + arr.map(function (t) {
+      return '<span class="as-chip ' + cls + '">' + (astroPlain ? baihua(t) : t) + '</span>';
+    }).join('') + '</div>';
+  };
+  h += '<div class="card"><h3 class="card-label">宜 · 忌<span class="as-wx-sub"> 建除十二神 · ' + da.jc + '日' + (astroPlain ? ' · 白话版' : '') + '</span></h3>' +
+    '<div class="as-yj-head yi"><b>宜</b>今日适合</div>' + chip(jcT.yi, 'ok') +
+    '<div class="as-yj-head ji"><b>忌</b>今日避开</div>' + chip(jcT.ji, 'no') + '</div>';
+  /* ---- 彭祖百忌 ---- */
+  h += '<div class="card"><h3 class="card-label">彭祖百忌</h3><div class="as-pg-box">' +
+    '<div class="as-pg-row"><b>【' + gz[0] + '】</b>' + PG_GAN[da.gan] + '</div>' +
+    '<div class="as-pg-row"><b>【' + gz[1] + '】</b>' + PG_ZHI[da.zhi] + '</div></div>' +
+    '<p class="as-src">按日干、日支各取一条 · 传统通书标准口诀</p></div>';
+  /* ---- 冲煞方位 ---- */
+  const chongZ2 = (da.zhi + 6) % 12;
+  h += '<div class="card"><h3 class="card-label">冲煞方位</h3><div class="as-pq-grid">' +
+    '<div class="as-pq-item"><span>冲</span><b>' + SX12[chongZ2] + '（' + DZ12[chongZ2] + '）</b><i>属' + SX12[chongZ2] + '的今天低调点</i></div>' +
+    '<div class="as-pq-item"><span>煞</span><b>煞' + ZHI_SHA(da.zhi) + '</b><i>往这个方向办事悠着点</i></div>' +
+    '<div class="as-pq-item"><span>喜神方位</span><b>' + XI_FANG[da.gan] + '</b><i>接喜气朝这边</i></div>' +
+    '<div class="as-pq-item"><span>财神方位</span><b>' + CAI_FANG[da.gan] + '</b><i>求财朝这边</i></div>' +
+    '</div><p class="as-src">煞方按日支三合局（申子辰煞南等），喜神/财神按日干方位歌诀</p></div>';
+  /* ---- 十二时辰吉凶 ---- */
+  const qdStart = QD_START[da.zhi];
+  let shiCards = '';
+  for (let i3 = 0; i3 < 12; i3++) {
+    const qdIdx2 = ((i3 - qdStart) % 12 + 12) % 12;
+    const st = SHI12[qdIdx2];
+    shiCards += '<div class="as-shi ' + (st.g ? 'ok' : 'no') + '"><b>' + SHI_NAME[i3] + '</b><span>' + SHI_RANGE[i3] + '</span>' +
+      '<em>' + (st.g ? '吉' : '凶') + ' · ' + QD12[qdIdx2] + '</em><i>' + st.d + '</i></div>';
+  }
+  h += '<div class="card"><h3 class="card-label">十二时辰吉凶（今日 ' + gz + '日）</h3>' +
+    '<div class="as-shi-grid">' + shiCards + '</div>' +
+    '<p class="as-src">黄道六神：青龙·明堂·金匮·天德·玉堂·司命为吉时；黑道六神：天刑·朱雀·白虎·天牢·玄武·勾陈为凶时（《协纪辨方书》时家黄黑道）</p></div>';
+  /* ---- 八字四柱 ---- */
+  h += '<div class="card"><h3 class="card-label">命理 · 我的八字四柱</h3>' +
+    '<div class="bz-row">' +
+    '<div class="bz-pill"><span>年柱</span><b>己卯</b><i>城头土</i></div>' +
+    '<div class="bz-pill"><span>月柱</span><b>甲戌</b><i>山头火</i></div>' +
+    '<div class="bz-pill"><span>日柱</span><b>甲辰</b><i>覆灯火</i></div>' +
+    '<div class="bz-pill"><span>时柱</span><b>戊辰</b><i>大林木</i></div>' +
+    '</div>' +
+    '<div class="as-fact"><b>为什么准</b>时辰本来就是两小时一段（古人没分钟概念），早上 7-9 点整段都是辰时——甲日辰时=戊辰，这是确定的</div>' +
+    '<div class="as-fact"><b>日主甲木</b>命理通行说法：甲木是参天大树——直爽、有主见、认准的事能一直熬（你减脂打卡这股劲倒是对得上）。兔年生龙时，民俗叫"玉兔腾云"</div>' +
+    '<div class="as-fact"><b>五行分布</b>四柱全看：木 3 · 土 5，金火水未透——通行命理讲"土重"，为人稳但容易闷头扛，情绪要有出口（健身就是出口）</div>' +
+    '<div class="as-fact"><b>上升星座</b>大概率天蝎（10 月中旬辰时段的天文估算；若接近 9 点则可能射手）——按"早上 7-9 点"估的，供娱乐参考</div>' +
+    '<div class="as-fact"><b>月亮星座</b>需要 1999 年当日精确星历才能算——没有把握的我不编，这条就空着</div>' +
+    '<p class="set-tip">八字按《三命通会》通行体系排，四柱可对万年历验证；上升按辰时中段天文近似；命理/星座均为娱乐参考</p></div>';
+  /* ---- 吉日挑日子月历 ---- */
   const first = new Date(astroYM.y, astroYM.m, 1);
   const startPad = first.getDay();
   const dim = new Date(astroYM.y, astroYM.m + 1, 0).getDate();
   let cells = '';
-  for (let i = 0; i < startPad; i++) cells += '<span class="cal-cell cal-pad"></span>';
-  for (let d = 1; d <= dim; d++) {
-    const k = astroYM.y + '-' + String(astroYM.m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-    const a = dayAstro(k);
+  for (let i4 = 0; i4 < startPad; i4++) cells += '<span class="cal-cell cal-pad"></span>';
+  for (let d2 = 1; d2 <= dim; d2++) {
+    const k = astroYM.y + '-' + String(astroYM.m + 1).padStart(2, '0') + '-' + String(d2).padStart(2, '0');
+    const a2 = dayAstro(k);
     const cls = 'cal-cell' + (k === tk ? ' cal-today' : '') + (astroDay === k ? ' cal-sel' : '');
     cells += '<button class="' + cls + '" data-action="astro-day" data-k="' + k + '">' +
-      '<span class="cal-d">' + d + '</span><span class="as-jc">' + a.jc + '</span><span class="cal-dots"><i class="' + (a.isHuang ? 'as-huang' : '') + '"></i></span></button>';
+      '<span class="cal-d">' + d2 + '</span><span class="as-jc">' + a2.jc + '</span><span class="cal-dots"><i class="' + (a2.isHuang ? 'as-huang' : '') + '"></i></span></button>';
   }
   h += '<div class="card"><div class="cal-head">' +
     '<button class="cal-nav" data-action="astro-prev">‹</button>' +
@@ -3916,43 +4108,21 @@ function astroBody() {
     '<div class="cal-week">' + ['日','一','二','三','四','五','六'].map(w => '<span>' + w + '</span>').join('') + '</div>' +
     '<div class="cal-grid">' + cells + '</div>';
   if (astroDay) {
-    const a = dayAstro(astroDay), dp = parseKey(astroDay);
-    h += '<div class="cal-detail"><div class="cdd-head"><b>' + (dp.getMonth() + 1) + '月' + dp.getDate() + '日 · ' + a.gz + '日 · ' + a.jc + '日</b>' +
+    const a3 = dayAstro(astroDay), dp = parseKey(astroDay);
+    h += '<div class="cal-detail"><div class="cdd-head"><b>' + (dp.getMonth() + 1) + '月' + dp.getDate() + '日 · ' + a3.gz + '日 · ' + a3.jc + '日</b>' +
       '<button class="cdd-close" data-action="astro-close">✕</button></div>' +
-      '<span class="as-badge ' + (a.isHuang ? 'hd' : 'hmd') + '">' + (a.isHuang ? '黄道日 · ' + a.qd : '黑道日 · ' + a.qd) + '</span>' +
-      '<div class="as-yj"><div class="as-yi"><b>宜</b>' + a.yi + '</div><div class="as-ji"><b>忌</b>' + a.ji + '</div></div>' +
-      '<div class="as-meta">' + a.chong + ' · 彭祖：' + a.peng + '</div></div>';
+      '<span class="as-badge ' + (a3.isHuang ? 'hd' : 'hmd') + '">' + (a3.isHuang ? '黄道日 · ' + a3.qd : '黑道日 · ' + a3.qd) + '</span>' +
+      '<div class="as-yj"><div class="as-yi"><b>宜</b>' + a3.yi + '</div><div class="as-ji"><b>忌</b>' + a3.ji + '</div></div>' +
+      '<div class="as-meta">' + a3.chong + ' · 彭祖：' + a3.peng + '</div></div>';
   }
   h += '<p class="cal-legend">想挑大事的日子（面试/搬家/领证），翻到那个月点开看宜忌</p></div>';
-  /* 星座卡 */
-  h += '<div class="card"><h3 class="card-label">' + xz.n + ' · ' + xz.r + '</h3>' +
+  /* ---- 星座卡 ---- */
+  h += '<div class="card"><div class="as-rel-h"><h3 class="card-label">' + xz.n + ' · ' + xz.r + '</h3>' +
+    '<select class="as-sel" data-astro="xz">' + XINGZUO.map((x, i5) => '<option value="' + i5 + '"' + (i5 === astroSelXZ ? ' selected' : '') + '>' + x.n + '</option>').join('') + '</select></div>' +
     '<p class="sub">' + xz.tag + '</p>' +
     '<div class="as-fact"><b>今天适合</b>' + xz.tip + '</div>' +
     '<div class="as-fact"><b>速配</b>' + xz.mate + '（同元素互旺）</div>' +
-    '<div class="as-fact"><b>和你最配的打卡搭子</b>' + esc(state.names.partner) + '是' + XINGZUO[xzByKey('1999-10-12') || 6].n + '——风象碰风象，聊得来，一起减脂靠互相提醒</div>' +
-    '<p class="set-tip">星座为通行占星档案（日期范围/元素/守护星），非预测；想看上升月亮星座（完整星盘）需要出生的几点钟，告诉我补上</p></div>';
-  /* 生肖卡 */
-  const nayin = NYN2[yearGZ(1999)] || '';
-  h += '<div class="card"><h3 class="card-label">属' + sx.n + ' · 己卯兔' + (nayin ? '（' + nayin + '命）' : '') + '</h3>' +
-    '<p class="sub">' + sx.tag + '</p>' +
-    '<div class="as-fact"><b>合得来</b>' + sx.lh + ' · ' + sx.sh + '</div>' +
-    '<div class="as-fact"><b>犯冲</b>属' + sx.chong + '——别太较劲</div>' +
-    '<div class="as-fact"><b>本命年</b>下一个兔年是 2035 年（乙卯），到时候手环红绳备上</div>' +
-    '<p class="set-tip">生肖按民俗通行档案；1999.10.19 在立春后，年柱无争议就是己卯兔</p></div>';
-  /* 八字卡（V87c）：四柱齐——辰时（7-9点）整段同属一个时辰，时柱确定 */
-  h += '<div class="card"><h3 class="card-label">命理 · 八字四柱（齐了）</h3>' +
-    '<div class="bz-row">' +
-    '<div class="bz-pill"><span>年柱</span><b>己卯</b><i>城头土</i></div>' +
-    '<div class="bz-pill"><span>月柱</span><b>甲戌</b><i>山头火</i></div>' +
-    '<div class="bz-pill"><span>日柱</span><b>甲辰</b><i>覆灯火</i></div>' +
-    '<div class="bz-pill"><span>时柱</span><b>戊辰</b><i>大林木</i></div>' +
-    '</div>' +
-    '<div class="as-fact"><b>为什么敢填</b>时辰本来就是两小时一段（古人没分钟概念），早上 7-9 点整段都是辰时——你猜的"大概"刚好是标准精度，甲日辰时=戊辰，这是确定的</div>' +
-    '<div class="as-fact"><b>日主甲木</b>命理通行说法：甲木是参天大树——直爽、有主见、认准的事能一直熬（你减脂打卡这股劲倒是对得上）。时辰属龙（辰），兔年生龙时，民俗叫"玉兔腾云"</div>' +
-    '<div class="as-fact"><b>五行分布</b>四柱全看：木 3 · 土 5，金火水未透——通行命理讲"土重"，为人稳但容易闷头扛，情绪要有出口（健身就是你现成的出口）</div>' +
-    '<div class="as-fact"><b>上升星座</b>大概率天蝎（10 月中旬辰时段的天文估算；若接近 9 点则可能射手）——按"早上 7-9 点"估的，供娱乐参考，精确到分钟才会翻转</div>' +
-    '<div class="as-fact"><b>月亮星座</b>需要 1999 年当日精确星历才能算——没有把握的我不编，这条就空着</div>' +
-    '<p class="set-tip">八字按《三命通会》通行体系排，四柱可对万年历验证；上升按辰时中段天文近似；命理/星座均为娱乐参考</p></div>';
+    '<p class="set-tip">星座为通行占星档案（日期范围/元素/守护星），非预测</p></div>';
   return h;
 }
 
@@ -4993,6 +5163,7 @@ document.addEventListener('click', e => {
     else if (a === 'astro-next') { astroYM.m++; if (astroYM.m > 11) { astroYM.m = 0; astroYM.y++; } astroDay = null; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
     else if (a === 'astro-day') { astroDay = act.getAttribute('data-k'); if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
     else if (a === 'astro-close') { astroDay = null; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
+    else if (a === 'astro-plain') { astroPlain = act.getAttribute('data-v') === '1'; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
     else if (a === 'wcal-prev') { wcalYM.m--; if (wcalYM.m < 0) { wcalYM.m = 11; wcalYM.y--; } wcalSel = null; refreshWorkoutUI(); }
     else if (a === 'wcal-next') { wcalYM.m++; if (wcalYM.m > 11) { wcalYM.m = 0; wcalYM.y++; } wcalSel = null; refreshWorkoutUI(); }
     else if (a === 'wcal-day') { wcalSel = act.getAttribute('data-k'); refreshWorkoutUI(); }
