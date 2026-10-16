@@ -16,7 +16,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V87';
+const APP_VERSION = 'V87b';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -24,6 +24,11 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V87b', d: '10月17日', items: [
+    '命理升级：八字三柱卡（己卯年·甲戌月·甲辰日，纳音标注），日主甲木解读',
+    '档案加入农历生日（农历九月十一）',
+    '时柱/上升/月亮星座：等一个出生钟点，问到就补齐'
+  ]},
   { v: 'V87', d: '10月16日', items: [
     '健身页充实：本周目标进度条（默认3次/周）+ 今日推荐（周计划接上每天该练什么）+ 最近训练列表',
     '娱乐板块上线（健康营→每日运势）：黄道吉日挑日子+星座档案+生肖命理，12星座12生肖全量可切换',
@@ -3856,7 +3861,7 @@ const SHENGXIAO = [
 ];
 const SX_YEAR = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
 function sxByYear(y) { return (y - 4) % 12; } /* 1999→(1995)%12=3→兔 */
-const NYN2 = { '戊寅': '城头土', '己卯': '城头土', '庚辰': '白蜡金', '辛巳': '白蜡金', '丙戌': '屋上土', '丁亥': '屋上土' };
+const NYN2 = { '戊寅': '城头土', '己卯': '城头土', '庚辰': '白蜡金', '辛巳': '白蜡金', '丙戌': '屋上土', '丁亥': '屋上土', '甲戌': '山头火', '乙亥': '山头火', '甲辰': '覆灯火', '乙巳': '覆灯火' };
 let astroSelXZ = -1, astroSelSX = -1, astroYM = null, astroDay = null;
 function astroBody() {
   const tk = todayKey();
@@ -3870,7 +3875,7 @@ function astroBody() {
   /* 个性档案 */
   h += '<div class="card as-me"><div class="as-me-h"><b>' + esc(state.names.me) + ' 的档案</b><span class="as-fun">娱乐参考 · 开心为主</span></div>' +
     '<div class="as-me-row"><div class="as-me-item"><span class="as-k">星座</span><b>' + xz.n + '</b><i>' + xz.e + ' · 守护星 ' + xz.star + '</i></div>' +
-    '<div class="as-me-item"><span class="as-k">生肖</span><b>属' + sx.n + '</b><i>' + yearGZ(1999) + '年 · 1999.10.19</i></div></div>' +
+    '<div class="as-me-item"><span class="as-k">生肖</span><b>属' + sx.n + '</b><i>' + yearGZ(1999) + '年 · 1999.10.19 · 农历九月十一</i></div></div>' +
     '<div class="as-switch"><span class="as-k">换着看：</span>' +
     '<select class="as-sel" data-astro="xz">' + XINGZUO.map((x, i) => '<option value="' + i + '"' + (i === astroSelXZ ? ' selected' : '') + '>' + x.n + '</option>').join('') + '</select>' +
     '<select class="as-sel" data-astro="sx">' + SHENGXIAO.map((x, i) => '<option value="' + i + '"' + (i === astroSelSX ? ' selected' : '') + '>属' + x.n + '</option>').join('') + '</select></div></div>';
@@ -3921,10 +3926,22 @@ function astroBody() {
   const nayin = NYN2[yearGZ(1999)] || '';
   h += '<div class="card"><h3 class="card-label">属' + sx.n + ' · 己卯兔' + (nayin ? '（' + nayin + '命）' : '') + '</h3>' +
     '<p class="sub">' + sx.tag + '</p>' +
-    '<div class="as-fact"><b>合得来</b>六合 ' + sx.lh + ' · 三合 ' + sx.sh + '</div>' +
+    '<div class="as-fact"><b>合得来</b>' + sx.lh + ' · ' + sx.sh + '</div>' +
     '<div class="as-fact"><b>犯冲</b>属' + sx.chong + '——别太较劲</div>' +
     '<div class="as-fact"><b>本命年</b>下一个兔年是 2035 年（乙卯），到时候手环红绳备上</div>' +
     '<p class="set-tip">生肖按民俗通行档案；1999.10.19 在立春后，年柱无争议就是己卯兔</p></div>';
+  /* 八字三柱卡（V87b）：年月日柱已确定，时柱待出生钟点 */
+  h += '<div class="card"><h3 class="card-label">命理 · 八字三柱</h3>' +
+    '<div class="bz-row">' +
+    '<div class="bz-pill"><span>年柱</span><b>己卯</b><i>城头土</i></div>' +
+    '<div class="bz-pill"><span>月柱</span><b>甲戌</b><i>山头火</i></div>' +
+    '<div class="bz-pill"><span>日柱</span><b>甲辰</b><i>覆灯火</i></div>' +
+    '<div class="bz-pill todo"><span>时柱</span><b>待补</b><i>差出生钟点</i></div>' +
+    '</div>' +
+    '<div class="as-fact"><b>日主甲木</b>命理通行说法：甲木是参天大树——直爽、有主见、认准的事能一直熬（你减脂打卡这股劲倒是对得上）</div>' +
+    '<div class="as-fact"><b>五行分布</b>三柱看：木 3 · 土 3 · 火 2（纳音）——金水等时柱定了一起论</div>' +
+    '<div class="as-fact"><b>想补齐？</b>问下家里人你出生在几点（大概就行，比如"早上9点"）——时柱定了我一次补齐：时柱 + 上升星座 + 月亮星座，完整星盘就出来了</div>' +
+    '<p class="set-tip">八字按《三命通会》通行体系排（年月日柱由万年历直推，无争议）；农历九月十一按你提供的生日记录</p></div>';
   return h;
 }
 
