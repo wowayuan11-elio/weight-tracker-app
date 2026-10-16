@@ -1468,53 +1468,53 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .wk-goal-fill.ok{ background:#34c759; }
 .wtplan .tp-head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
 .wtplan .tp-head b{ font-size:15px; }
-.wtplan .tp-sub{ font-size:11.5px; color:var(--t-dim); white-space:nowrap; }
-.wtplan .tp-exs{ font-size:13px; line-height:1.6; margin:8px 0 10px; color:var(--t); }
+.wtplan .tp-sub{ font-size:11.5px; color:var(--text2); white-space:nowrap; }
+.wtplan .tp-exs{ font-size:13px; line-height:1.6; margin:8px 0 10px; color:var(--text); }
 .wtplan.rest{ opacity:.82; }
 .wtplan .tp-row{ display:flex; gap:8px; }
 .wtplan .tp-row .btn{ flex:1; }
 .rw-row{ display:flex; gap:10px; padding:9px 2px; border-bottom:1px solid rgba(0,0,0,.05); align-items:baseline; }
 .rw-row:last-of-type{ border-bottom:none; }
 .rw-date{ font-size:12.5px; font-weight:700; white-space:nowrap; min-width:78px; }
-.rw-what{ font-size:12.5px; color:var(--t-dim); line-height:1.5; }
+.rw-what{ font-size:12.5px; color:var(--text2); line-height:1.5; }
 .as-me{ background:linear-gradient(135deg,#F5F0FF 0%,#FFF7F2 100%); }
 .as-me-h{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
 .as-me-h b{ font-size:15px; }
-.as-fun{ font-size:11px; color:var(--t-dim); }
+.as-fun{ font-size:11px; color:var(--text2); }
 .as-me-row{ display:flex; gap:10px; }
 .as-me-item{ flex:1; background:rgba(255,255,255,.75); border-radius:10px; padding:8px 10px; }
 .as-me-item b{ display:block; font-size:14.5px; margin:2px 0; }
-.as-me-item i{ font-style:normal; font-size:11px; color:var(--t-dim); }
-.as-k{ font-size:11px; color:var(--t-dim); font-weight:600; }
+.as-me-item i{ font-style:normal; font-size:11px; color:var(--text2); }
+.as-k{ font-size:11px; color:var(--text2); font-weight:600; }
 .as-switch{ display:flex; align-items:center; gap:6px; margin-top:10px; flex-wrap:wrap; }
-.as-sel{ border:1px solid rgba(0,0,0,.1); background:#fff; border-radius:8px; padding:6px 8px; font-size:12.5px; font-family:inherit; color:var(--t); }
-.as-day{ border-left:3px solid var(--t-dim); }
+.as-sel{ border:1px solid rgba(0,0,0,.1); background:#fff; border-radius:8px; padding:6px 8px; font-size:12.5px; font-family:inherit; color:var(--text); }
+.as-day{ border-left:3px solid var(--text2); }
 .as-day.huang{ border-left-color:#C9A24B; }
 .as-day-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
 .as-day-h b{ font-size:15px; }
 .as-badge{ font-size:11px; font-weight:700; padding:3px 9px; border-radius:7px; white-space:nowrap; }
 .as-badge.hd{ background:#C9A24B; color:#fff; }
 .as-badge.hmd{ background:#E8EAF0; color:#667; }
-.as-gz{ font-size:12.5px; color:var(--t-dim); margin:6px 0 10px; font-weight:600; }
+.as-gz{ font-size:12.5px; color:var(--text2); margin:6px 0 10px; font-weight:600; }
 .as-yj{ display:flex; flex-direction:column; gap:6px; }
 .as-yi, .as-ji{ font-size:13px; line-height:1.55; display:flex; gap:8px; }
 .as-yi b{ color:#C05621; flex-shrink:0; }
 .as-ji b{ color:#3B6FB5; flex-shrink:0; }
-.as-meta{ font-size:11.5px; color:var(--t-dim); margin-top:10px; line-height:1.5; }
+.as-meta{ font-size:11.5px; color:var(--text2); margin-top:10px; line-height:1.5; }
 .as-src{ font-size:10.5px; color:#9AA0AC; margin:8px 0 0; line-height:1.5; }
-.as-jc{ display:block; font-size:8.5px; color:var(--t-dim); line-height:1; margin-top:1px; }
+.as-jc{ display:block; font-size:8.5px; color:var(--text2); line-height:1; margin-top:1px; }
 .cal-dots i.as-huang{ background:#C9A24B; opacity:1; width:6px; height:6px; border-radius:50%; }
 .as-fact{ font-size:13px; line-height:1.55; display:flex; gap:8px; padding:7px 0; border-bottom:1px solid rgba(0,0,0,.05); }
 .as-fact:last-of-type{ border-bottom:none; }
-.as-fact b{ flex-shrink:0; font-size:12px; color:var(--t-dim); padding-top:1px; }
+.as-fact b{ flex-shrink:0; font-size:12px; color:var(--text2); padding-top:1px; }
 
 .bz-row{ display:flex; gap:6px; margin-bottom:4px; }
 .bz-pill{ flex:1; background:#F7F5EE; border:1px solid rgba(201,162,75,.25); border-radius:9px; padding:8px 4px; text-align:center; }
-.bz-pill span{ display:block; font-size:10px; color:var(--t-dim); margin-bottom:2px; }
+.bz-pill span{ display:block; font-size:10px; color:var(--text2); margin-bottom:2px; }
 .bz-pill b{ display:block; font-size:14.5px; letter-spacing:1px; }
 .bz-pill i{ font-style:normal; font-size:10px; color:#C9A24B; }
 .bz-pill.todo{ background:#F4F5F8; border-style:dashed; border-color:rgba(0,0,0,.12); }
-.bz-pill.todo i{ color:var(--t-dim); }
+.bz-pill.todo i{ color:var(--text2); }
 
 /* ===== V88: 黄历工作台版式 ===== */
 .as-today{ background:linear-gradient(160deg,#FFF6F0 0%,#FFFDF9 60%,#F2F7FF 100%); }
@@ -1523,31 +1523,31 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .as-seg{ transform:scale(.9); transform-origin:right; }
 .as-big{ display:flex; gap:14px; align-items:center; }
 .as-date{ flex:1; display:flex; flex-direction:column; gap:2px; }
-.as-ym{ font-size:12.5px; color:var(--t-dim); font-weight:600; }
+.as-ym{ font-size:12.5px; color:var(--text2); font-weight:600; }
 .as-num{ font-size:52px; font-weight:800; line-height:1; color:#E8703A; letter-spacing:-1px; }
 .as-lunar{ font-size:16px; font-weight:700; margin-top:2px; }
-.as-gzline{ font-size:12px; color:var(--t-dim); }
+.as-gzline{ font-size:12px; color:var(--text2); }
 .as-plaque{ width:86px; height:86px; background:#C33; border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; flex-shrink:0; box-shadow:inset 0 0 0 2px rgba(255,255,255,.25); }
 .as-plaque span{ font-size:10px; color:#FFE9E0; }
 .as-plaque b{ font-size:30px; color:#FFF; font-weight:800; line-height:1.1; }
 .as-pq-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
 .as-pq-item{ background:#F7F8FB; border-radius:10px; padding:10px 8px; text-align:center; }
-.as-pq-item span{ display:block; font-size:11px; color:var(--t-dim); }
+.as-pq-item span{ display:block; font-size:11px; color:var(--text2); }
 .as-pq-item b{ display:block; font-size:19px; margin:3px 0 2px; letter-spacing:1px; }
-.as-pq-item i{ font-style:normal; font-size:10.5px; color:var(--t-dim); }
+.as-pq-item i{ font-style:normal; font-size:10.5px; color:var(--text2); }
 .as-wx-title{ font-size:13.5px; font-weight:700; margin:14px 0 8px; }
-.as-wx-sub{ font-size:11px; color:var(--t-dim); font-weight:500; }
+.as-wx-sub{ font-size:11px; color:var(--text2); font-weight:500; }
 .as-wx-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
 .as-wx-item{ border-radius:10px; padding:10px 2px; text-align:center; }
 .as-wx-item b{ display:block; font-size:16px; }
-.as-wx-item i{ display:block; font-style:normal; font-size:9.5px; color:var(--t-dim); margin:2px 0; }
-.as-wx-item em{ font-style:normal; font-size:10.5px; font-weight:700; color:var(--t); }
+.as-wx-item i{ display:block; font-style:normal; font-size:9.5px; color:var(--text2); margin:2px 0; }
+.as-wx-item em{ font-style:normal; font-size:10.5px; font-weight:700; color:var(--text); }
 .as-dayzhu{ font-size:12.5px; background:#F7F5EE; border-radius:9px; padding:9px 12px; margin-top:10px; line-height:1.55; }
 .as-rel-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; }
 .as-rel-h .card-label{ margin:0; }
 .as-rel-row{ display:flex; gap:8px; margin:8px 0; }
 .as-rel-box{ flex:1; background:#F7F8FB; border-radius:10px; padding:9px 10px; }
-.as-rel-box span{ display:block; font-size:10.5px; color:var(--t-dim); margin-bottom:3px; }
+.as-rel-box span{ display:block; font-size:10.5px; color:var(--text2); margin-bottom:3px; }
 .as-rel-box b{ font-size:14px; }
 .as-rel-detail{ background:#FDF3E7; border-radius:10px; padding:10px 12px; font-size:12.5px; line-height:1.65; color:#7A5C33; }
 .as-rel-detail b{ font-weight:700; }
@@ -1568,11 +1568,11 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .as-shi.ok{ background:#EDF7EF; border:1px solid rgba(39,134,74,.2); }
 .as-shi.no{ background:#FDF0EE; border:1px solid rgba(192,57,43,.15); }
 .as-shi b{ display:block; font-size:13px; }
-.as-shi span{ display:block; font-size:9.5px; color:var(--t-dim); margin:2px 0; }
+.as-shi span{ display:block; font-size:9.5px; color:var(--text2); margin:2px 0; }
 .as-shi em{ display:block; font-style:normal; font-size:11.5px; font-weight:700; }
 .as-shi.ok em{ color:#27864A; }
 .as-shi.no em{ color:#C0392B; }
-.as-shi i{ display:block; font-style:normal; font-size:9.5px; color:var(--t-dim); margin-top:3px; line-height:1.4; }
+.as-shi i{ display:block; font-style:normal; font-size:9.5px; color:var(--text2); margin-top:3px; line-height:1.4; }
 .as-rel-h .as-sel{ max-width:96px; }
 
 /* ===== V89: 星座板块 ===== */
@@ -1581,13 +1581,13 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .zx-badge{ width:78px; height:78px; border-radius:20px; background:linear-gradient(135deg,#8B5CF6 0%,#D946EF 100%); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .zx-emoji{ font-size:40px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.2)); }
 .zx-hero-name b{ display:block; font-size:26px; line-height:1.2; }
-.zx-hero-name span{ font-size:13px; color:var(--t-dim); letter-spacing:2px; }
+.zx-hero-name span{ font-size:13px; color:var(--text2); letter-spacing:2px; }
 .zx-range{ display:inline-block; font-style:normal; font-size:13px; font-weight:700; background:#EDE9FE; color:#7C3AED; padding:5px 12px; border-radius:9px; margin-top:7px; }
 .zx-facts{ display:flex; flex-direction:column; gap:8px; margin-top:14px; }
 .zx-fact{ background:rgba(255,255,255,.8); border-radius:12px; padding:11px 14px; }
-.zx-fact span{ display:block; font-size:11.5px; color:var(--t-dim); }
+.zx-fact span{ display:block; font-size:11.5px; color:var(--text2); }
 .zx-fact b{ display:block; font-size:16px; margin:3px 0 2px; }
-.zx-fact i{ font-style:normal; font-size:11.5px; color:var(--t-dim); }
+.zx-fact i{ font-style:normal; font-size:11.5px; color:var(--text2); }
 .zx-kw{ margin-top:14px; }
 .zx-kw p.card-label{ margin-bottom:8px; }
 .zx-kw-chip{ background:#F3EEFB; color:#5B3E9E; }
@@ -1604,7 +1604,7 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .zx-ring{ width:96px; height:96px; border-radius:50%; background:conic-gradient(#8B5CF6 var(--p), #EBEDF1 0); display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; position:relative; }
 .zx-ring::before{ content:''; position:absolute; inset:7px; background:#fff; border-radius:50%; }
 .zx-ring b{ position:relative; font-size:26px; color:#8B5CF6; line-height:1; }
-.zx-ring i{ position:relative; font-style:normal; font-size:10px; color:var(--t-dim); }
+.zx-ring i{ position:relative; font-style:normal; font-size:10px; color:var(--text2); }
 .zx-fort-txt{ flex:1; min-width:0; }
 .zx-fort-label{ display:block; font-size:19px; margin:3px 0 5px; }
 .zx-bars{ margin-top:14px; display:flex; flex-direction:column; gap:9px; }
@@ -1613,3 +1613,38 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .zx-bar-v{ font-size:16px; width:30px; text-align:right; flex-shrink:0; }
 .zx-bar{ flex:1; height:9px; background:#EDEFF3; border-radius:6px; overflow:hidden; }
 .zx-bar-fill{ height:100%; border-radius:6px; }
+
+/* ===== V90: 深色模式适配——贴纸类浅底块内文字锁深色 ===== */
+.as-wx-item b, .as-wx-item i, .as-wx-item em,
+.as-pq-item b, .as-pq-item i, .as-pq-item span,
+.as-shi b, .as-shi span, .as-shi i,
+.as-rel-box b, .as-rel-box span,
+.as-dayzhu, .as-dayzhu b,
+.as-pg-box .as-pg-row,
+.bz-pill b, .bz-pill i, .bz-pill span,
+.zx-fact b, .zx-fact i, .zx-fact span,
+.zx-bar-row .zx-bar-l, .zx-bar-row .zx-bar-v,
+.zx-fort-txt .as-ym, .zx-fort-txt .zx-fort-label, .zx-fort-txt .sub,
+.zx-luck b, .zx-luck .as-k,
+.as-rel-detail, .as-rel-detail b,
+.as-yj-head,
+.as-today .as-ym, .as-today .as-lunar, .as-today .as-gzline, .as-today .as-today-h b,
+.as-wx-title, .as-wx-sub,
+.cal-detail, .cal-detail .as-meta, .cal-detail .cdd-note
+{ color:#3A3F4A !important; }
+.as-wx-item i, .as-pq-item i, .as-shi span, .as-shi i, .as-rel-box span,
+.zx-fact i, .zx-fact span, .zx-luck .as-k, .zx-bar-row .zx-bar-l,
+.as-today .as-ym, .as-today .as-gzline, .as-wx-sub, .as-dayzhu, .as-pq-item span, .bz-pill span
+{ color:#6B7280 !important; }
+.as-dayzhu b, .zx-fort-txt .zx-fort-label { color:#1F2430 !important; }
+.as-shi em, .as-shi.ok em { color:#1E6B3C !important; }
+.as-shi.no em { color:#A93226 !important; }
+.as-rel-detail .as-rel-adv b { color:#7A5C33 !important; }
+/* 深色模式下贴纸底微降亮度，不刺眼 */
+@media (prefers-color-scheme: dark){
+  .as-wx-item, .as-pq-item, .as-shi, .as-rel-box, .as-dayzhu, .as-pg-box,
+  .bz-pill, .zx-fact, .zx-luck, .zx-bar-row, .cal-detail
+  { filter:brightness(.82) saturate(1.05); }
+  .zx-fort, .as-today, .zx-hero { filter:brightness(.9); }
+  .as-plaque { filter:none; }
+}
