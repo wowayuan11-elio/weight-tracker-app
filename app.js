@@ -16,7 +16,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V88';
+const APP_VERSION = 'V89';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -24,6 +24,11 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V89', d: '10月17日', items: [
+    '星座独立成板块（照你的工作台版式）：档案大卡+性格关键词+今日幸运物+星盘速览+综合运势',
+    '黄道吉日单独一格：纯黄历（大卡/宜忌/彭祖/冲煞/时辰/挑日子），星座内容全部移出',
+    '运势分数=确定性算法（种子=日期+星座，同一天固定结果），来源标注「规则生成的娱乐内容」，不装天文预测也不随机骗你'
+  ]},
   { v: 'V88', d: '10月17日', items: [
     '黄历全面升级（对齐你做的工作台版式）：今日大卡带农历+红月牌，干支四柱+五行能量+脏腑，属相今日冲合+建议',
     '宜忌标准术语胶囊（可切白话），彭祖百忌独立卡，冲煞方位（冲/煞/喜神/财神），十二时辰吉凶',
@@ -3846,6 +3851,78 @@ const XINGZUO = [
   { n: '水瓶座', r: '1.20-2.18', e: '风象', star: '天王星', tag: '独立·怪点子·不跟风', tip: '今天适合试试没走过的路子', mate: '双子·天秤' },
   { n: '双鱼座', r: '2.19-3.20', e: '水象', star: '海王星', tag: '感性·共情·脑洞大', tip: '今天适合听歌画画放空', mate: '巨蟹·天蝎' }
 ];
+
+/* ===== 星座板块全量数据（V89，对齐 TA 工作台） ===== */
+const XZ_FULL = [
+  { n: '白羊座', en: 'ARIES', emoji: '♈', r: '3.21-4.19', star: '火星', starD: '火星·行动与冲劲之星', el: '火象', elD: '火象·行动与热情', mode: '基本宫', modeD: '开创·行动力强', kw: ['精力充沛','行动第一','直来直去','天生的先锋','性子急','三分钟热度','好胜心强','吃软不吃硬'], color: '大红色', gem: '钻石', flower: '郁金香', sun: '太阳落在白羊座：天生带头冲锋的人，想到就干，最烦磨叽。热情藏不住，是你的点火器也是你的灭火器。', con: '标志性矛盾：想要第一又懒得等节奏；冲动上头之后常为收尾头疼。', grow: '核心成长课题：学会等一等，把冲劲变成持久力。' },
+  { n: '金牛座', en: 'TAURUS', emoji: '♉', r: '4.20-5.20', star: '金星', starD: '金星·爱与美之星', el: '土象', elD: '土象·务实与积累', mode: '固定宫', modeD: '固定·稳字当头', kw: ['踏实可靠','能攒会存','审美在线','说到做到','慢性子','认定了不改','爱美食','不爱变动'], color: '森林绿', gem: '翡翠', flower: '康乃馨', sun: '太阳落在金牛座：最稳的那一个，钱和安全感都攥在自己手里才踏实。对好吃的、好用的有天生的鉴赏力。', con: '标志性矛盾：求稳和怕错过新机会在打架；嘴上说不改，心里在算账。', grow: '核心成长课题：允许一点变化进来，稳是底子不是墙。' },
+  { n: '双子座', en: 'GEMINI', emoji: '♊', r: '5.21-6.21', star: '水星', starD: '水星·沟通与思维之星', el: '风象', elD: '风象·沟通与思想', mode: '变动宫', modeD: '变动·灵活应变', kw: ['反应快','点子多','自来熟','消息灵通','话多','兴趣广但不专','一心多用','怕无聊'], color: '柠檬黄', gem: '玛瑙', flower: '薰衣草', sun: '太阳落在双子座：脑子永远在线的信息处理器，什么都好奇、什么都能聊，人群里的气氛担当。', con: '标志性矛盾：兴趣太广导致样样浅尝；选择太多反而难下决定。', grow: '核心成长课题：把一件事情做穿，比同时开十件更值钱。' },
+  { n: '巨蟹座', en: 'CANCER', emoji: '♋', r: '6.22-7.22', star: '月亮', starD: '月亮·情绪与安全感之星', el: '水象', elD: '水象·感受与滋养', mode: '基本宫', modeD: '开创·先护住再说', kw: ['顾家','心软','记性好','直觉准','情绪化','爱翻旧账','护内','嘴硬心软'], color: '珍珠白', gem: '珍珠', flower: '百合', sun: '太阳落在巨蟹座：把家人朋友看得比什么都重的那类人，情绪感受力是天赋，也是你的软肋。', con: '标志性矛盾：想被照顾又抢先照顾别人；受委屈不说，攒着攒着翻旧账。', grow: '核心成长课题：把感受说出口，别让人靠猜。' },
+  { n: '狮子座', en: 'LEO', emoji: '♌', r: '7.23-8.22', star: '太阳', starD: '太阳·自我与光芒之源', el: '火象', elD: '火象·行动与热情', mode: '固定宫', modeD: '固定·王者气场', kw: ['大方','能带人','讲义气','气场足','爱面子','要掌声','心软嘴硬','被夸就上头'], color: '金黄色', gem: '琥珀', flower: '向日葵', sun: '太阳落在狮子座：自带舞台灯光的人，站在人群中央不慌，对认定的人出手大方到底。', con: '标志性矛盾：要面子又拉不下脸求和；明明想被夸，偏装不在乎。', grow: '核心成长课题：光芒不用证明，放松了才照得远。' },
+  { n: '处女座', en: 'VIRGO', emoji: '♍', r: '8.23-9.22', star: '水星', starD: '水星·沟通与思维之星', el: '土象', elD: '土象·务实与积累', mode: '变动宫', modeD: '变动·细节控场', kw: ['靠谱','细节控','会复盘','爱干净','较真','爱操心','毒舌','对自己更狠'], color: '灰色系', gem: '蓝宝石', flower: '铃兰', sun: '太阳落在处女座：把事情交给你就放心的那种人，清单和复盘是本能，嘴上毒舌心里护人。', con: '标志性矛盾：对别人宽容对自己更狠；想放松又怕失控。', grow: '核心成长课题：完成比完美重要，放过自己也放过别人。' },
+  { n: '天秤座', en: 'LIBRA', emoji: '♎', r: '9.23-10.23', star: '金星', starD: '金星·爱与美之星', el: '风象', elD: '风象·沟通与思想', mode: '基本宫', modeD: '开创·行动力强', kw: ['优雅迷人','追求平衡','艺术天赋','善于社交','优柔寡断','审美出众','追求和谐','公正客观'], color: '粉红色', gem: '蛋白石', flower: '玫瑰', sun: '太阳落在天秤座：追求和谐、优雅、公正。由金星守护的你，天生具有艺术鉴赏力和社交魅力，是朋友圈里的调停者。', con: '标志性矛盾：因过度权衡利弊而犹豫不决；因害怕冲突而压抑真实感受；因追求美而沉迷形式。', grow: '核心成长课题：学会说「不」，允许关系中的不完美，从他人的评价中抽身回到自我中心。' },
+  { n: '天蝎座', en: 'SCORPIO', emoji: '♏', r: '10.24-11.22', star: '冥王星', starD: '冥王星·蜕变与掌控之星', el: '水象', elD: '水象·感受与滋养', mode: '固定宫', modeD: '固定·深水静流', kw: ['专一','看得透','能蛰伏','护短','记仇','爱恨分明','控制欲','不轻易交底'], color: '深酒红', gem: '黄玉', flower: '曼陀罗', sun: '太阳落在天蝎座：表面安静、内里自有版图的人，对认定的人和事倾注到底，也要求同样的深度。', con: '标志性矛盾：渴望亲密又怕被看穿；放下戒备和保持掌控在拉扯。', grow: '核心成长课题：交底不是失控，信任是深关系的入场券。' },
+  { n: '射手座', en: 'SAGITTARIUS', emoji: '♐', r: '11.23-12.21', star: '木星', starD: '木星·扩张与幸运之星', el: '火象', elD: '火象·行动与热情', mode: '变动宫', modeD: '变动·永远在路上', kw: ['乐观','爱自由','直给','见多识广','没耐性','说走就走','欠考虑','招人喜欢'], color: '紫色系', gem: '土耳其石', flower: '石竹', sun: '太阳落在射手座：天生的远行者，对世界保持好奇，乐观和直给让你走到哪都有朋友。', con: '标志性矛盾：要自由又怕辜负；说走就走的背后是怕被束缚。', grow: '核心成长课题：承诺不是笼子，是给自由找的落脚点。' },
+  { n: '摩羯座', en: 'CAPRICORN', emoji: '♑', r: '12.22-1.19', star: '土星', starD: '土星·纪律与时间之星', el: '土象', elD: '土象·务实与积累', mode: '基本宫', modeD: '开创·长期主义者', kw: ['能熬','目标感','靠谱','自律','闷','不表达','工作狂','大器晚成'], color: '黑色系', gem: '玛瑙', flower: '水仙', sun: '太阳落在摩羯座：把时间当朋友的人，别人在找捷径你在爬坡，山顶的风景你配得上。', con: '标志性矛盾：渴望被认可又不肯表功；把休息当罪过。', grow: '核心成长课题：辛苦是手段不是目的，记得抬头看路。' },
+  { n: '水瓶座', en: 'AQUARIUS', emoji: '♒', r: '1.20-2.18', star: '天王星', starD: '天王星·革新与独立之星', el: '风象', elD: '风象·沟通与思想', mode: '固定宫', modeD: '固定·独立的怪点子', kw: ['独立','怪点子','不跟风','讲逻辑','冷感','疏离','理想主义','朋友遍天下'], color: '天蓝色', gem: '紫水晶', flower: '兰花', sun: '太阳落在水瓶座：天生带着"为什么一定要这样"的人，独立思考是你的默认设置，路子越没人走你越来劲。', con: '标志性矛盾：想靠近人群又要保持距离；理性至上又偶尔为理念上头。', grow: '核心成长课题：与众不同不用刻意，合群也不代表妥协。' },
+  { n: '双鱼座', en: 'PISCES', emoji: '♓', r: '2.19-3.20', star: '海王星', starD: '海王星·梦境与灵感之星', el: '水象', elD: '水象·感受与滋养', mode: '变动宫', modeD: '变动·随波也随缘', kw: ['共情力','脑洞大','艺术细胞','心善','爱幻想','容易上头','逃避','没边界'], color: '海蓝色', gem: '海蓝宝', flower: '睡莲', sun: '太阳落在双鱼座：想象力不设限的人，共情力是你的超能力，音乐电影和梦境是你的充电站。', con: '标志性矛盾：心太软容易被耗；幻想太美现实有点扎手。', grow: '核心成长课题：善良要有边界，梦境要落一笔进现实。' }
+];
+function decanOf(k) {
+  const p = parseKey(k), md = (p.getMonth() + 1) * 100 + p.getDate();
+  const xz = XZ_FULL[xzByKey(k)];
+  const starts = [321,420,521,622,723,823,923,1024,1123,1222,120,219];
+  let s0 = null, e0 = null, idx = 9;
+  for (let i = 0; i < starts.length; i++) {
+    const end = (i === 11) ? 320 : starts[i + 1] - 1;
+    const st = starts[i];
+    if ((st <= md && md <= end) || (st > end && (md >= st || md <= end))) { s0 = st; e0 = end; idx = i; break; }
+  }
+  if (s0 === null) return '· 十位分区按星座内每 10 天一段';
+  /* 星座内天数 → 第几个十年 */
+  let dd;
+  if (s0 <= md) dd = Math.floor((md - s0) / 100 * 1) ;
+  const mm = Math.floor(s0 / 100), ddm = s0 % 100;
+  const dayIn = (function () {
+    const a = new Date(p.getFullYear(), mm - 1, ddm), b = new Date(p.getFullYear(), p.getMonth(), p.getDate());
+    return Math.round((b - a) / 86400000) + 1;
+  })();
+  const seg = dayIn <= 10 ? 1 : (dayIn <= 20 ? 2 : 3);
+  const CN = ['一','二','三'];
+  return '第' + ['1','2','3'][seg - 1].replace('1','1').replace('2','2').replace('3','3') + '个十年 · ' + xz.n.slice(0, -1) + CN[seg - 1] + '（星座内第 ' + dayIn + ' 天）';
+}
+/* 确定性运势算法（seed = 日期+星座）：同一天同星座结果固定，非随手编 */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function dayFortune(k, xzIdx) {
+  const p = parseKey(k);
+  const seed = (p.getFullYear() * 10000 + (p.getMonth() + 1) * 100 + p.getDate()) * 31 + xzIdx * 7;
+  const rnd = mulberry32(seed);
+  const score = function () { return 55 + Math.floor(rnd() * 41); };
+  const all = [score(), score(), score(), score()];
+  const overall = Math.round((all[0] + all[1] + all[2] + all[3]) / 4);
+  const tone = overall >= 75 ? 'high' : (overall >= 60 ? 'mid' : 'low');
+  return { overall: overall, love: all[0], work: all[1], wealth: all[2], health: all[3], tone: tone, stamp: ('0' + p.getHours()).slice(-2) + ':' + ('0' + p.getMinutes()).slice(-2) + ':' + ('0' + p.getSeconds()).slice(-2) };
+}
+const FORT_TEXT = {
+  high: '运势整体上扬，之前铺垫的事今天容易看到回响。状态在线，把最重要的事排在上午做，傍晚留点余地收尾，好状态要省着用。',
+  mid: '平稳向好的一天，没有大风浪也没有大惊喜——这种日子最适合把该做的事做完。节奏稳住，晚上复盘十分钟，比什么鸡汤都管用。',
+  low: '今天的能量偏低，别硬扛大事，也别做重要决定。把日程排松一点，照顾好吃饭和睡眠，低谷期守住了就是赢。'
+};
+const FORT_FACE = { high: '😄', mid: '🙂', low: '😐' };
+const FORT_LABEL = { high: '上扬', mid: '平稳向好', low: '谨慎前行' };
+const ZX_LUCK = {
+  num: function (r) { return 1 + Math.floor(r() * 98); },
+  dir: function (r) { return ['正东','正南','正西','正北','东南','西北','西南','东北'][Math.floor(r() * 8)]; },
+  hour: function (r) { const s = Math.floor(r() * 8) * 2 + 8; return ('0' + s).slice(-2) + ':00-' + ('0' + (s + 2) % 24).slice(-2) + ':00'; }
+};
+let zxSel = 6, zxLuckSeed = 0;
+
 function xzByKey(k) {
   const p = parseKey(k);
   const md = (p.getMonth() + 1) * 100 + p.getDate();
@@ -3971,6 +4048,74 @@ const SHI_RANGE = ['23:00-01:00','01:00-03:00','03:00-05:00','05:00-07:00','07:0
 let astroPlain = false;
 
 let astroSelXZ = -1, astroSelSX = -1, astroYM = null, astroDay = null;
+/* ============ 星座运势板块（V89，对齐 TA 工作台） ============ */
+function zodiacBody() {
+  const tk = todayKey();
+  if (zxSel < 0) zxSel = 6;
+  const xz = XZ_FULL[zxSel];
+  const p = parseKey(tk);
+  const f = dayFortune(tk, zxSel);
+  /* 幸运物：确定性 seed（同日固定），重新拉取+1 换一组 */
+  const lr = mulberry32((p.getFullYear() * 10000 + (p.getMonth() + 1) * 100 + p.getDate()) * 97 + zxSel * 13 + zxLuckSeed);
+  const luckNum = ZX_LUCK.num(lr), luckDir = ZX_LUCK.dir(lr), luckHour = ZX_LUCK.hour(lr);
+  let h = '';
+  /* 头部档案大卡 */
+  h += '<div class="card zx-hero"><div class="zx-hero-top">' +
+    '<div class="zx-badge"><span class="zx-emoji">' + xz.emoji + '</span></div>' +
+    '<div class="zx-hero-name"><b>' + xz.n + '</b><span>' + xz.en + '</span>' +
+    '<em class="zx-range">📅 ' + xz.r + '</em></div></div>' +
+    '<div class="zx-facts">' +
+    '<div class="zx-fact"><span>守护星</span><b>' + xz.star + '</b><i>' + xz.starD + '</i></div>' +
+    '<div class="zx-fact"><span>元素</span><b>' + xz.el + '</b><i>' + xz.elD + '</i></div>' +
+    '<div class="zx-fact"><span>模式</span><b>' + xz.mode + '</b><i>' + xz.modeD + '</i></div>' +
+    '<div class="zx-fact"><span>生日</span><b>1999-10-19</b><i>' + decanOf('1999-10-19') + '</i></div>' +
+    '</div>' +
+    '<div class="zx-kw"><p class="card-label">性格关键词</p><div class="as-chips">' +
+    xz.kw.map(k => '<span class="as-chip zx-kw-chip">' + k + '</span>').join('') + '</div></div>' +
+    '<div class="zx-switch"><span class="as-k">换着看：</span>' +
+    '<select class="as-sel" data-astro="xzfull">' + XZ_FULL.map((x, i) => '<option value="' + i + '"' + (i === zxSel ? ' selected' : '') + '>' + x.n + '</option>').join('') + '</select></div>' +
+    '<p class="as-src">档案为通行占星内容（日期范围/守护星/元素/三分法/十位分区）；关键词含缺点，真实为主</p></div>';
+  /* 今日幸运物 */
+  h += '<div class="zx-sect"><h3 class="card-label">🍀 今日幸运物</h3>' +
+    '<button class="btn ghost sm" data-action="zx-repull" style="width:auto;display:inline-block;padding:8px 12px;font-size:12.5px">🔄 重新拉取</button></div>' +
+    '<div class="zx-luck-grid">' +
+    '<div class="zx-luck"><span class="zx-luck-emoji">🎨</span><span class="as-k">幸运色</span><b>' + xz.color + '</b></div>' +
+    '<div class="zx-luck"><span class="zx-luck-emoji">🔢</span><span class="as-k">幸运数</span><b>' + luckNum + '</b></div>' +
+    '<div class="zx-luck"><span class="zx-luck-emoji">💎</span><span class="as-k">幸运石</span><b>' + xz.gem + '</b></div>' +
+    '<div class="zx-luck"><span class="zx-luck-emoji">🧭</span><span class="as-k">方位</span><b>' + luckDir + '</b></div>' +
+    '<div class="zx-luck"><span class="zx-luck-emoji">⏰</span><span class="as-k">吉时</span><b>' + luckHour + '</b></div>' +
+    '<div class="zx-luck"><span class="zx-luck-emoji">🌸</span><span class="as-k">花朵</span><b>' + xz.flower + '</b></div>' +
+    '</div>' +
+    '<p class="as-src">幸运色/石/花为占星通行对应；幸运数/方位/吉时由确定性算法按日生成（同一天固定，重新拉取换一组）· 娱乐参考</p>';
+  /* 星盘速览 */
+  h += '<div class="zx-sect"><h3 class="card-label">⚡ 星盘速览（太阳' + xz.n.slice(0, -1) + '）</h3></div>' +
+    '<div class="card zx-chart-txt"><div class="as-fact"><b>☀️ ' + xz.sun + '</b></div>' +
+    '<div class="as-fact"><b>' + xz.emoji + ' ' + xz.con + '</b></div>' +
+    '<div class="as-fact"><b>🌱 ' + xz.grow + '</b></div>' +
+    '<p class="as-src">通行占星的太阳星座解读；上升/月亮需出生钟点与星历（月亮没把握不编）</p></div>';
+  /* 今日综合运势（确定性算法） */
+  const ring = Math.round(f.overall * 2.51); /* 2.51 ≈ 2πr(40)/100 */
+  h += '<div class="zx-sect"><h3 class="card-label">🔮 今日综合运势</h3></div>' +
+    '<p class="as-src" style="margin:0 2px 8px">⚙️ 本地确定性算法 · 基于' + xz.el + '+' + xz.star + '守护特质 · ' + (p.getMonth() + 1) + '月' + p.getDate() + '日为种子，同一天结果固定</p>' +
+    '<div class="card zx-fort">' +
+    '<div class="zx-fort-top"><div class="zx-ring" style="--p:' + ring + '"><b>' + f.overall + '</b><i>/100</i></div>' +
+    '<div class="zx-fort-txt"><span class="as-ym">' + p.getFullYear() + '年' + (p.getMonth() + 1) + '月' + p.getDate() + '日 ' + WEEK_LABELS[p.getDay()] + '</span>' +
+    '<b class="zx-fort-label">' + FORT_FACE[f.tone] + ' ' + FORT_LABEL[f.tone] + '</b>' +
+    '<p class="sub">' + FORT_TEXT[f.tone] + '</p></div></div>' +
+    '<div class="zx-bars">' +
+    zxBar('💕 爱情人际', f.love, '#E4589B') +
+    zxBar('💼 学业事业', f.work, '#5B6CE8') +
+    zxBar('💰 财富运势', f.wealth, '#E89B2D') +
+    zxBar('🍏 健康身体', f.health, '#27A567') +
+    '</div>' +
+    '<p class="as-src">分数由确定性伪随机生成（seed=日期+星座），是「规则生成的娱乐内容」——不装成天文预测，也绝不随机骗你</p></div>';
+  return h;
+}
+function zxBar(label, v, color) {
+  return '<div class="zx-bar-row"><span class="zx-bar-l">' + label + '</span><b class="zx-bar-v" style="color:' + color + '">' + v + '</b>' +
+    '<div class="zx-bar"><div class="zx-bar-fill" style="width:' + v + '%;background:' + color + '"></div></div></div>';
+}
+
 function astroBody() {
   const tk = todayKey();
   if (astroSelXZ < 0) astroSelXZ = xzByKey('1999-10-19');
@@ -4116,14 +4261,7 @@ function astroBody() {
       '<div class="as-meta">' + a3.chong + ' · 彭祖：' + a3.peng + '</div></div>';
   }
   h += '<p class="cal-legend">想挑大事的日子（面试/搬家/领证），翻到那个月点开看宜忌</p></div>';
-  /* ---- 星座卡 ---- */
-  h += '<div class="card"><div class="as-rel-h"><h3 class="card-label">' + xz.n + ' · ' + xz.r + '</h3>' +
-    '<select class="as-sel" data-astro="xz">' + XINGZUO.map((x, i5) => '<option value="' + i5 + '"' + (i5 === astroSelXZ ? ' selected' : '') + '>' + x.n + '</option>').join('') + '</select></div>' +
-    '<p class="sub">' + xz.tag + '</p>' +
-    '<div class="as-fact"><b>今天适合</b>' + xz.tip + '</div>' +
-    '<div class="as-fact"><b>速配</b>' + xz.mate + '（同元素互旺）</div>' +
-    '<p class="set-tip">星座为通行占星档案（日期范围/元素/守护星），非预测</p></div>';
-  return h;
+return h;
 }
 
 /* ============ 智能训练规划（V61）：读已勾器械 → 自动生成一周居家计划 ============ */
@@ -4648,6 +4786,7 @@ function W_ICON(d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="curren
 const WIDGET_ICONS = {
   ai: W_ICON('<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/><path d="M5 16l.7 1.6L7.4 18l-1.7.4L5 20l-.7-1.6L2.6 18l1.7-.4z"/>'),
   astro: W_ICON('<path d="M12 3l2.2 5.6L20 11l-5.8 2.4L12 19l-2.2-5.6L4 11l5.8-2.4z"/><path d="M19 3.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>'),
+  zodiac: W_ICON('<circle cx="12" cy="12" r="9"/><path d="M7.5 9.5l4.5 3 4.5-3M7.5 14.5l4.5 3 4.5-3"/>'),
   diet: W_ICON('<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>'),
     'fit-hub': W_ICON('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
   'gym-lib': W_ICON('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
@@ -4666,7 +4805,8 @@ const WIDGETS = [
   { id: 'data', t: '数据与同步', sub: '云备份 · 双人同步 · 存档' },
   { id: 'review', t: '年度回顾', sub: '这一年你们的变化' },
   { id: 'remind', t: '称重提醒', sub: '每天早上弹窗提醒' },
-  { id: 'astro', t: '每日运势', sub: '黄道吉日 · 星座 · 生肖命理' }
+  { id: 'astro', t: '黄道吉日', sub: '黄历 · 宜忌 · 挑日子' },
+  { id: 'zodiac', t: '星座运势', sub: '档案 · 幸运物 · 今日运势' }
 ];
 let curWidget = null, widgetBack = null;
 function openWidget(id) {
@@ -4702,6 +4842,7 @@ function renderWidgetSheet(title, backLabel) {
     else if (curWidget === 'data') body += dataBody();
     else if (curWidget === 'remind') body += remindBody();
     else if (curWidget === 'astro') body += astroBody();
+    else if (curWidget === 'zodiac') body += zodiacBody();
     else body += '<p class="sub">这个组件内容走丢了，重新点一下试试</p>';
   } catch (err) {
     /* V63 保险丝：内容函数抛错时也要切换 body，绝不出现标题/内容错位 */
@@ -4873,8 +5014,10 @@ document.addEventListener('change', e => {
   const sel = e.target.closest('[data-astro]');
   if (sel) {
     const v = +sel.value;
-    if (sel.getAttribute('data-astro') === 'xz') astroSelXZ = v; else astroSelSX = v;
-    if (curWidget === 'astro') renderWidgetSheet('每日运势');
+    const t = sel.getAttribute('data-astro');
+    if (t === 'xz') astroSelXZ = v; else if (t === 'sx') astroSelSX = v; else if (t === 'xzfull') zxSel = v;
+    if (curWidget === 'astro') renderWidgetSheet('黄道吉日');
+    if (curWidget === 'zodiac') renderWidgetSheet('星座运势');
     return;
   }
 }, true);
@@ -5163,7 +5306,8 @@ document.addEventListener('click', e => {
     else if (a === 'astro-next') { astroYM.m++; if (astroYM.m > 11) { astroYM.m = 0; astroYM.y++; } astroDay = null; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
     else if (a === 'astro-day') { astroDay = act.getAttribute('data-k'); if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
     else if (a === 'astro-close') { astroDay = null; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
-    else if (a === 'astro-plain') { astroPlain = act.getAttribute('data-v') === '1'; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
+    else if (a === 'astro-plain') { astroPlain = act.getAttribute('data-v') === '1'; if (curWidget === 'astro') renderWidgetSheet('黄道吉日'); }
+    else if (a === 'zx-repull') { zxLuckSeed++; if (curWidget === 'zodiac') renderWidgetSheet('星座运势'); }
     else if (a === 'wcal-prev') { wcalYM.m--; if (wcalYM.m < 0) { wcalYM.m = 11; wcalYM.y--; } wcalSel = null; refreshWorkoutUI(); }
     else if (a === 'wcal-next') { wcalYM.m++; if (wcalYM.m > 11) { wcalYM.m = 0; wcalYM.y++; } wcalSel = null; refreshWorkoutUI(); }
     else if (a === 'wcal-day') { wcalSel = act.getAttribute('data-k'); refreshWorkoutUI(); }
