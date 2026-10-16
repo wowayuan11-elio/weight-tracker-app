@@ -1507,3 +1507,11 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .as-fact{ font-size:13px; line-height:1.55; display:flex; gap:8px; padding:7px 0; border-bottom:1px solid rgba(0,0,0,.05); }
 .as-fact:last-of-type{ border-bottom:none; }
 .as-fact b{ flex-shrink:0; font-size:12px; color:var(--t-dim); padding-top:1px; }
+
+.bz-row{ display:flex; gap:6px; margin-bottom:4px; }
+.bz-pill{ flex:1; background:#F7F5EE; border:1px solid rgba(201,162,75,.25); border-radius:9px; padding:8px 4px; text-align:center; }
+.bz-pill span{ display:block; font-size:10px; color:var(--t-dim); margin-bottom:2px; }
+.bz-pill b{ display:block; font-size:14.5px; letter-spacing:1px; }
+.bz-pill i{ font-style:normal; font-size:10px; color:#C9A24B; }
+.bz-pill.todo{ background:#F4F5F8; border-style:dashed; border-color:rgba(0,0,0,.12); }
+.bz-pill.todo i{ color:var(--t-dim); }
