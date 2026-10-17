@@ -1676,3 +1676,12 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 @keyframes wgpop{ 0%{ transform:scale(.9); } 60%{ transform:scale(1.04); } 100%{ transform:scale(1); } }
 .wg-folder .wg-f-ico{ display:flex; gap:5px; }
 .wg-folder .wg-f-ico svg{ width:16px; height:16px; padding:3px; background:var(--chipbg); border-radius:5px; }
+
+/* ===== V94 悬停打包提示 + 页面卡排序 ===== */
+.wg-item.merge-hint{ outline:2.5px dashed #E8A23A; outline-offset:2px; background:#FDF3E2; }
+.wg-item.merge-hint::after{ content:'松手打包成文件夹'; display:block; font-size:10.5px; color:#B47A1E; margin-top:4px; font-weight:600; }
+[data-psortkey]{ border-radius:20px; }
+[data-psortkey].drop-pop{ animation:wgpop .42s cubic-bezier(.2,.9,.3,1.2); }
+
+#workout-body{ display:flex; flex-direction:column; gap:12px; }
+#workout-body > [data-psortkey] > .card{ margin:0; }
