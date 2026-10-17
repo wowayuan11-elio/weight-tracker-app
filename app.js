@@ -19,8 +19,9 @@ function sanitizeToolsOrder(arr) {
   arr.forEach(x => { if (typeof x === 'string' && (TOOL_IDS_DEFAULT.indexOf(x) > -1 || /^g\d{6,}$/.test(x)) && out.indexOf(x) < 0) out.push(x); });
   return out;
 }
-function sanitizeGroups(g) {
-  /* 兼容对象字典（持久化格式）与数组两种输入，统一输出对象字典 */
+function sanitizeGroups(g, okIds) {
+  /* 兼容对象字典（持久化格式）与数组两种输入，统一输出对象字典；okIds=组内合法 key */
+  const OK = okIds || TOOL_IDS_DEFAULT;
   let arr = [];
   if (Array.isArray(g)) arr = g;
   else if (g && typeof g === 'object') arr = Object.keys(g).map(k => g[k]);
@@ -29,7 +30,7 @@ function sanitizeGroups(g) {
     if (!x || typeof x !== 'object' || typeof x.id !== 'string' || !/^g\d{6,}$/.test(x.id)) return;
     if (!Array.isArray(x.items) || x.items.length < 2) return;
     const uniq = [];
-    x.items.forEach(v => { if (typeof v === 'string' && TOOL_IDS_DEFAULT.indexOf(v) > -1 && uniq.indexOf(v) < 0) uniq.push(v); });
+    x.items.forEach(v => { if (typeof v === 'string' && OK.indexOf(v) > -1 && uniq.indexOf(v) < 0) uniq.push(v); });
     if (uniq.length >= 2) out[x.id] = { id: x.id, name: (typeof x.name === 'string' && x.name.trim()) ? x.name.trim().slice(0, 8) : '文件夹', items: uniq.slice(0, 9) };
   });
   return out;
@@ -40,7 +41,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V94';
+const APP_VERSION = 'V95';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -48,6 +49,9 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V95', d: '10月17日', items: [
+    '统计页 8 个格子支持长按拖动排序，压住另一格半秒可打包成文件夹，顺序进云备份'
+  ]},
   { v: 'V94', d: '10月17日', items: [
     '修复排序：拖动松手=移动位置（默认），压住卡片中心半秒出现"松手打包"提示才是合并——不再一拖就打包',
     '记录、趋势、健身三页的全部卡片支持长按拖动排序，顺序自动保存进云备份'
@@ -955,6 +959,15 @@ function sanitizeUI(u) {
     ok.forEach(k => { if (arr.indexOf(k) < 0) arr.push(k); });
     d.pageOrder[pg] = arr.slice(0, 12);
   });
+  /* V95 统计宫格：格子排序 + 格子文件夹 */
+  const STAT_IDS = ['compare','weekly','monthly','waist','comp','table','plan','history'];
+  if (Array.isArray(u.statsOrder)) {
+    const so = u.statsOrder.filter(x => typeof x === 'string' && (STAT_IDS.indexOf(x) > -1 || /^g\d{6,}$/.test(x)));
+    const uniq = [];
+    so.forEach(x => { if (uniq.indexOf(x) < 0) uniq.push(x); });
+    d.statsOrder = uniq.slice(0, 12);
+  }
+  d.statsGroups = sanitizeGroups(u.statsGroups, STAT_IDS);
   if (u.heroLayout === 'stack' || u.heroLayout === 'grid') d.heroLayout = u.heroLayout;
   if (Array.isArray(u.heroOrder) && u.heroOrder.length === 2 && PERSON_IDS.includes(u.heroOrder[0]) && PERSON_IDS.includes(u.heroOrder[1]) && u.heroOrder[0] !== u.heroOrder[1]) d.heroOrder = u.heroOrder.slice();
   if (u.heroMetrics && typeof u.heroMetrics === 'object') Object.keys(d.heroMetrics).forEach(k => { if (typeof u.heroMetrics[k] === 'boolean') d.heroMetrics[k] = u.heroMetrics[k]; });
@@ -2891,6 +2904,27 @@ function statWeeklyBody() {
 }
 
 /* 宫格：每格只放一个核心值，点开看完整卡 */
+const STAT_META = {
+  compare: { n: '俩人对比', ico: '⚖️' }, weekly: { n: '本周 vs 上周', ico: '📅' }, monthly: { n: '本月复盘', ico: '🗓️' },
+  waist: { n: '腰围', ico: '📏' }, comp: { n: '体成分', ico: '🫀' }, table: { n: '周报表', ico: '📊' },
+  plan: { n: '周计划', ico: '💪' }, history: { n: '历史记录', ico: '📜' }
+};
+function statFlow() {
+  /* V95: 统计宫格展示顺序 = statsOrder（混排格子 id 与文件夹 id） */
+  const ALL = Object.keys(STAT_META);
+  const ord = (state.ui.statsOrder && state.ui.statsOrder.length) ? state.ui.statsOrder.slice() : ALL.slice();
+  ALL.forEach(id => { if (ord.indexOf(id) < 0) ord.push(id); });
+  const grpIds = Object.keys(state.ui.statsGroups || {});
+  const used = new Set();
+  const flow = ord.filter(x => {
+    if (grpIds.indexOf(x) > -1) { used.add(x); return true; }
+    if (ALL.indexOf(x) > -1) return !grpIds.some(g => state.ui.statsGroups[g].items.indexOf(x) > -1);
+    return false;
+  });
+  grpIds.forEach(g => { if (!used.has(g)) flow.push(g); });
+  state.ui.statsOrder = flow;
+  return flow;
+}
 function statGridHTML() {
   const curMe = lastKnown('me'), curPa = lastKnown('partner');
   const wMe = lastKnownField('me_waist'), wPa = lastKnownField('partner_waist');
@@ -2904,21 +2938,35 @@ function statGridHTML() {
       '<span class="sc-foot">' + foot + '</span>' +
     '</button>';
   const hasAny = sortedKeys().length > 0;
+  const valOf = function (k) {
+    if (k === 'compare') return [(curMe !== null ? curMe.toFixed(1) : '--') + ' / ' + (curPa !== null ? curPa.toFixed(1) : '--'), '最新一次体重，谁的条更长'];
+    const ws = weekStartOf(new Date());
+    const wkMe = avgBetween(dateKey(ws), todayKey(), 'me'), wkPa = avgBetween(dateKey(ws), todayKey(), 'partner');
+    if (k === 'weekly') return [((wkMe || wkPa) ? (wkMe ? wkMe.avg.toFixed(1) : '--') + ' / ' + (wkPa ? wkPa.avg.toFixed(1) : '--') : '还没记'), '本周平均，和上周比谁在掉'];
+    if (k === 'monthly') return [hasAny ? '复盘' : '暂无', '这个月的节奏总结'];
+    if (k === 'waist') return [(wMe ? wMe.value.toFixed(1) : (wPa ? wPa.value.toFixed(1) : '没量')), '肚子的硬指标，每周量 1~2 次'];
+    if (k === 'comp') return [wf ? wf.value.toFixed(0) + ' 级' : '没录', wf ? (wf.value < 5 ? '内脏脂肪达标' : '内脏脂肪警戒，主战场') : '小米秤报告抄进来'];
+    if (k === 'table') return [hasAny ? '看趋势' : '暂无', '每周平均一行行对比'];
+    if (k === 'plan') return ['打开', '按器械排的一周安排'];
+    if (k === 'history') return [sortedKeys().length + ' 天', '每一天的原始记录'];
+    return ['', ''];
+  };
   const cells = [];
-  cells.push(cell('compare', '⚖️', '俩人对比', (curMe !== null ? curMe.toFixed(1) : '--') + ' / ' + (curPa !== null ? curPa.toFixed(1) : '--'), '最新一次体重，谁的条更长'));
-  const ws = weekStartOf(new Date());
-  const wkMe = avgBetween(dateKey(ws), todayKey(), 'me'), wkPa = avgBetween(dateKey(ws), todayKey(), 'partner');
-  const wkTxt = (wkMe || wkPa) ? (wkMe ? wkMe.avg.toFixed(1) : '--') + ' / ' + (wkPa ? wkPa.avg.toFixed(1) : '--') : '还没记';
-  cells.push(cell('weekly', '📅', '本周 vs 上周', wkTxt, '本周平均，和上周比谁在掉'));
-  cells.push(cell('monthly', '🗓️', '本月复盘', hasAny ? '复盘' : '暂无', '这个月的节奏总结'));
-  cells.push(cell('waist', '📏', '腰围', (wMe ? wMe.value.toFixed(1) : (wPa ? wPa.value.toFixed(1) : '没量')), '肚子的硬指标，每周量 1~2 次'));
-  cells.push(cell('comp', wf ? (wf.value < 5 ? '🫀' : '⚠️') : '🫀', '体成分', wf ? wf.value.toFixed(0) + ' 级' : '没录', wf ? (wf.value < 5 ? '内脏脂肪达标' : '内脏脂肪警戒，主战场') : '小米秤报告抄进来'));
-  cells.push(cell('table', '📊', '周报表', hasAny ? '看趋势' : '暂无', '每周平均一行行对比'));
-  cells.push(cell('plan', '💪', '周计划', '打开', '按器械排的一周安排'));
-  cells.push(cell('history', '📜', '历史记录', sortedKeys().length + ' 天', '每一天的原始记录'));
+  statFlow().forEach(function (id) {
+    const g = state.ui.statsGroups && state.ui.statsGroups[id];
+    if (g) {
+      cells.push('<button class="stat-cell stat-folder" data-action="group-open" data-store="stats" data-id="' + id + '">' +
+        '<span class="sc-ico">📁</span><span class="sc-name">' + esc(g.name) + '</span>' +
+        '<span class="sc-val">' + g.items.length + ' 格</span>' +
+        '<span class="sc-foot">点击打开文件夹</span></button>');
+      return;
+    }
+    const v = valOf(id);
+    cells.push(cell(id, STAT_META[id].ico, STAT_META[id].n, v[0], v[1]));
+  });
   return '<div class="card"><h3 class="card-label">数据 · 点开看详情</h3>' +
-    '<p class="sub">格子上一眼只放最关键的数 · 点哪个看哪个的完整分析</p>' +
-    '<div class="stat-grid">' + cells.join('') + '</div></div>';
+    '<p class="sub">格子上一眼只放最关键的数 · <b style="color:var(--text)">长按格子拖动排序</b>，压住另一格半秒打包成文件夹</p>' +
+    '<div class="stat-grid" id="stat-grid">' + cells.join('') + '</div></div>';
 }
 
 /* 点格子 → 弹出该组件完整内容 */
@@ -3009,6 +3057,7 @@ function renderStats() {
   html += statGridHTML();
   document.getElementById('stats-body').innerHTML = html;
   bindFoldToggle(document.getElementById("stats-body"));
+  attachDrag('#stat-grid', '.stat-cell', function (el) { return el.getAttribute('data-v') || el.getAttribute('data-id'); }, 'statgrid');
 }
 
 /* 月份折叠状态（V30）：默认只展开当月，历史月收起 */
@@ -4892,29 +4941,40 @@ const WIDGETS = [
   { id: 'zodiac', t: '星座运势', sub: '档案 · 幸运物 · 今日运势' }
 ];
 let curWidget = null, widgetBack = null;
-function openGroup(gid) {
-  const g = state.ui.toolsGroups && state.ui.toolsGroups[gid];
-  if (!g) { renderTools(); return; }
+function openGroup(gid, store) {
+  store = store || 'tools';
+  const groups = store === 'stats' ? state.ui.statsGroups : state.ui.toolsGroups;
+  const g = groups && groups[gid];
+  if (!g) { if (store === 'stats') renderStats(); else renderTools(); return; }
   document.getElementById('widget-sheet-title').textContent = g.name;
   document.getElementById('widget-sheet').classList.add('show');
   document.getElementById('sheet-mask').classList.add('show');
   curWidget = 'group:' + gid;
-  let b = '<p class="sub" style="margin:2px 2px 12px">文件夹 · ' + g.items.length + ' 个组件</p>';
+  let b = '<p class="sub" style="margin:2px 2px 12px">文件夹 · ' + g.items.length + ' 个' + (store === 'stats' ? '格子' : '组件') + '</p>';
   g.items.forEach(function (iid) {
+    if (store === 'stats') {
+      const m = STAT_META[iid];
+      if (!m) return;
+      b += '<button class="wg-item" data-action="open-stat" data-v="' + iid + '" style="width:100%;margin-bottom:10px">' +
+        '<span class="wg-f-ico"><span style="font-size:18px">' + m.ico + '</span></span><b>' + m.n + '</b><span>点开看完整分析</span></button>';
+      return;
+    }
     const w = WIDGETS.find(x => x.id === iid);
     if (!w) return;
     b += '<button class="wg-item" data-action="widget-open" data-id="' + iid + '" style="width:100%;margin-bottom:10px">' +
       WIDGET_ICONS[iid] + '<b>' + w.t + '</b><span>' + w.sub + '</span></button>';
   });
   b += '<div style="display:flex;gap:8px;margin-top:14px">' +
-    '<button class="btn ghost sm" data-action="group-act" data-op="rename" data-id="' + gid + '" style="flex:1">改名</button>' +
-    '<button class="btn ghost sm" data-action="group-act" data-op="dissolve" data-id="' + gid + '" style="flex:1;color:#c0392b">解散文件夹</button></div>' +
-    '<p class="as-src" style="margin-top:10px">解散后组件会按原位置放回健康营</p>';
+    '<button class="btn ghost sm" data-action="group-act" data-op="rename" data-id="' + gid + '" data-store="' + store + '" style="flex:1">改名</button>' +
+    '<button class="btn ghost sm" data-action="group-act" data-op="dissolve" data-id="' + gid + '" data-store="' + store + '" style="flex:1;color:#c0392b">解散文件夹</button></div>' +
+    '<p class="as-src" style="margin-top:10px">解散后' + (store === 'stats' ? '格子' : '组件') + '会按原位置放回</p>';
   document.getElementById('widget-body').innerHTML = b;
   document.getElementById('widget-sheet-body').scrollTop = 0;
 }
-function groupAct(op, gid, wid) {
-  const g = state.ui.toolsGroups && state.ui.toolsGroups[gid];
+function groupAct(op, gid, wid, store) {
+  store = store || 'tools';
+  const groups = store === 'stats' ? state.ui.statsGroups : state.ui.toolsGroups;
+  const g = groups && groups[gid];
   if (!g) return;
   if (op === 'rename') {
     const name = prompt('文件夹名字（最多 8 个字）', g.name);
@@ -4925,16 +4985,29 @@ function groupAct(op, gid, wid) {
       toast('✓ 已改名「' + g.name + '」');
     }
   } else if (op === 'dissolve') {
+    if (store === 'stats') {
+      const flow = statFlow(); const at = flow.indexOf(gid);
+      if (at > -1) {
+        flow.splice(at, 1);
+        g.items.forEach(function (iid, i) { flow.splice(at + i, 0, iid); });
+      }
+      delete state.ui.statsGroups[gid];
+      state.ui.statsOrder = flow;
+      persist(); renderStats();
+    } else {
     const flow = toolsFlow(); const at = flow.indexOf(gid);
-    flow.splice(at, 1);
-    g.items.forEach(function (iid, i) { flow.splice(at + i, 0, iid); });
+    if (at > -1) {
+      flow.splice(at, 1);
+      g.items.forEach(function (iid, i) { flow.splice(at + i, 0, iid); });
+    }
     delete state.ui.toolsGroups[gid];
     state.ui.toolsOrder = flow;
     persist(); renderTools();
+    }
     document.getElementById('widget-sheet').classList.remove('show');
     document.getElementById('sheet-mask').classList.remove('show');
     curWidget = null;
-    toast('✓ 文件夹已解散，组件放回原位');
+    toast('✓ 文件夹已解散，' + (store === 'stats' ? '格子' : '组件') + '放回原位');
   }
 }
 function openWidget(id) {
@@ -5078,6 +5151,37 @@ function finishDrag(target, allowMerge) {
   ctx.card.style.transform = '';
   document.querySelectorAll('.drop-on').forEach(c => c.classList.remove('drop-on'));
   if (!ctx.armed) return;
+  /* statgrid 模式：统计宫格移动/合并 */
+  if (ctx.mode === 'statgrid') {
+    const flow = statFlow();
+    const from = flow.indexOf(ctx.id);
+    const tidAttr = target ? (target.getAttribute('data-v') || target.getAttribute('data-id')) : null;
+    if (target && tidAttr && tidAttr !== ctx.id) {
+      const tid = tidAttr;
+      const ti = flow.indexOf(tid);
+      const isFolder = !!state.ui.statsGroups[tid];
+      if (allowMerge && ti > -1 && !/^g/.test(ctx.id)) {
+        const g = state.ui.statsGroups[tid];
+        if (g && g.items.length < 9) { g.items.push(ctx.id); toast('✓ 已加入「' + g.name + '」'); }
+        else {
+          const gid = 'g' + Date.now();
+          state.ui.statsGroups[gid] = { id: gid, name: '文件夹', items: [tid, ctx.id] };
+          flow[ti] = gid;
+          toast('✓ 已打包成文件夹 · 点开可改名/解散');
+        }
+        const fi = flow.indexOf(ctx.id); if (fi > -1) flow.splice(fi, 1);
+      } else if (ti > -1 && ti !== from) {
+        flow.splice(from, 1);
+        let to2 = flow.indexOf(tid); if (from < to2) to2--;
+        flow.splice(to2, 0, ctx.id);
+      }
+    }
+    state.ui.statsOrder = flow;
+    persist(); renderStats();
+    const el4 = document.querySelector('.stat-cell[data-v="' + ctx.id + '"],.stat-cell[data-id="' + ctx.id + '"]');
+    if (el4) { el4.classList.add('drop-pop'); setTimeout(function () { el4.classList.remove('drop-pop'); }, 420); }
+    return;
+  }
   /* page 模式（记录/趋势/健身页卡排序）先于 tools 流程处理 */
   if (ctx.mode && ctx.mode.indexOf('page:') === 0) {
     const pg = ctx.mode.slice(5);
@@ -5582,8 +5686,8 @@ document.addEventListener('click', e => {
         toast('✓ 一周计划已按你的器械生成');
       } catch (err) { toast('生成失败：' + err.message); }
     }
-    else if (a === 'group-open') { openGroup(act.getAttribute('data-id')); }
-    else if (a === 'group-act') { groupAct(act.getAttribute('data-op'), act.getAttribute('data-id'), act.getAttribute('data-w')); }
+    else if (a === 'group-open') { openGroup(act.getAttribute('data-id'), act.getAttribute('data-store')); }
+    else if (a === 'group-act') { groupAct(act.getAttribute('data-op'), act.getAttribute('data-id'), act.getAttribute('data-w'), act.getAttribute('data-store')); }
     else if (a === 'widget-open') {
       if (Date.now() < suppressClickUntil) return;
       openWidget(act.getAttribute('data-id'));
