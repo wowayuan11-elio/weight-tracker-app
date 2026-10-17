@@ -1663,3 +1663,8 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .as-pg-row b{ color:#8E6FB8; font-size:13px; }
 .as-pg-row .as-pg-txt{ font-size:14.5px; font-weight:700; }
 .as-pg-row i{ font-style:normal; font-size:12px; color:#83838B; line-height:1.5; }
+
+/* ===== V92: 手机适配兜底——任何板块禁止横向溢出 ===== */
+.sheet-body{ overflow-x:hidden; }
+.sheet-body .card{ max-width:100%; }
+.zx-chart-txt .as-fact span{ flex:1; min-width:0; word-break:break-word; font-size:13px; line-height:1.7; color:var(--text); }
