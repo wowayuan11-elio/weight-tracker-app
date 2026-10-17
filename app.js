@@ -11,12 +11,36 @@ const GH_SYNC_KEY = 'couples_weight_gh_sync';
 const GH_DATA_REPO = 'weight-tracker-data';
 const PERSON_IDS = ['me', 'partner'];
 const DEFAULT_NAMES = { me: '我', partner: '对象' };
+
+const TOOL_IDS_DEFAULT = ['ai','diet','equip','trend','data','review','remind','astro','zodiac'];
+function sanitizeToolsOrder(arr) {
+  if (!Array.isArray(arr)) return TOOL_IDS_DEFAULT.slice();
+  const out = [];
+  arr.forEach(x => { if (typeof x === 'string' && (TOOL_IDS_DEFAULT.indexOf(x) > -1 || /^g\d{6,}$/.test(x)) && out.indexOf(x) < 0) out.push(x); });
+  return out;
+}
+function sanitizeGroups(g) {
+  /* 兼容对象字典（持久化格式）与数组两种输入，统一输出对象字典 */
+  let arr = [];
+  if (Array.isArray(g)) arr = g;
+  else if (g && typeof g === 'object') arr = Object.keys(g).map(k => g[k]);
+  const out = {};
+  arr.slice(0, 6).forEach(x => {
+    if (!x || typeof x !== 'object' || typeof x.id !== 'string' || !/^g\d{6,}$/.test(x.id)) return;
+    if (!Array.isArray(x.items) || x.items.length < 2) return;
+    const uniq = [];
+    x.items.forEach(v => { if (typeof v === 'string' && TOOL_IDS_DEFAULT.indexOf(v) > -1 && uniq.indexOf(v) < 0) uniq.push(v); });
+    if (uniq.length >= 2) out[x.id] = { id: x.id, name: (typeof x.name === 'string' && x.name.trim()) ? x.name.trim().slice(0, 8) : '文件夹', items: uniq.slice(0, 9) };
+  });
+  return out;
+}
+
 let COLORS = { me: '#007aff', partner: '#ff9500' }; /* V42: let，随主题切换同步 */
 const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V92';
+const APP_VERSION = 'V93';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -24,6 +48,11 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V93', d: '10月17日', items: [
+    '健康营全部组件支持长按拖动排序（iPhone 桌面逻辑），拖到另一张卡上直接打包成文件夹',
+    '文件夹支持改名/解散/移入新组件，设置页各卡片也支持长按拖动调顺序',
+    '排序和文件夹存进云备份，换手机/清缓存都不丢'
+  ]},
   { v: 'V92', d: '10月17日', items: [
     '修复：星座「星盘速览」长句把弹层横向撑爆——文字改正常换行，并加全局禁止横向溢出兜底'
   ]},
@@ -900,8 +929,15 @@ const GYM_MOVES = [
 
 /* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
 function sanitizeUI(u) {
-  const d = { heroLayout: 'grid', heroOrder: PERSON_IDS.slice(), heroMetrics: { goal: true, bmi: true, bf: true, waist: true, vf: true, mm: true } };
+  const d = { heroLayout: 'grid', heroOrder: PERSON_IDS.slice(), heroMetrics: { goal: true, bmi: true, bf: true, waist: true, vf: true, mm: true }, toolsOrder: TOOL_IDS_DEFAULT.slice(), toolsGroups: {}, setOrder: [] };
   if (!u || typeof u !== 'object') return d;
+  /* V93 自定义排序/分组：白名单严密校验 */
+  d.toolsOrder = sanitizeToolsOrder(u.toolsOrder);
+  d.toolsGroups = sanitizeGroups(u.toolsGroups);
+  if (Array.isArray(u.setOrder)) {
+    const OK_SET = ['theme', 'who', 'metrics', 'about'];
+    d.setOrder = u.setOrder.filter(x => typeof x === 'string' && OK_SET.indexOf(x) > -1).slice(0, 8);
+  }
   if (u.heroLayout === 'stack' || u.heroLayout === 'grid') d.heroLayout = u.heroLayout;
   if (Array.isArray(u.heroOrder) && u.heroOrder.length === 2 && PERSON_IDS.includes(u.heroOrder[0]) && PERSON_IDS.includes(u.heroOrder[1]) && u.heroOrder[0] !== u.heroOrder[1]) d.heroOrder = u.heroOrder.slice();
   if (u.heroMetrics && typeof u.heroMetrics === 'object') Object.keys(d.heroMetrics).forEach(k => { if (typeof u.heroMetrics[k] === 'boolean') d.heroMetrics[k] = u.heroMetrics[k]; });
@@ -4820,6 +4856,51 @@ const WIDGETS = [
   { id: 'zodiac', t: '星座运势', sub: '档案 · 幸运物 · 今日运势' }
 ];
 let curWidget = null, widgetBack = null;
+function openGroup(gid) {
+  const g = state.ui.toolsGroups && state.ui.toolsGroups[gid];
+  if (!g) { renderTools(); return; }
+  document.getElementById('widget-sheet-title').textContent = g.name;
+  document.getElementById('widget-sheet').classList.add('show');
+  document.getElementById('sheet-mask').classList.add('show');
+  curWidget = 'group:' + gid;
+  let b = '<p class="sub" style="margin:2px 2px 12px">文件夹 · ' + g.items.length + ' 个组件</p>';
+  g.items.forEach(function (iid) {
+    const w = WIDGETS.find(x => x.id === iid);
+    if (!w) return;
+    b += '<button class="wg-item" data-action="widget-open" data-id="' + iid + '" style="width:100%;margin-bottom:10px">' +
+      WIDGET_ICONS[iid] + '<b>' + w.t + '</b><span>' + w.sub + '</span></button>';
+  });
+  b += '<div style="display:flex;gap:8px;margin-top:14px">' +
+    '<button class="btn ghost sm" data-action="group-act" data-op="rename" data-id="' + gid + '" style="flex:1">改名</button>' +
+    '<button class="btn ghost sm" data-action="group-act" data-op="dissolve" data-id="' + gid + '" style="flex:1;color:#c0392b">解散文件夹</button></div>' +
+    '<p class="as-src" style="margin-top:10px">解散后组件会按原位置放回健康营</p>';
+  document.getElementById('widget-body').innerHTML = b;
+  document.getElementById('widget-sheet-body').scrollTop = 0;
+}
+function groupAct(op, gid, wid) {
+  const g = state.ui.toolsGroups && state.ui.toolsGroups[gid];
+  if (!g) return;
+  if (op === 'rename') {
+    const name = prompt('文件夹名字（最多 8 个字）', g.name);
+    if (name && name.trim()) {
+      g.name = name.trim().slice(0, 8);
+      persist(); renderTools();
+      if (curWidget === 'group:' + gid) { openGroup(gid); }
+      toast('✓ 已改名「' + g.name + '」');
+    }
+  } else if (op === 'dissolve') {
+    const flow = toolsFlow(); const at = flow.indexOf(gid);
+    flow.splice(at, 1);
+    g.items.forEach(function (iid, i) { flow.splice(at + i, 0, iid); });
+    delete state.ui.toolsGroups[gid];
+    state.ui.toolsOrder = flow;
+    persist(); renderTools();
+    document.getElementById('widget-sheet').classList.remove('show');
+    document.getElementById('sheet-mask').classList.remove('show');
+    curWidget = null;
+    toast('✓ 文件夹已解散，组件放回原位');
+  }
+}
 function openWidget(id) {
   if (id === 'gym-lib') { fitTab = 'moves'; switchTab('workout'); refreshWorkoutUI(); return; } /* V86: 动作库并入健身页 */
   const w = WIDGETS.find(x => x.id === id);
@@ -4861,12 +4942,168 @@ function renderWidgetSheet(title, backLabel) {
   }
   bEl.innerHTML = body;
 }
+/* ===== V93 长按拖拽排序引擎（iOS 桌面逻辑）：长按拿起→拖动→松手落位；拖到另一张卡正中=打包成文件夹 ===== */
+let dragCtx = null;
+function attachDrag(gridSel, itemSel, idFn, mode) {
+  const grid = document.querySelector(gridSel);
+  if (!grid || grid.dataset.dragBound === '1') return;
+  grid.dataset.dragBound = '1';
+  grid.addEventListener('touchstart', function (e) {
+    const card = e.target.closest(itemSel);
+    if (!card || dragCtx) return;
+    const t = e.touches[0];
+    dragCtx = { card, id: idFn(card), x: t.clientX, y: t.clientY, t0: Date.now(), mode, gridSel, itemSel, armed: false, mv: null, up: null };
+    dragCtx.timer = setTimeout(function () { armDrag(dragCtx); }, 480);
+    /* 未拿起就抬手 → 取消长按 */
+    document.addEventListener('touchend', function cancel() {
+      document.removeEventListener('touchend', cancel);
+      document.removeEventListener('touchmove', cancelMv);
+      if (dragCtx && !dragCtx.armed) { if (dragCtx.timer) clearTimeout(dragCtx.timer); dragCtx = null; }
+    });
+    /* 未拿起就滚动超过 12px → 取消 */
+    const cancelMv = function (e2) {
+      if (dragCtx && !dragCtx.armed && Math.hypot(e2.touches[0].clientX - dragCtx.x, e2.touches[0].clientY - dragCtx.y) > 12) {
+        if (dragCtx.timer) clearTimeout(dragCtx.timer); dragCtx = null;
+      }
+    };
+    document.addEventListener('touchmove', cancelMv, { passive: true });
+  }, { passive: true });
+}
+let suppressClickUntil = 0;
+function armDrag(ctx) {
+  if (!dragCtx || dragCtx !== ctx) return;
+  ctx.armed = true;
+  ctx.card.classList.add('dragging');
+  if (navigator.vibrate) navigator.vibrate(10);
+  toast('已拿起 · 拖到位置松手，压在另一张卡上=打包成文件夹');
+  document.addEventListener('touchmove', ctx.mv = function (e) {
+    if (!dragCtx || !dragCtx.armed) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    dragCtx.lx = t.clientX; dragCtx.ly = t.clientY;
+    dragCtx.card.style.transform = 'translate(' + (t.clientX - dragCtx.x) + 'px,' + (t.clientY - dragCtx.y) + 'px) scale(1.06)';
+    /* 高亮手指正下方的目标卡 */
+    document.querySelectorAll(dragCtx.gridSel + ' ' + dragCtx.itemSel).forEach(function (c) {
+      if (c === dragCtx.card) { c.classList.remove('drop-on'); return; }
+      const r = c.getBoundingClientRect();
+      const cx = t.clientX, cy = t.clientY;
+      const hit = cx > r.left && cx < r.right && cy > r.top && cy < r.bottom;
+      const near = Math.hypot(cx - (r.left + r.width / 2), cy - (r.top + r.height / 2)) < Math.min(r.width, r.height) * 0.42;
+      c.classList.toggle('drop-on', hit && near);
+    });
+  }, { passive: false });
+  document.addEventListener('touchend', ctx.up = function () {
+    if (!dragCtx || !dragCtx.armed) return;
+    let on = document.querySelector(dragCtx.gridSel + ' ' + dragCtx.itemSel + '.drop-on');
+    if (!on && dragCtx.lx != null) {
+      /* fallback：没压中卡中心 → 最近卡（140px 内）按位置插入 */
+      let best = null, bd = 1e9;
+      document.querySelectorAll(dragCtx.gridSel + ' ' + dragCtx.itemSel).forEach(function (c) {
+        if (c === dragCtx.card) return;
+        const r = c.getBoundingClientRect();
+        const d = Math.hypot(dragCtx.lx - (r.left + r.width / 2), dragCtx.ly - (r.top + r.height / 2));
+        if (d < bd) { bd = d; best = c; }
+      });
+      const rr = best.getBoundingClientRect();
+      if (best && bd < Math.max(90, Math.min(rr.width, rr.height) * 1.05)) on = best;
+    }
+    /* 压中卡中心=可合并；fallback 最近卡=只插入位置 */
+    finishDrag(on, !!document.querySelector(dragCtx.gridSel + ' ' + dragCtx.itemSel + '.drop-on'));
+  });
+}
+function finishDrag(target, allowMerge) {
+  const ctx = dragCtx; dragCtx = null;
+  suppressClickUntil = Date.now() + 450;
+  if (ctx.timer) clearTimeout(ctx.timer);
+  document.removeEventListener('touchmove', ctx.mv);
+  document.removeEventListener('touchend', ctx.up);
+  ctx.card.classList.remove('dragging');
+  ctx.card.style.transform = '';
+  document.querySelectorAll('.drop-on').forEach(c => c.classList.remove('drop-on'));
+  if (!ctx.armed) return;
+  const flow = toolsFlow();
+  const from = flow.indexOf(ctx.id);
+  if (from < 0) return;
+  if (target && target.getAttribute('data-id') !== ctx.id) {
+    const tid = target.getAttribute('data-id');
+    if (allowMerge && ctx.mode === 'tools' && target.getAttribute('data-kind') === 'card' && !/^g/.test(ctx.id)) {
+      /* 散卡压散卡/压文件夹 → 打包 */
+      const g = state.ui.toolsGroups[tid];
+      const ti = flow.indexOf(tid);
+      if (ti < 0) { /* 目标异常，退化为普通重排 */ }
+      else if (g && g.items.length < 9) { g.items.push(ctx.id); toast('✓ 已加入「' + g.name + '」'); }
+      else {
+        const gid = 'g' + Date.now();
+        state.ui.toolsGroups[gid] = { id: gid, name: '文件夹', items: [tid, ctx.id] };
+        flow[ti] = gid;
+        toast('✓ 已打包成文件夹 · 点开可改名/解散');
+      }
+      /* 从 flow 移除拖动卡（已入组） */
+      const fi = flow.indexOf(ctx.id); if (fi > -1) flow.splice(fi, 1);
+    } else {
+      /* 普通落位：移动到目标位置（删除后索引校正） */
+      let to = flow.indexOf(tid);
+      if (to > -1 && to !== from) {
+        flow.splice(from, 1);
+        if (from < to) to--;
+        flow.splice(to, 0, ctx.id);
+      }
+    }
+  }
+  if (ctx.mode === 'set') {
+    const ids = [...document.querySelectorAll('#set-grid .wg-item')].map(c => c.getAttribute('data-id'));
+    const f2 = ids.filter(x => x !== ctx.id);
+    if (target) { const t2 = f2.indexOf(target.getAttribute('data-id')); if (t2 > -1) f2.splice(t2, 0, ctx.id); }
+    else if (f2.indexOf(ctx.id) < 0) f2.push(ctx.id);
+    state.ui.setOrder = f2;
+  } else {
+    state.ui.toolsOrder = flow;
+  }
+  persist();
+  if (ctx.mode === 'set') {
+    setCardsCache && regroupSettings();
+    const el2 = document.querySelector('#set-grid .wg-item[data-id="' + ctx.id + '"]');
+    if (el2) { el2.classList.add('drop-pop'); setTimeout(function () { el2.classList.remove('drop-pop'); }, 420); }
+  } else {
+    renderTools();
+    const el = document.querySelector('.wg-item[data-id="' + ctx.id + '"]');
+    if (el) { el.classList.add('drop-pop'); setTimeout(function () { el.classList.remove('drop-pop'); }, 420); }
+  }
+}
+
+function toolsFlow() {
+  /* V93: 展示顺序 = toolsOrder（混排组件 id 与文件夹 id），补齐新增、滤掉非法 */
+  const ord = (state.ui.toolsOrder || TOOL_IDS_DEFAULT.slice()).slice();
+  TOOL_IDS_DEFAULT.forEach(id => { if (ord.indexOf(id) < 0) ord.push(id); });
+  const grpIds = Object.keys(state.ui.toolsGroups || {});
+  const used = new Set();
+  const flow = ord.filter(x => {
+    if (grpIds.indexOf(x) > -1) { used.add(x); return true; }
+    if (TOOL_IDS_DEFAULT.indexOf(x) > -1) {
+      const inGrp = grpIds.some(g => state.ui.toolsGroups[g].items.indexOf(x) > -1);
+      return !inGrp;
+    }
+    return false;
+  });
+  grpIds.forEach(g => { if (used.has(g) === false) flow.push(g); });
+  state.ui.toolsOrder = flow;
+  return flow;
+}
 function renderTools() {
   document.getElementById('tools-body').innerHTML =
-    '<p class="sub" style="margin:4px 2px 14px">吃的、练的、数据家底，都在这营里管 · 点组件进去</p>' +
-    '<div class="wg-grid">' + WIDGETS.map(w =>
-      '<button class="wg-item" data-action="widget-open" data-id="' + w.id + '">' +
-      WIDGET_ICONS[w.id] + '<b>' + w.t + '</b><span>' + w.sub + '</span></button>').join('') + '</div>';
+    '<p class="sub" style="margin:4px 2px 14px">吃的、练的、数据家底，都在这营里管 · <b style="color:var(--text)">长按卡片可拖动排序</b>，拖到另一张卡上打包成文件夹</p>' +
+    '<div class="wg-grid" id="wg-grid">' + toolsFlow().map(function (id) {
+      const g = state.ui.toolsGroups && state.ui.toolsGroups[id];
+      if (g) {
+        return '<button class="wg-item wg-folder" data-action="group-open" data-id="' + id + '" data-kind="folder">' +
+          '<span class="wg-f-ico">' + g.items.slice(0, 4).map(function (iid) { return WIDGET_ICONS[iid] || ''; }).join('') + '</span>' +
+          '<b>' + esc(g.name) + '</b><span>' + g.items.length + ' 个组件 · 点击打开</span></button>';
+      }
+      const w = WIDGETS.find(x => x.id === id);
+      return '<button class="wg-item" data-action="widget-open" data-id="' + id + '" data-kind="card">' +
+        WIDGET_ICONS[id] + '<b>' + w.t + '</b><span>' + w.sub + '</span></button>';
+    }).join('') + '</div>';
+  attachDrag('#wg-grid', '.wg-item', function (el) { return el.getAttribute('data-id'); }, 'tools');
 }
 
 let setCardsCache = null, setGroupBuckets = null;
@@ -4880,6 +5117,59 @@ const SET_ICONS = {
   metrics: SET_ICON('<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>'),
   about: SET_ICON('<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>')
 };
+function attachSetDrag() {
+  const body = document.getElementById('settings-body');
+  if (!body || body.dataset.setDrag === '1') return;
+  body.dataset.setDrag = '1';
+  let ctx = null;
+  body.addEventListener('touchstart', function (e) {
+    const card = e.target.closest('#settings-body > .card');
+    if (!card || ctx) return;
+    const t = e.touches[0];
+    ctx = { card, x: t.clientX, y: t.clientY, armed: false, key: card.dataset.setkey, mv: null, up: null };
+    ctx.timer = setTimeout(function () {
+      if (!ctx) return;
+      ctx.armed = true; ctx.card.classList.add('dragging');
+      if (navigator.vibrate) navigator.vibrate(10);
+      toast('已拿起 · 上下拖动调整设置卡顺序');
+      body.style.overflow = 'hidden';
+    }, 480);
+  }, { passive: true });
+  body.addEventListener('touchmove', function (e) {
+    if (!ctx || !ctx.armed) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    ctx.card.style.transform = 'translateY(' + (t.clientY - ctx.y) + 'px)';
+    document.querySelectorAll('#settings-body > .card').forEach(function (c) {
+      if (c === ctx.card) { c.classList.remove('drop-on'); return; }
+      const r = c.getBoundingClientRect();
+      c.classList.toggle('drop-on', t.clientY > r.top && t.clientY < r.bottom);
+    });
+  }, { passive: false });
+  body.addEventListener('touchend', function () {
+    if (!ctx || !ctx.armed) { if (ctx) clearTimeout(ctx.timer); ctx = null; return; }
+    const on = document.querySelector('#settings-body > .card.drop-on');
+    ctx.card.classList.remove('dragging'); ctx.card.style.transform = '';
+    document.querySelectorAll('.drop-on').forEach(c => c.classList.remove('drop-on'));
+    body.style.overflow = '';
+    const cards = [...body.querySelectorAll(':scope > .card')];
+    if (on && on !== ctx.card) {
+      const keys = cards.map(c => c.dataset.setkey);
+      const to = keys.indexOf(on.dataset.setkey);
+      if (to > -1) {
+        state.ui.setOrder = keys.filter(k => k !== ctx.key);
+        state.ui.setOrder.splice(to, 0, ctx.key);
+        persist();
+        const cur = setCardsCache; setCardsCache = null;
+        cards.forEach(c => c.remove());
+        setCardsCache = cur;
+        regroupSettings();
+        toast('✓ 顺序已保存');
+      }
+    }
+    ctx = null;
+  });
+}
 function regroupSettings() {
   const body = document.getElementById('settings-body');
   if (!body) return;
@@ -4891,7 +5181,7 @@ function regroupSettings() {
   const thName = th ? th.n : (state.ui.theme || '经典');
   const age = lastBackupAgeDays();
   /* V64：设置只留纯偏好（行业惯例），业务功能全部搬去健康营 */
-  const GROUPS = [
+  let GROUPS = [
     { id: 'theme',  match: /设计风格/, t: '主题外观', sub: '主题「' + thName + '」· 每天换一个心情' },
     { id: 'who',    match: /称呼|目标体重|身高/, t: '名字与目标', sub: esc(state.names.me) + ' & ' + esc(state.names.partner) + (typeof state.goals.me === 'number' ? ' · 目标 ' + state.goals.me + ' / ' + state.goals.partner : '') },
     { id: 'metrics', match: /指标怎么看/, t: '指标说明', sub: '每个数字怎么看、准不准' },
@@ -4908,10 +5198,15 @@ function regroupSettings() {
     if (g) buckets[g.id].push(card);
   });
   setGroupBuckets = buckets;
-  body.innerHTML = '<p class="sub" style="margin:2px 2px 12px">偏好都在这 · 健身的和数据的在「健康营」里管</p>' +
-    '<div class="wg-grid">' + GROUPS.filter(g => buckets[g.id].length).map(g =>
+  let visible = GROUPS.filter(g => buckets[g.id].length);
+  /* V93: 按用户排序 setOrder 排列 */
+  const so = state.ui.setOrder || [];
+  visible.sort((a, b) => (so.indexOf(a.id) < 0 ? 99 : so.indexOf(a.id)) - (so.indexOf(b.id) < 0 ? 99 : so.indexOf(b.id)));
+  body.innerHTML = '<p class="sub" style="margin:2px 2px 12px">偏好都在这 · <b style="color:var(--text)">长按卡片拖动排序</b> · 健身的和数据的在「健康营」里管</p>' +
+    '<div class="wg-grid" id="set-grid">' + visible.map(g =>
     '<button class="wg-item" data-action="set-group" data-id="' + g.id + '">' +
     SET_ICONS[g.id] + '<b>' + g.t + '</b><span>' + g.sub + '</span></button>').join('') + '</div>';
+  attachDrag('#set-grid', '.wg-item', function (el) { return el.getAttribute('data-id'); }, 'set');
 }
 function showSetGroup(id) {
   const body = document.getElementById('settings-body');
@@ -5186,7 +5481,10 @@ document.addEventListener('click', e => {
         toast('✓ 一周计划已按你的器械生成');
       } catch (err) { toast('生成失败：' + err.message); }
     }
+    else if (a === 'group-open') { openGroup(act.getAttribute('data-id')); }
+    else if (a === 'group-act') { groupAct(act.getAttribute('data-op'), act.getAttribute('data-id'), act.getAttribute('data-w')); }
     else if (a === 'widget-open') {
+      if (Date.now() < suppressClickUntil) return;
       openWidget(act.getAttribute('data-id'));
     }
     else if (a === 'widget-close') {
