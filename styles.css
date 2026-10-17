@@ -1685,3 +1685,9 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 
 #workout-body{ display:flex; flex-direction:column; gap:12px; }
 #workout-body > [data-psortkey] > .card{ margin:0; }
+
+/* ===== V96 FLIP 拖拽让位 ===== */
+.drag-ph{ border-radius:18px; background:var(--chipbg); border:2px dashed rgba(125,125,140,.4); box-sizing:border-box; }
+.wg-item.dragging{ position:fixed !important; margin:0; z-index:999; pointer-events:none; will-change:transform; transition:none; }
+.stat-cell.dragging{ position:fixed !important; margin:0; z-index:999; pointer-events:none; transition:none; }
+[data-psortkey]{ transition:none; }
