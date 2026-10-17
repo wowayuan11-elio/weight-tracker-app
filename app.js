@@ -40,7 +40,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V93';
+const APP_VERSION = 'V94';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -48,6 +48,10 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V94', d: '10月17日', items: [
+    '修复排序：拖动松手=移动位置（默认），压住卡片中心半秒出现"松手打包"提示才是合并——不再一拖就打包',
+    '记录、趋势、健身三页的全部卡片支持长按拖动排序，顺序自动保存进云备份'
+  ]},
   { v: 'V93', d: '10月17日', items: [
     '健康营全部组件支持长按拖动排序（iPhone 桌面逻辑），拖到另一张卡上直接打包成文件夹',
     '文件夹支持改名/解散/移入新组件，设置页各卡片也支持长按拖动调顺序',
@@ -938,6 +942,19 @@ function sanitizeUI(u) {
     const OK_SET = ['theme', 'who', 'metrics', 'about'];
     d.setOrder = u.setOrder.filter(x => typeof x === 'string' && OK_SET.indexOf(x) > -1).slice(0, 8);
   }
+  /* V94 页面卡排序白名单：key 合法性按页校验，缺的补齐 */
+  d.pageOrder = {};
+  const PG_OK = {
+    record: ['record-card', 'hero-row', 'record-extra'],
+    trend: ['day-compare', 'chart-box', 'cal-box', 'goal-box', 'waist-chart-box', 'bf-chart-box', 'range-summary', 'trend-grid'],
+    workout: ['checkin', 'plan', 'cal', 'recent']
+  };
+  Object.keys(PG_OK).forEach(pg => {
+    const ok = PG_OK[pg];
+    let arr = (u.pageOrder && Array.isArray(u.pageOrder[pg])) ? u.pageOrder[pg].filter(k => typeof k === 'string' && ok.indexOf(k) > -1) : [];
+    ok.forEach(k => { if (arr.indexOf(k) < 0) arr.push(k); });
+    d.pageOrder[pg] = arr.slice(0, 12);
+  });
   if (u.heroLayout === 'stack' || u.heroLayout === 'grid') d.heroLayout = u.heroLayout;
   if (Array.isArray(u.heroOrder) && u.heroOrder.length === 2 && PERSON_IDS.includes(u.heroOrder[0]) && PERSON_IDS.includes(u.heroOrder[1]) && u.heroOrder[0] !== u.heroOrder[1]) d.heroOrder = u.heroOrder.slice();
   if (u.heroMetrics && typeof u.heroMetrics === 'object') Object.keys(d.heroMetrics).forEach(k => { if (typeof u.heroMetrics[k] === 'boolean') d.heroMetrics[k] = u.heroMetrics[k]; });
@@ -1654,6 +1671,16 @@ function renderRecord() {
 
   document.getElementById('hero-row').innerHTML = heroHTML();
   document.getElementById('record-extra').innerHTML = recordExtraHTML();
+  ['record-card', 'hero-row', 'record-extra'].forEach(function (k) {
+    const el = document.getElementById(k);
+    if (el && !el.getAttribute('data-psortkey')) el.setAttribute('data-psortkey', k);
+  });
+  const recPg = document.getElementById('page-record');
+  ['.page-head', '.date-row', '#makeup-box'].forEach(function (sel) {
+    const el = recPg.querySelector(sel);
+    if (el) el.setAttribute('data-psortfixed', '1');
+  });
+  setupPageSort('record');
 }
 
 const GEAR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>';
@@ -2439,6 +2466,13 @@ function renderTrend() {
   document.querySelectorAll('#range-seg button').forEach(b => {
     b.classList.toggle('active', +b.dataset.range === trendRange);
   });
+  ['day-compare','chart-box','cal-box','goal-box','waist-chart-box','bf-chart-box','range-summary','trend-grid'].forEach(function (k) {
+    const el = document.getElementById(k);
+    if (el && !el.getAttribute('data-psortkey')) el.setAttribute('data-psortkey', k);
+  });
+  const trHead = document.querySelector('#page-trend .page-head');
+  if (trHead) trHead.setAttribute('data-psortfixed', '1');
+  setupPageSort('trend');
 
   document.getElementById('goal-box').innerHTML = '';
 
@@ -4556,21 +4590,23 @@ function workoutCard() {
 function renderWorkout() {
   const el = document.getElementById('workout-body');
   if (el) el.innerHTML = workoutPageHTML();
+  setupPageSort('workout');
 }
 function workoutPageHTML() {
-  let h = workoutCard();
-  h += '<div style="height:12px"></div>' + todayPlanHTML();
-  h += '<div style="height:12px"></div>' + workoutCalHTML();
+  let h = '<div data-psortkey="checkin">' + workoutCard() + '</div>';
+  h += '<div data-psortkey="plan">' + todayPlanHTML() + '</div>';
+  h += '<div data-psortkey="cal">' + workoutCalHTML() + '</div>';
   const rw = recentWorkoutsHTML();
-  if (rw) h += '<div style="height:12px"></div>' + rw;
-  h += '<div class="fit-seg" role="tablist" style="margin-top:12px">' +
+  if (rw) h += '<div data-psortkey="recent">' + rw + '</div>';
+  let tail = '<div class="fit-seg" role="tablist" style="margin-top:12px">' +
     '<button class="fit-seg-btn' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">在家跟练</button>' +
     '<button class="fit-seg-btn' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">动作库 ' + GYM_MOVES.length + '</button>' +
     '<button class="fit-seg-btn' + (fitTab === 'plan' ? ' on' : '') + '" data-action="fit-tab" data-v="plan">周计划</button>' +
     '</div>';
-  if (fitTab === 'moves') return h + gymLibBody();
-  if (fitTab === 'plan') return h + gymPlanBody();
-  return h + fitVideoSection();
+  if (fitTab === 'moves') tail += gymLibBody();
+  else if (fitTab === 'plan') tail += gymPlanBody();
+  else tail += fitVideoSection();
+  return h + '<div data-psortfixed="tail">' + tail + '</div>';
 }
 function fitHubBody() { return workoutPageHTML(); } /* V86 兼容壳：健身内容已上独立页 */
 function fitVideoSection() {
@@ -4975,7 +5011,13 @@ function armDrag(ctx) {
   ctx.armed = true;
   ctx.card.classList.add('dragging');
   if (navigator.vibrate) navigator.vibrate(10);
-  toast('已拿起 · 拖到位置松手，压在另一张卡上=打包成文件夹');
+  toast('已拿起 · 松手=移动位置；压住卡片中心半秒=打包成文件夹');
+  dragCtx.hoverTimer = setInterval(function () {
+    if (!dragCtx || !dragCtx.armed) { if (dragCtx && dragCtx.hoverTimer) clearInterval(dragCtx.hoverTimer); return; }
+    const t2 = document.querySelector(dragCtx.gridSel + ' ' + dragCtx.itemSel + '.drop-on');
+    if (t2 && dragCtx.hoverId === t2.getAttribute('data-id') && Date.now() - (dragCtx.hoverT || 0) > 400) t2.classList.add('merge-hint');
+    else document.querySelectorAll('.merge-hint').forEach(c => { if (c !== t2) c.classList.remove('merge-hint'); });
+  }, 150);
   document.addEventListener('touchmove', ctx.mv = function (e) {
     if (!dragCtx || !dragCtx.armed) return;
     e.preventDefault();
@@ -4983,20 +5025,34 @@ function armDrag(ctx) {
     dragCtx.lx = t.clientX; dragCtx.ly = t.clientY;
     dragCtx.card.style.transform = 'translate(' + (t.clientX - dragCtx.x) + 'px,' + (t.clientY - dragCtx.y) + 'px) scale(1.06)';
     /* 高亮手指正下方的目标卡 */
+    let hoverT = null;
     document.querySelectorAll(dragCtx.gridSel + ' ' + dragCtx.itemSel).forEach(function (c) {
-      if (c === dragCtx.card) { c.classList.remove('drop-on'); return; }
+      if (c === dragCtx.card) { c.classList.remove('drop-on'); c.classList.remove('merge-hint'); return; }
       const r = c.getBoundingClientRect();
       const cx = t.clientX, cy = t.clientY;
       const hit = cx > r.left && cx < r.right && cy > r.top && cy < r.bottom;
-      const near = Math.hypot(cx - (r.left + r.width / 2), cy - (r.top + r.height / 2)) < Math.min(r.width, r.height) * 0.42;
+      const near = Math.hypot(cx - (r.left + r.width / 2), cy - (r.top + r.height / 2)) < Math.min(r.width, r.height) * 0.45;
       c.classList.toggle('drop-on', hit && near);
+      /* 悬停判定只记录状态，400ms 确认交给轮询（手指静止时 touchmove 不触发） */
+      if (hit && near && c.classList.contains('drop-on')) {
+        if (dragCtx.hoverId !== c.getAttribute('data-id')) { dragCtx.hoverId = c.getAttribute('data-id'); dragCtx.hoverT = Date.now(); }
+      } else { c.classList.remove('merge-hint'); if (dragCtx.hoverId === c.getAttribute('data-id')) dragCtx.hoverId = null; }
     });
   }, { passive: false });
   document.addEventListener('touchend', ctx.up = function () {
     if (!dragCtx || !dragCtx.armed) return;
-    let on = document.querySelector(dragCtx.gridSel + ' ' + dragCtx.itemSel + '.drop-on');
+    const mergeArmed = !!document.querySelector(dragCtx.gridSel + ' ' + dragCtx.itemSel + '.merge-hint');
+    let on = mergeArmed ? document.querySelector(dragCtx.gridSel + ' ' + dragCtx.itemSel + '.merge-hint') : document.querySelector(dragCtx.gridSel + ' ' + dragCtx.itemSel + '.drop-on');
     if (!on && dragCtx.lx != null) {
-      /* fallback：没压中卡中心 → 最近卡（140px 内）按位置插入 */
+      /* 第一层：手指落点在某张卡内（hit 即可）→ 移动到它 */
+      document.querySelectorAll(dragCtx.gridSel + ' ' + dragCtx.itemSel).forEach(function (c) {
+        if (on || c === dragCtx.card) return;
+        const r = c.getBoundingClientRect();
+        if (dragCtx.lx > r.left && dragCtx.lx < r.right && dragCtx.ly > r.top && dragCtx.ly < r.bottom) on = c;
+      });
+    }
+    if (!on && dragCtx.lx != null) {
+      /* 第二层：附近最近的卡（相对卡尺寸阈值） */
       let best = null, bd = 1e9;
       document.querySelectorAll(dragCtx.gridSel + ' ' + dragCtx.itemSel).forEach(function (c) {
         if (c === dragCtx.card) return;
@@ -5005,14 +5061,15 @@ function armDrag(ctx) {
         if (d < bd) { bd = d; best = c; }
       });
       const rr = best.getBoundingClientRect();
-      if (best && bd < Math.max(90, Math.min(rr.width, rr.height) * 1.05)) on = best;
+      if (best && bd < Math.max(120, Math.min(rr.width, rr.height) * 1.5)) on = best;
     }
-    /* 压中卡中心=可合并；fallback 最近卡=只插入位置 */
-    finishDrag(on, !!document.querySelector(dragCtx.gridSel + ' ' + dragCtx.itemSel + '.drop-on'));
+    /* 悬停确认过=可合并；其余一律只移动位置 */
+    finishDrag(on, mergeArmed);
   });
 }
 function finishDrag(target, allowMerge) {
   const ctx = dragCtx; dragCtx = null;
+  if (ctx.hoverTimer) clearInterval(ctx.hoverTimer);
   suppressClickUntil = Date.now() + 450;
   if (ctx.timer) clearTimeout(ctx.timer);
   document.removeEventListener('touchmove', ctx.mv);
@@ -5021,6 +5078,25 @@ function finishDrag(target, allowMerge) {
   ctx.card.style.transform = '';
   document.querySelectorAll('.drop-on').forEach(c => c.classList.remove('drop-on'));
   if (!ctx.armed) return;
+  /* page 模式（记录/趋势/健身页卡排序）先于 tools 流程处理 */
+  if (ctx.mode && ctx.mode.indexOf('page:') === 0) {
+    const pg = ctx.mode.slice(5);
+    const cont = document.getElementById(PAGE_SORT_CONT[pg] || ('page-' + pg));
+    if (cont && target && target !== ctx.card) {
+      const r = target.getBoundingClientRect();
+      /* 手指在目标上半/左半=插到它前面，否则后面 */
+      const before = ctx.lx != null ? ((ctx.ly < r.top + r.height / 2) || (Math.abs(ctx.ly - (r.top + r.height / 2)) < r.height / 2 && ctx.lx < r.left + r.width / 2)) : false;
+      cont.insertBefore(ctx.card, before ? target : target.nextSibling);
+      const keys = [...cont.querySelectorAll(':scope > [data-psortkey]')].map(c => c.getAttribute('data-psortkey'));
+      state.ui.pageOrder = state.ui.pageOrder || {};
+      state.ui.pageOrder[pg] = keys;
+      persist();
+      toast('✓ 顺序已保存');
+    }
+    const el3 = ctx.card;
+    if (el3) { el3.classList.add('drop-pop'); setTimeout(function () { el3.classList.remove('drop-pop'); }, 420); }
+    return;
+  }
   const flow = toolsFlow();
   const from = flow.indexOf(ctx.id);
   if (from < 0) return;
@@ -5068,6 +5144,31 @@ function finishDrag(target, allowMerge) {
     renderTools();
     const el = document.querySelector('.wg-item[data-id="' + ctx.id + '"]');
     if (el) { el.classList.add('drop-pop'); setTimeout(function () { el.classList.remove('drop-pop'); }, 420); }
+  }
+}
+
+/* ===== V94 页面卡排序：长按拖动，顺序存进云备份 ===== */
+const PAGE_SORT_CONT = { record: 'page-record', trend: 'page-trend', workout: 'workout-body' };
+function setupPageSort(pg) {
+  const cont = document.getElementById(PAGE_SORT_CONT[pg] || ('page-' + pg));
+  if (!cont) return;
+  const order = (state.ui.pageOrder && state.ui.pageOrder[pg]) ? state.ui.pageOrder[pg].slice() : [];
+  const fixedEls = [...cont.querySelectorAll(':scope > [data-psortfixed]')];
+  const cards = [...cont.querySelectorAll(':scope > [data-psortkey]')];
+  if (!cards.length) return;
+  /* 重排：卡按 order append 到尾部，固定块（页头/seg 等）按原序垫底 */
+  cards.forEach(c => { const k = c.getAttribute('data-psortkey'); if (order.indexOf(k) < 0) order.push(k); });
+  cards.forEach(c => c.remove());
+  order.forEach(function (k) {
+    const el = cards.find(c => c.getAttribute('data-psortkey') === k);
+    if (el) cont.appendChild(el);
+  });
+  fixedEls.forEach(el => cont.appendChild(el));
+  state.ui.pageOrder = state.ui.pageOrder || {};
+  state.ui.pageOrder[pg] = order;
+  if (cont.dataset.sortBound !== pg) {
+    cont.dataset.sortBound = pg;
+    attachDrag('#' + cont.id, '[data-psortkey]', function (el) { return el.getAttribute('data-psortkey'); }, 'page:' + pg);
   }
 }
 
