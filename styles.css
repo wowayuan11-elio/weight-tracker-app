@@ -525,7 +525,7 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 
 /* 最新数据（大数字 · SF Pro Display Bold） */
 .hero{ display:flex; gap:12px; margin-top:16px; }
-.hero-col{ flex:1; background:var(--card); border-radius:var(--radius-card); border:var(--card-border); padding:18px 16px 16px; min-width:0; box-shadow:var(--shadow); position:relative; }
+.hero-col{ flex:1; background:var(--card); border-radius:var(--radius-card); border:var(--card-border); padding:20px 18px 18px; min-width:0; box-shadow:var(--shadow); position:relative; }
 .hero-top{ display:flex; align-items:center; gap:6px; }
 .hero-top .hero-name{ flex:none; }
 .hero-date{
@@ -539,21 +539,21 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .hero-gear svg{ width:14px; height:14px; }
 .hero-gear:active{ transform:scale(.92); }
 /* 进度条：起点→现在→目标 */
-.hprog{ height:8px; background:var(--bg); border-radius:999px; margin-top:14px; overflow:hidden; }
+.hprog{ height:8px; background:var(--bg); border-radius:999px; margin-top:17px; overflow:hidden; }
 .hprog-bar{ height:100%; background:linear-gradient(90deg, var(--tint), #5ac8fa); border-radius:999px; transition:width .5s ease; }
 .hprog-lab{
   display:flex; justify-content:space-between; font-size:10.5px; color:var(--text3);
-  margin-top:5px; font-variant-numeric:tabular-nums;
+  margin-top:7px; font-variant-numeric:tabular-nums;
 }
 /* 指标网格 */
-.hgrid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(66px, 1fr)); gap:8px; margin-top:14px; }
-.hcell{ background:var(--bg); border-radius:12px; padding:9px 4px 7px; text-align:center; min-width:0; }
+.hgrid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-top:17px; }
+.hcell{ background:var(--bg); border-radius:14px; padding:12px 5px 10px; text-align:center; min-width:0; }
 .hcell b{ display:block; font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
-.hcell span{ display:block; font-size:10px; color:var(--text3); margin-top:2px; white-space:nowrap; }
+.hcell span{ display:block; font-size:10px; color:var(--text3); margin-top:3px; white-space:nowrap; }
 /* 空字段的「＋填写」格：虚线框，点了直达记录页填写区（V23） */
 .hcell-add{
   border:1.5px dashed rgba(var(--tint-rgb),.4); background:rgba(var(--tint-rgb),.05);
-  border-radius:12px; padding:9px 4px 7px; text-align:center; min-width:0;
+  border-radius:14px; padding:12px 5px 10px; text-align:center; min-width:0;
 }
 .hcell-add b{ color:var(--tint); font-size:19px; line-height:1; }
 .hcell-add span{ color:var(--tint); opacity:.85; }
@@ -615,7 +615,7 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 }
 .hero-num small{ font-size:16px; font-weight:500; color:var(--text3); letter-spacing:0; margin-left:3px; }
 .hero-sub{ font-size:11.5px; color:var(--text3); margin-top:6px; line-height:1.5; }
-.hero-delta{ margin-top:4px; display:flex; align-items:center; flex-wrap:wrap; gap:2px; }
+.hero-delta{ margin-top:7px; display:flex; align-items:center; flex-wrap:wrap; gap:3px; }
 
 .hint{
   margin-top:16px; font-size:12.5px; color:var(--text3);
@@ -1253,7 +1253,7 @@ body .hero-num small{ font-weight:600; opacity:.5; }
 /* V72: 分组标题+hero迷你曲线 */
 .tg-name{ font-size:12.5px; font-weight:700; color:var(--text3,#86868b); letter-spacing:.04em; margin:14px 2px 8px; }
 .tg-name:first-child{ margin-top:2px; }
-.hero-spark{ width:110px; height:30px; display:block; margin:2px 0 6px; opacity:.9; }
+.hero-spark{ width:100%; height:34px; display:block; margin:6px 0 8px; opacity:.9; }
 body .hero-col{ border-radius:24px; }
 
 /* ===== V73 ===== */
@@ -1697,4 +1697,4 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 
 /* ===== V99 双人卡独立化 ===== */
 #elio-card, #tina-card { margin: 0; }
-#elio-card.duo-half, #tina-card.duo-half { width: calc(50% - 7px); display: inline-block; vertical-align: top; }
+#elio-card.duo-half, #tina-card.duo-half { width: calc(50% - 7px); display: inline-block; vertical-align: top; margin-top: 16px; min-height: 0; }
