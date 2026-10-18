@@ -1,3 +1,6 @@
+/* ===== V98 禁 iOS 文本选择/长按菜单（拖拽时蓝糊糊的根源） ===== */
+* { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+input, textarea { -webkit-user-select: text; user-select: text; }
 /* 双人体重小本本 V18 · 苹果设计系统
    参考 Apple Health / iOS Settings：灰底白卡分组 + 大粗数字 + 克制灰阶
    字体编排参考 Withings / Renpho：小标签·大数值·微注释三层结构 */
