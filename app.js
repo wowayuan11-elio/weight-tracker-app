@@ -1818,7 +1818,7 @@ function heroHTML() {
       '<div class="hero-delta">' + deltaChip(prev ? cur - prev.value : null, 1, relPrev(lk, prev)) + '</div>' +
       progHTML + gridHTML +
     '</div>';
-  }).join('');
+  });
   return cols;
 }
 
