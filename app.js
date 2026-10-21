@@ -41,7 +41,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V105';
+const APP_VERSION = 'V106';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -49,6 +49,9 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V106', d: '10月22日', items: [
+    '修复弹窗卡死：手机通知、来电或系统手势打断触摸时，页面会被永久锁死——现在任何打断都会正常松手恢复，另外加了 8 秒自动放下保险，再也不怕假死'
+  ]},
   { v: 'V105', d: '10月21日', items: [
     '弹层滚动修复：周计划、历史记录这些内容长的弹窗，现在能正常上下滑了，不会再滑不动、也不会带着底下页面一起跑',
     '点空白处直接关闭：所有弹窗点外面灰蒙蒙的区域就能关，不用每次都去点右上角叉叉',
@@ -5171,9 +5174,17 @@ function attachDrag(gridSel, itemSel, idFn, mode) {
   }, { passive: true });
 }
 let suppressClickUntil = 0;
+/* V106 保险丝：armed 后手指活动停 8 秒（touch 序列被系统吞掉的任何情况）→ 自动收尾 */
+setInterval(function () {
+  if (dragCtx && dragCtx.armed && dragCtx.lastMoveT && Date.now() - dragCtx.lastMoveT > 8000) {
+    finishDrag(null, false);
+    toast('已自动放下拖拽');
+  }
+}, 2000);
 function armDrag(ctx) {
   if (!dragCtx || dragCtx !== ctx) return;
   ctx.armed = true;
+  ctx.lastMoveT = Date.now();
   if (navigator.vibrate) navigator.vibrate(10);
   /* iPhone 桌面式：拖动卡浮起脱离文档流，原位留占位框，其他卡实时让位滑动 */
   const cr = ctx.card.getBoundingClientRect();
@@ -5220,6 +5231,7 @@ function armDrag(ctx) {
     if (!dragCtx || !dragCtx.armed) return;
     e.preventDefault();
     const t = e.touches[0];
+    dragCtx.lastMoveT = Date.now();
     dragCtx.lx = t.clientX; dragCtx.ly = t.clientY;
     dragCtx.card.style.transform = 'translate(' + (t.clientX - dragCtx.x) + 'px,' + (t.clientY - dragCtx.y) + 'px) scale(1.05)';
     /* 边缘自动滚动（拖到屏幕上下边页面自己滚） */
@@ -5272,13 +5284,17 @@ function armDrag(ctx) {
       }
     }
   }, { passive: false });
-  document.addEventListener('touchend', ctx.up = function () {
+  ctx.up = function () {
     if (!dragCtx || !dragCtx.armed) return;
     /* FLIP 方案：落点=占位框位置；只有悬停打包提示出现才算合并 */
     const mergeArmed = !!document.querySelector(dragCtx.gridSel + ' .merge-hint');
     const on = mergeArmed ? document.querySelector(dragCtx.gridSel + ' .merge-hint') : null;
     finishDrag(on, mergeArmed);
-  });
+  };
+  /* V106: iOS 打断触摸（来电/通知/边缘手势）派发的是 touchcancel 不是 touchend——
+     漏听它 = dragCtx 永久残留 + preventDefault 永挂 = 全 App 滚动卡死（10-22 凌晨实锤） */
+  document.addEventListener('touchend', ctx.up);
+  document.addEventListener('touchcancel', ctx.up);
 }
 function finishDrag(target, allowMerge) {
   const ctx = dragCtx; dragCtx = null;
@@ -5287,6 +5303,10 @@ function finishDrag(target, allowMerge) {
   if (ctx.timer) clearTimeout(ctx.timer);
   document.removeEventListener('touchmove', ctx.mv);
   document.removeEventListener('touchend', ctx.up);
+  document.removeEventListener('touchcancel', ctx.up);
+  /* V106 兜底：清掉一切可能残留的拖拽形态 + 设置页滚动锁 */
+  document.querySelectorAll('.dragging').forEach(function (c) { c.classList.remove('dragging'); c.style.transform = ''; });
+  const _sb = document.getElementById('settings-body'); if (_sb) _sb.style.overflow = '';
   document.querySelectorAll('.drop-on,.merge-hint').forEach(c => c.classList.remove('drop-on', 'merge-hint'));
   if (!ctx.armed) { if (ctx.ph) ctx.ph.remove(); return; }
   /* 悬停合并：卡飞向目标后重渲染 */
@@ -5481,8 +5501,11 @@ function attachSetDrag() {
       c.classList.toggle('drop-on', t.clientY > r.top && t.clientY < r.bottom);
     });
   }, { passive: false });
-  body.addEventListener('touchend', function () {
-    if (!ctx || !ctx.armed) { if (ctx) clearTimeout(ctx.timer); ctx = null; return; }
+  body.addEventListener('touchend', setDragUp);
+  /* V106: 同主拖拽——touchcancel 不清理 = overflow:hidden 永挂 + 后续触摸全被拒（监听常驻，ctx 用闭包，不做 ctx.up 赋值——attach 时 ctx 还是 null） */
+  body.addEventListener('touchcancel', setDragUp);
+  function setDragUp() {
+    if (!ctx || !ctx.armed) { if (ctx) clearTimeout(ctx.timer); ctx = null; body.style.overflow = ''; return; } /* V106: 非 armed 也顺手解锁——老版本 overflow 残留时第一次触摸就能自救 */
     const on = document.querySelector('#settings-body > .card.drop-on');
     ctx.card.classList.remove('dragging'); ctx.card.style.transform = '';
     document.querySelectorAll('.drop-on').forEach(c => c.classList.remove('drop-on'));
@@ -5503,7 +5526,7 @@ function attachSetDrag() {
       }
     }
     ctx = null;
-  });
+  }
 }
 function regroupSettings() {
   const body = document.getElementById('settings-body');
