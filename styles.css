@@ -738,7 +738,7 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
   padding:18px 20px 8px; flex:none;
 }
 .sheet-title{ font-size:20px; font-weight:700; letter-spacing:-.02em; }
-.sheet-body{ overflow-y:auto; min-height:0; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:0 20px calc(34px + env(safe-area-inset-bottom)); }
+.sheet-body{ overflow-y:auto; min-height:0; overscroll-behavior:contain; padding:0 20px calc(34px + env(safe-area-inset-bottom)); }
 .sheet-body .card{ margin-top:12px; box-shadow:none; }
 
 /* 设置页 V24：行分组 + 有边框输入 + 按钮收敛，告别"文本堆" */
