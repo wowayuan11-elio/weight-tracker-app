@@ -724,6 +724,10 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .mask.show{ opacity:1; pointer-events:auto; }
 .sheet{
   position:fixed; left:0; right:0; bottom:0; z-index:41;
+}
+/* V105: plan-sheet 是二级弹层（叠在周计划/设置之上），同级 z-index 会被 DOM 后方的窗压住下半截 */
+#plan-sheet{
+  z-index:42;
   background:var(--bg); border-radius:22px 22px 0 0;
   max-height:88dvh; display:flex; flex-direction:column;
   transform:translateY(105%); transition:transform .32s cubic-bezier(.32,.72,.33,1);
