@@ -920,7 +920,7 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .gym-chip i{ font-style:normal; font-size:10.5px; color:var(--text3); }
 .gym-eq{ cursor:default; }
 /* V109: 生成课表后的可见反馈——锚点+后续每天卡片整体高亮闪现 */
-#wk-plan-anchor.flash, #wk-plan-anchor.flash ~ .gym-day{ animation: wkFlash 1.9s ease; }
+#wk-plan-anchor.flash .wk-cell{ animation: wkFlash 1.9s ease; }
 @keyframes wkFlash{ 0%{ background:rgba(52,199,89,.20); } 60%{ background:rgba(52,199,89,.10); } 100%{ background:transparent; } }
 .btn.gen-ok{ background:#34c759 !important; color:#fff !important; border-color:#34c759 !important; }
 .gym-day{ padding:10px 0; border-bottom:1px dashed var(--sep); }
@@ -1715,3 +1715,25 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 .tcc-top .sc-name { font-size: 13px; color: var(--text2); font-weight: 600; letter-spacing: .02em; }
 .tcc-val { font-size: 34px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; margin-top: 8px; }
 .tcc-foot { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* ================= V110: 周计划图表化 ================= */
+.wk-today{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:2px 2px 10px; }
+.wk-today b{ font-size:16px; font-weight:800; letter-spacing:.2px; }
+.wk-today span{ font-size:12.5px; color:var(--text2); }
+.wk-today .ok{ color:#34c759; font-style:normal; font-weight:700; }
+.wk-beat{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:12px; }
+.wk-cell{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:10px 0 8px; border-radius:11px; border:2px solid transparent; background:rgba(var(--tint-rgb),.10); color:var(--text2); font:inherit; -webkit-user-select:none; user-select:none; }
+.wk-cell b{ font-size:12.5px; font-weight:700; }
+.wk-cell i{ font-size:10.5px; font-style:normal; letter-spacing:.5px; }
+.wk-cell.ty-strength{ background:var(--tint); color:#fff; opacity:.55; }
+.wk-cell.ty-cardio{ background:#e0603c; color:#fff; opacity:.55; }
+.wk-cell.ty-rest{ background:rgba(var(--tint-rgb),.10); color:var(--text2); opacity:.85; }
+.wk-cell.sel{ opacity:1; border-color:var(--text); }
+.wk-cell.today::before{ content:''; position:absolute; top:0; left:20%; right:20%; height:3px; border-radius:0 0 3px 3px; background:var(--text); }
+.wk-cell u{ position:absolute; top:-5px; right:-2px; width:15px; height:15px; border-radius:50%; background:#34c759; color:#fff; font-size:9.5px; font-weight:800; line-height:15px; text-align:center; text-decoration:none; }
+.wk-detail{ background:var(--card); border-radius:14px; padding:12px 12px 4px; margin-bottom:10px; }
+.wk-detail-h{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:4px; }
+.wk-detail-h b{ font-size:14.5px; font-weight:800; }
+.wk-detail-h span{ font-size:12px; color:var(--text2); }
+.wk-detail .ok{ color:#34c759; font-style:normal; font-weight:700; }
+.wk-detail .gym-row{ margin-top:6px; }
