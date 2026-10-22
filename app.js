@@ -41,7 +41,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V107';
+const APP_VERSION = 'V108';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -49,6 +49,9 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V108', d: '10月23日', items: [
+    '器械速查：健身房新手专区——按部位找机器（胸/背/肩/手臂/腿/臀/核心），每台写清练什么、座椅怎么调、照着做 4 步、新手最容易错哪；一机多练的标了「还练」'
+  ]},
   { v: 'V107', d: '10月23日', items: [
     '修复弹窗按叉关不掉：前两天的更新误伤了弹窗的隐藏规则，弹窗关了也会留在屏幕上（看着像卡死）——已根治，所有弹窗按叉、点空白立刻消失',
     '顺手加固：弹窗去掉了看不见的毛玻璃层（外观零变化），降低 iPhone 渲染负担'
@@ -4752,9 +4755,11 @@ function workoutPageHTML() {
   let tail = '<div class="fit-seg" role="tablist" style="margin-top:12px">' +
     '<button class="fit-seg-btn' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">在家跟练</button>' +
     '<button class="fit-seg-btn' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">动作库 ' + GYM_MOVES.length + '</button>' +
+    '<button class="fit-seg-btn' + (fitTab === 'mach' ? ' on' : '') + '" data-action="fit-tab" data-v="mach">器械速查</button>' +
     '<button class="fit-seg-btn' + (fitTab === 'plan' ? ' on' : '') + '" data-action="fit-tab" data-v="plan">周计划</button>' +
     '</div>';
   if (fitTab === 'moves') tail += gymLibBody();
+  else if (fitTab === 'mach') tail += gymMachBody();
   else if (fitTab === 'plan') tail += gymPlanBody();
   else tail += fitVideoSection();
   return h + '<div data-psortfixed="tail">' + tail + '</div>';
@@ -4819,7 +4824,146 @@ const GYM_HOME_NEEDS = [null, 'dumb', 'band', 'jump', 'bar'];
 const GYM_NEED_NAME = { dumb: '哑铃', band: '弹力带', jump: '跳绳', bar: '单杠', gym: '健身房器械' };
 function gymSceneOf(m) { return GYM_HOME_NEEDS.indexOf(m.need) > -1 ? 'home' : 'gym'; }
 function gymNeedName(m) { return m.need ? (GYM_NEED_NAME[m.need] || m.need) : '徒手'; }
+
+/* ================= V108 器械速查：健身房固定器械（按部位归类，一机可多练） ================= */
+const MACH_CATS = ['全部', '胸', '背', '肩', '手臂', '腿', '臀', '核心'];
+const GYM_MACHINES = [
+  { id: 'm_chestpress', n: '坐姿推胸机', grps: ['胸', '手臂'],
+    what: '练整个胸，顺带手臂后侧——想把胸练厚，第一个上它',
+    adj: '座椅高度调到手柄跟胸口平齐；有握距档位选中间档，坐下去小臂能自然搭在手柄上',
+    steps: ['背和头贴紧靠垫，脚踩实，屁股别离开凳子', '握住手柄，先吸一口气', '向前推到手臂接近伸直——肘别锁死', '慢回放到胸口前方一点点，别让重量把自己弹回去'],
+    breath: '前推呼气，收回吸气',
+    pit: '重量贪大时肩膀会耸、屁股会离凳——那就是太重了，减一档；推的速度要匀，别弹震式猛推' },
+  { id: 'm_fly', n: '蝴蝶机（夹胸）', grps: ['胸'],
+    what: '练胸中缝和细节——推胸练厚度，它练「挤」的感觉',
+    adj: '座椅调到手柄高度跟胸口平，小臂能舒服贴上挡板',
+    steps: ['背贴垫，小臂贴挡板，肘放松微弯', '吸气准备好', '往胸前合拢，到最前面停 1 秒挤一下', '慢速打开，别让重量把你弹回去'],
+    breath: '合拢呼气，打开吸气',
+    pit: '别用爆发力甩；打开的幅度以肩膀不疼为界' },
+  { id: 'm_latpull', n: '高位下拉', grps: ['背', '手臂'],
+    what: '练背阔肌——倒三角、V 领口的来源，穿衣服撑起来的关键',
+    adj: '挡腿垫压住大腿（防止身体被拉起来）；坐直时手臂能舒服抓到横杆',
+    steps: ['握距比肩略宽，手心朝前，胸口挺起来', '把横杆下拉到锁骨附近，肘朝地面走', '顶上停 1 秒，感受背收紧', '慢放回去，手臂接近伸直但不锁死'],
+    breath: '下拉呼气，回放吸气',
+    pit: '身体后仰太多＝变成划船借力，最多后仰一点点；千万别拉到脖子后面——肩伤风险高' },
+  { id: 'm_searrow', n: '坐姿划船机', grps: ['背', '手臂'],
+    what: '练背中部——改善圆肩驼背，把背「拉开变厚」',
+    adj: '脚踩实踏板，膝盖微弯；坐直时能舒服握住把手',
+    steps: ['背挺直，前倾抓把手，再回正身体', '把把手拉到肚子前面，肘贴着身体走', '肩胛骨往后夹紧，停 1 秒', '慢放回去，背全程保持挺直'],
+    breath: '后拉呼气，回放吸气',
+    pit: '全程腰别弯；别用腰一晃一晃地拉重量' },
+  { id: 'm_shoulderpress', n: '坐姿推肩机', grps: ['肩', '手臂'],
+    what: '练整个肩膀——穿衣有型的「衣架子」',
+    adj: '背贴靠垫，手柄起始位置大约在耳朵两侧的高度',
+    steps: ['背贴死靠垫，核心收紧', '向上推到手臂接近伸直——肘别锁死', '慢下放到耳朵旁边', '全程腰不离靠垫'],
+    breath: '上推呼气，下放吸气',
+    pit: '腰挺离靠垫＝重量大了，减档；脖子别往前伸' },
+  { id: 'm_latraise', n: '侧平举机', grps: ['肩'],
+    what: '练肩中束——肩膀「变宽」就靠它',
+    adj: '座椅高度让挡板和肘齐平',
+    steps: ['小臂贴挡板，肘微弯固定住', '往两侧抬到和肩膀一样高', '顶上停 1 秒', '慢放，抗着重量下来'],
+    breath: '抬起呼气，下放吸气',
+    pit: '耸肩＝斜方肌代偿，肩要往下沉；抬得比肩高容易伤肩' },
+  { id: 'm_curl', n: '二头弯举机', grps: ['手臂'],
+    what: '练二头肌——手臂前侧那块「鼓包」',
+    adj: '肘垫高度让肘正好卡在垫上，坐直',
+    steps: ['大臂贴紧垫子', '弯到最紧，停 1 秒', '慢放到底，手臂接近伸直', '手腕别弯，拳眼朝上'],
+    breath: '弯起呼气，放下吸气',
+    pit: '身体后仰着甩＝借力，二头没练到；放到底再弯，幅度做满' },
+  { id: 'm_pushdown', n: '绳索三头下压', grps: ['手臂'],
+    what: '练三头——手臂后侧「拜拜肉」的克星',
+    adj: '绳索高度调到胸口上下；站立，膝盖微弯',
+    steps: ['肘贴紧身体两侧，固定不动', '下压到底，手臂完全伸直', '顶上停 1 秒', '慢回到手到胸口高度'],
+    breath: '下压呼气，回放吸气',
+    pit: '肘跟着手前后晃＝借力；身体别前后晃' },
+  { id: 'm_legpress', n: '腿举机（倒蹬）', grps: ['腿', '臀'],
+    what: '练整条腿＋臀——器械区最安全的大重量主力',
+    adj: '背和尾骨贴死垫子；脚与肩同宽，踩踏板中上部',
+    steps: ['脚踩实，膝盖微弯是起点', '下放到大腿和小腿约 90 度', '脚跟发力，推起到接近伸直——膝别锁死', '全程腰和臀不离开垫子'],
+    breath: '蹬起呼气，下放吸气',
+    pit: '腰或臀拱起来离开垫子＝重量太大，立刻减；下放别过深' },
+  { id: 'm_legext', n: '腿屈伸机', grps: ['腿'],
+    what: '练大腿前侧',
+    adj: '座椅调到膝盖对准转轴，小腿自然垂下能贴到滚垫',
+    steps: ['小腿贴住滚垫，手握两侧把手', '伸直到顶，停 1 秒夹紧大腿前侧', '慢放回到大约 90 度', '别让重量砸下来'],
+    breath: '伸直呼气，回落吸气',
+    pit: '甩腿借力；顶上不夹紧＝白练一半' },
+  { id: 'm_legcurl', n: '腿弯举机', grps: ['腿'],
+    what: '练大腿后侧——腿前后平衡，膝盖更稳',
+    adj: '膝盖对准转轴，滚垫卡在脚后跟上方',
+    steps: ['趴好或坐好，腿伸直', '勾起滚垫往臀部方向', '顶上停 1 秒', '慢放回去'],
+    breath: '勾起呼气，下放吸气',
+    pit: '腰拱起来代偿；全程做慢' },
+  { id: 'm_abd', n: '髋外展／内收机', grps: ['臀', '腿'],
+    what: '坐姿夹腿／张腿——练大腿内侧和臀外侧，稳定骨盆',
+    adj: '背贴垫，手握把手；档位选「刚开始有阻力」的位置',
+    steps: ['两种玩法：往里夹练大腿内侧，往外张练臀外侧', '慢起慢落，全程控制', '顶上停 1 秒', '幅度以屁股不晃为准'],
+    breath: '发力呼气，回位吸气',
+    pit: '弹震式快夹快放最容易拉伤，必须慢' },
+  { id: 'm_abcrunch', n: '卷腹机', grps: ['核心'],
+    what: '练腹肌——带重量版的卷腹',
+    adj: '座椅高度让胸垫在胸口上方，手扶好把手',
+    steps: ['胸贴（推）垫，用腹部的力量往前卷', '呼气卷到最紧', '慢回，背别完全放松躺死', '脖子放松，别用脖子拽'],
+    breath: '卷起呼气，回落吸气',
+    pit: '用手猛推垫子＝借力；重量从最轻档开始' }
+];
+let gymMachFilter = '全部';
+
 const GYM_CATS = ['全部', '腹肌', '腿部', '臀部', '胸部', '背部', '肩部', '手臂', '有氧', '全身'];
+
+/* V108 器械速查：按部位找机器，点开就是人话版使用说明 */
+function gymMachBody() {
+  let h = '<p class="sub">不认识机器、不会调座椅都能查 · 按部位找，点开就是「练什么 + 怎么调 + 照着做」</p>';
+  h += '<div class="diet-tabs">' + MACH_CATS.map(c =>
+    '<button class="set-chip' + (gymMachFilter === c ? ' on' : '') + '" data-action="mach-filter" data-c="' + c + '">' + c + '</button>').join('') + '</div>';
+  const pool = GYM_MACHINES.filter(m => gymMachFilter === '全部' || m.grps.indexOf(gymMachFilter) > -1);
+  if (!pool.length) {
+    h += '<p class="sub" style="margin:14px 2px">这个部位暂时没机器——换个部位看看</p>';
+  } else {
+    MACH_CATS.filter(c => c !== '全部' && (gymMachFilter === '全部' || c === gymMachFilter)).forEach(c => {
+      const ms = pool.filter(m => m.grps.indexOf(c) > -1);
+      if (!ms.length) return;
+      h += '<div class="gym-sec"><div class="gym-sec-h"><b>' + c + '</b><span>' + ms.length + ' 台机器</span></div>';
+      h += ms.map(m =>
+        '<button class="gym-row" data-action="mach-open" data-id="' + m.id + '">' +
+        '<span class="gym-row-t"><b>' + m.n + '</b><em>' + esc(m.what.split('——')[0]) + (m.grps.length > 1 ? ' · 还练：' + m.grps.filter(g => g !== c).join('、') : '') + '</em></span>' +
+        '<i class="gym-row-p">›</i></button>').join('');
+      h += '</div>';
+    });
+  }
+  h += '<div class="key-line">第一次去的三条铁律：所有机器从<b>最轻档</b>开始试 2 组，动作顺了再加重量；组间休息 60-90 秒；练完同一个部位隔 48 小时再练</div>';
+  return h;
+}
+/* V108 器械详情：复用 widget-sheet（同动作库模式） */
+function openMachSheet(id) {
+  const m = GYM_MACHINES.find(x => x.id === id);
+  if (!m) return;
+  const sheetTitle = document.getElementById('widget-sheet-title');
+  if (!sheetTitle) return;
+  sheetTitle.textContent = m.n;
+  const body = document.getElementById('widget-body');
+  body.innerHTML =
+    '<div class="gym-meta">' + m.grps.map(g => '<span class="set-chip on">' + g + '</span>').join('') + '<span class="set-chip">呼吸见下</span></div>' +
+    '<p class="mach-what">' + esc(m.what) + '</p>' +
+    '<div class="divider">第一步 · 把它调好</div>' +
+    '<div class="gym-tips"><div class="gym-tip"><i class="dotc" style="background:' + COLORS.me + '"></i>' + esc(m.adj) + '</div></div>' +
+    '<div class="divider">照着做（4 步）</div>' +
+    '<div class="gym-tips">' + m.steps.map((t, i) =>
+      '<div class="mach-step"><b>' + (i + 1) + '</b><span>' + esc(t) + '</span></div>').join('') + '</div>' +
+    '<div class="divider">呼吸</div>' +
+    '<div class="gym-tips"><div class="gym-tip"><i class="dotc" style="background:var(--text3)"></i>' + esc(m.breath) + '</div></div>' +
+    '<div class="divider">新手最容易错</div>' +
+    '<div class="gym-tips"><div class="gym-tip"><i class="dotc" style="background:#e0603c"></i>' + esc(m.pit) + '</div></div>' +
+    '<p class="set-tip">从最轻档开始试 2 组，动作顺了再加重量 · 全程能控制住的速度才是好速度</p>';
+  const backBtn = document.createElement('button');
+  backBtn.className = 'btn ghost sm';
+  backBtn.setAttribute('data-action', 'widget-close');
+  backBtn.style.cssText = 'width:auto;display:inline-block;padding:7px 12px;font-size:12px;margin-bottom:10px';
+  backBtn.textContent = '‹ 关闭，回到健身页';
+  body.insertBefore(backBtn, body.firstChild);
+  document.getElementById('sheet-mask').classList.add('show');
+  document.getElementById('widget-sheet').classList.add('show');
+}
 function gymLibBody() {
   let h = '<p class="sub">每个动作配 B 站正规教学视频（教练/科学健身频道逐一核实）· 点动作看视频，组次休息都写清</p>';
   /* 场景：在家 / 健身房 */
@@ -6042,7 +6186,11 @@ document.addEventListener('click', e => {
     else if (a === 'gym-open') {
       openGymSheet(act.getAttribute('data-id'), act.getAttribute('data-back'));
     }
-    else if (a === 'fit-tab') { const v = act.dataset.v; fitTab = (v === 'moves' || v === 'plan') ? v : 'video'; fitOpenBv = null; refreshOpenSheet(); refreshWorkoutUI(); }
+    else if (a === 'mach-open') {
+      openMachSheet(act.getAttribute('data-id'));
+    }
+    else if (a === 'mach-filter') { gymMachFilter = act.dataset.c || '全部'; refreshOpenSheet(); refreshWorkoutUI(); }
+    else if (a === 'fit-tab') { const v = act.dataset.v; fitTab = (v === 'moves' || v === 'plan' || v === 'mach') ? v : 'video'; fitOpenBv = null; refreshOpenSheet(); refreshWorkoutUI(); }
     else if (a === 'fit-cat') { fitCat = act.dataset.c; fitOpenBv = null; refreshOpenSheet(); refreshWorkoutUI(); }
     else if (a === 'fit-open') { const bv = act.dataset.bv; const t = act.dataset.t; if (fitOpenBv === bv && fitOpenCat === t) { fitOpenBv = null; fitOpenCat = null; } else { fitOpenBv = bv; fitOpenCat = t; } refreshOpenSheet(); refreshWorkoutUI(); }
     else if (a === 'fit-facts') { fitFactsOpen = !fitFactsOpen; refreshOpenSheet(); refreshWorkoutUI(); }
