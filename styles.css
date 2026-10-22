@@ -919,6 +919,10 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .gym-chip{ display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; padding:8px 12px; border-radius:12px; }
 .gym-chip i{ font-style:normal; font-size:10.5px; color:var(--text3); }
 .gym-eq{ cursor:default; }
+/* V109: 生成课表后的可见反馈——锚点+后续每天卡片整体高亮闪现 */
+#wk-plan-anchor.flash, #wk-plan-anchor.flash ~ .gym-day{ animation: wkFlash 1.9s ease; }
+@keyframes wkFlash{ 0%{ background:rgba(52,199,89,.20); } 60%{ background:rgba(52,199,89,.10); } 100%{ background:transparent; } }
+.btn.gen-ok{ background:#34c759 !important; color:#fff !important; border-color:#34c759 !important; }
 .gym-day{ padding:10px 0; border-bottom:1px dashed var(--sep); }
 .gym-day:last-of-type{ border-bottom:0; }
 .gym-day>b{ font-size:13px; font-weight:650; color:var(--text); display:block; margin-bottom:6px; }
