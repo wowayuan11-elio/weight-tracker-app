@@ -740,6 +740,10 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .sheet-title{ font-size:20px; font-weight:700; letter-spacing:-.02em; }
 .sheet-body{ overflow-y:auto; min-height:0; overscroll-behavior:contain; padding:0 20px calc(34px + env(safe-area-inset-bottom)); }
 .sheet-body .card{ margin-top:12px; box-shadow:none; }
+/* V108 器械速查详情 */
+.mach-what{ font-size:15px; line-height:1.6; margin:2px 2px 6px; font-weight:600; }
+.mach-step{ display:flex; gap:10px; align-items:flex-start; margin-top:10px; font-size:14.5px; line-height:1.55; }
+.mach-step b{ flex:none; width:22px; height:22px; border-radius:50%; background:var(--tint); color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; margin-top:1px; }
 
 /* 设置页 V24：行分组 + 有边框输入 + 按钮收敛，告别"文本堆" */
 .field{
