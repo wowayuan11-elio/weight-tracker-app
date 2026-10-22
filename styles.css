@@ -724,14 +724,14 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
 .mask.show{ opacity:1; pointer-events:auto; }
 .sheet{
   position:fixed; left:0; right:0; bottom:0; z-index:41;
-}
-/* V105: plan-sheet 是二级弹层（叠在周计划/设置之上），同级 z-index 会被 DOM 后方的窗压住下半截 */
-#plan-sheet{
-  z-index:42;
   background:var(--bg); border-radius:22px 22px 0 0;
   max-height:88dvh; display:flex; flex-direction:column;
   transform:translateY(105%); transition:transform .32s cubic-bezier(.32,.72,.33,1);
 }
+/* V105: plan-sheet 是二级弹层（叠在周计划/设置之上），同级 z-index 会被 DOM 后方的窗压住下半截
+   V107: 修复 V105 的截断事故——当时误把 .sheet 的背景/高度/transform 全部塞进了 #plan-sheet，
+   导致除它之外所有弹窗失去隐藏态（关了也赖在屏幕上，按叉无效的元凶） */
+#plan-sheet{ z-index:42; }
 .sheet.show{ transform:none; }
 .sheet-head{
   display:flex; align-items:center; justify-content:space-between;
@@ -1048,11 +1048,8 @@ body[data-theme='onyx'] .card, body[data-theme='midnight'] .card{
     inset 0 1px 0 rgba(255,255,255,.06),
     0 8px 28px rgba(0,0,0,.45);
 }
-/* 弹层玻璃拟态 */
-.sheet, #widget-sheet .sheet-panel, .sheet-card{
-  backdrop-filter: blur(24px) saturate(1.6);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6);
-}
+/* V107: 弹窗毛玻璃已删——实色底上 blur 本就不可见，纯引 iOS WebKit 渲染冻结（动画冻在半路=画面假死）
+   底栏 tabbar 不做 transform 动画，其 blur 保留（视觉真实需要它） */
 /* 底部 Tab 毛玻璃强化 */
 #tabbar{
   backdrop-filter: blur(28px) saturate(1.7);
@@ -1678,6 +1675,8 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 
 /* ===== V93 长按拖拽排序 + 文件夹 ===== */
 .wg-item.dragging{ transition:none; transform:scale(1.06); box-shadow:0 12px 34px rgba(0,0,0,.28); z-index:50; position:relative; opacity:.96; }
+/* V107: 拖动中的元素一律临时关毛玻璃——transform 动画+backdrop-filter=iOS 合成器冻结触发器 */
+.dragging, .dragging *{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
 .wg-item.drop-on{ outline:2px dashed var(--tint); outline-offset:2px; background:var(--chipbg); }
 .wg-item.drop-pop{ animation:wgpop .42s cubic-bezier(.2,.9,.3,1.2); }
 @keyframes wgpop{ 0%{ transform:scale(.9); } 60%{ transform:scale(1.04); } 100%{ transform:scale(1); } }
