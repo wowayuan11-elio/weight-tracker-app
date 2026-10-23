@@ -41,7 +41,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V112b';
+const APP_VERSION = 'V113';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -49,6 +49,11 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V113', d: '10月24日', items: [
+    '在家/健身房双场景：每个动作带「家/健」角标（绿=在家练，蓝=健身房器械），一眼看清这个动作在哪练',
+    '周计划分两版生成：在家版（徒手+你的器械）和健身房版（杠铃+固定器械+跑步机）——办卡的钱花在刀刃上',
+    '每天还能整套换场景：今天去健身房？点「整天换成健身房版」，当天全部换成器械动作',
+  ]},
   { v: 'V112b', d: '10月24日', items: [
     '修复周计划里点蓝色箭头没反应：箭头被误放在按钮外面（点文字有用、点箭头没用）——现在整行都能点开，文字、箭头、留白随便点',
   ]},
@@ -492,6 +497,10 @@ const GYM_MOVES = [
     sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
     tips: ['脚跟踩实，用臀部发力顶起', '顶到身体成一条直线，停 1 秒再下', '下落时臀部别完全坐实地面，保持张力'],
     bv: 'BV1kF411F7YG', by: 'MidoriLau' },
+  { id: 'm_abd', n: '坐姿髋外展', grp: '臀部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 12-15 次', rest: '组间休息 60 秒',
+    tips: ['背贴稳椅背，双手扶稳把手', '膝盖顶着垫板向外慢慢打开，慢开慢回', '别用腰晃着借力——外展到最大停 1 秒再回来'],
+    bv: 'BV1314y1j7zZ', by: 'Miya教练' },
   { id: 'wallsit', n: '靠墙静蹲', grp: '腿部', kind: 'strength', need: null,
     sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 60 秒',
     tips: ['背贴紧墙面，大腿与地面平行（做不到就高一点）', '膝盖不超过脚尖，小腿尽量垂直地面', '膝盖不舒服时抬高角度，量力而行'],
@@ -1060,7 +1069,7 @@ function sanitizeUI(u) {
       }).filter(Boolean);
       return { f: typeof day.f === 'string' ? day.f.slice(0, 16) : '', ex };
     }).filter(Boolean);
-    if (days.length === 7) d.gymPlan = { gen: (typeof u.gymPlan.gen === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(u.gymPlan.gen)) ? u.gymPlan.gen : todayKey(), days };
+    if (days.length === 7) d.gymPlan = { gen: (typeof u.gymPlan.gen === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(u.gymPlan.gen)) ? u.gymPlan.gen : todayKey(), place: u.gymPlan.place === 'gym' ? 'gym' : 'home', days };
   }
   return d;
 }
@@ -4523,10 +4532,18 @@ return h;
 }
 
 /* ============ 智能训练规划（V61）：读已勾器械 → 自动生成一周居家计划 ============ */
-function gymPool() {
+function gymPool(place) {
+  /* V113: place='gym'=健身房器械动作 | 'home'=徒手+已勾器械 | 'all'=全部（选择器用）
+     顺修 V61 遗留 bug：健身棒(bar)动作一直进不了池 */
   const eq = (state.ui && state.ui.equip) || [];
   const has = k => eq.indexOf(k) > -1;
-  return GYM_MOVES.filter(m => !m.need || (m.need === 'dumb' && has('dumb')) || (m.need === 'band' && has('band')) || (m.need === 'jump' && has('jump')));
+  const homeOk = m => !m.need || (m.need === 'dumb' && has('dumb')) || (m.need === 'band' && has('band')) || (m.need === 'jump' && has('jump')) || (m.need === 'bar' && has('bar'));
+  if (place === 'gym') return GYM_MOVES.filter(m => m.need === 'gym' || m.need === 'bar');
+  if (place === 'all') return GYM_MOVES.filter(m => m.need !== 'gym' ? (m.need !== 'bar' || has('bar')) : true);
+  return GYM_MOVES.filter(homeOk);
+}
+function sceneBadgeOf(m) {
+  return gymSceneOf(m) === 'gym' ? '<i class="pl-bdg gym">健</i>' : '<i class="pl-bdg home">家</i>';
 }
 function gymPick(arr, n, used) {
   const rest = arr.filter(m => used.indexOf(m.id) === -1);
@@ -4534,21 +4551,24 @@ function gymPick(arr, n, used) {
   if (bag.length < n) bag.push.apply(bag, arr.filter(m => used.indexOf(m.id) === -1 && bag.indexOf(m) === -1).sort(() => Math.random() - 0.5));
   return bag.slice(0, n);
 }
-function genGymPlan() {
-  const pool = gymPool();
-  const by = k => pool.filter(m => m.kind === k);
-  const legs = pool.filter(m => m.kind === 'strength' && ['腿部', '臀部'].indexOf(m.grp) > -1);
-  const upper = pool.filter(m => m.kind === 'strength' && ['胸部', '背部', '肩部', '手臂'].indexOf(m.grp) > -1);
-  const core = by('core'), cardio = by('cardio');
+function genGymPlan(place) {
+  place = place === 'gym' ? 'gym' : 'home';
+  /* V113: 力量按场景取池；核心/有氧两版共用徒手池（健身房里核心照样平板支撑） */
+  const stPool = gymPool(place).filter(m => m.kind === 'strength');
+  const auxPool = GYM_MOVES.filter(m => m.kind === 'core' || m.kind === 'cardio');
+  const legs = stPool.filter(m => ['腿部', '臀部'].indexOf(m.grp) > -1);
+  const upper = stPool.filter(m => ['胸部', '背部', '肩部', '手臂'].indexOf(m.grp) > -1);
+  const core = auxPool.filter(m => m.kind === 'core'), cardio = auxPool.filter(m => m.kind === 'cardio');
   const eq = (state.ui && state.ui.equip) || [];
   const walkName = { walk: '快走 30 分钟', run: '慢跑 20-30 分钟', tread: '跑步机快走/慢跑 30 分钟', swim: '游泳 30 分钟', ride: '骑行 30 分钟' };
-  const walkItem = (eq.find(k => walkName[k]) || 'walk') && (eq.map(k => walkName[k]).filter(Boolean)[0] || null);
+  let walkItem = (eq.find(k => walkName[k]) || 'walk') && (eq.map(k => walkName[k]).filter(Boolean)[0] || null);
+  if (place === 'gym') walkItem = '跑步机快走/慢跑 30 分钟'; /* 健身房标配有氧 */
   const used = [];
   const L = () => { const p = gymPick(legs, 3, used); p.forEach(m => used.push(m.id)); return p; };
   const U = () => { const p = gymPick(upper.length ? upper : legs, 2, used); p.forEach(m => used.push(m.id)); return p; };
   const C = n => { const p = gymPick(core, n, used); p.forEach(m => used.push(m.id)); return p; };
   const A = n => { const p = gymPick(cardio, n, used); p.forEach(m => used.push(m.id)); return p; };
-  const mk = (f, ms) => ({ f, ex: ms.map(m => ({ id: m.id })) });
+  const mk = (f, ms) => ({ f, ex: ms.map(m => m.id ? { id: m.id } : { t: m.t, s: m.s || '' }) }); /* V113b: 修 V61 既有 bug——有氧日文案条目被吃成 id:undefined，文案从未显示过 */
   const days = [];
   /* 周一 下肢+核心 */
   days.push(mk('下肢 + 核心', L().concat(C(2))));
@@ -4564,7 +4584,7 @@ function genGymPlan() {
   days.push(mk('有氧 + 核心', A(2).map(m => ({ id: m.id })).concat(C(2).map(m => ({ id: m.id })))));
   /* 周日 休息 */
   days.push({ f: '休息日', ex: [{ t: '散步 / 拉伸', s: '每周休息 2 天，练得久才练得住' }] });
-  return { gen: todayKey(), days };
+  return { gen: todayKey(), place: place, days };
 }
 /* ============ 跟练库（V80）：内置权威跟练视频 + 全网聚合搜索 ============
    视频均为 B 站人工核过的正规教学（帕梅拉官方搬运/周六野），B 站官方播放器嵌入 */
@@ -4714,12 +4734,13 @@ function todayPlanHTML() {
   const dayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   if (p && Array.isArray(p.days) && p.days[wd]) {
     const d = p.days[wd];
-    const exs = d.ex.map(e => e.t || '动作').join(' · ');
+    /* V113b: 名字转义、角标保持 HTML——esc(exs) 会把角标转成可见代码文本（VLM 验收抓到） */
+    const exs = d.ex.map(e => { if (e.t) return esc(e.t); const m = GYM_MOVES.find(x => x.id === e.id); return m ? esc(m.n) + sceneBadgeOf(m) : '动作'; }).join(' · ');
     const isRest = d.f.indexOf('休息') > -1;
     return '<div class="card wtplan' + (isRest ? ' rest' : '') + '">' +
       '<div class="tp-head"><b>' + dayNames[wd] + '今日推荐 · ' + esc(d.f) + '</b>' +
-      '<span class="tp-sub">' + (isRest ? '恢复日，别硬练' : p.gen + ' 生成') + '</span></div>' +
-      '<p class="tp-exs">' + esc(exs) + '</p>' +
+      '<span class="tp-sub">' + (isRest ? '恢复日，别硬练' : p.gen + ' 生成 · ' + (p.place === 'gym' ? '健身房器械版' : '在家版')) + '</span></div>' +
+      '<p class="tp-exs">' + exs + '</p>' +
       '<div class="tp-row">' +
       '<button class="btn sm" data-action="fit-tab" data-v="plan" style="width:auto">看整周安排</button>' +
       '<button class="btn sm ghost" data-action="wt-punch" style="width:auto">练完打卡</button></div>' +
@@ -5021,7 +5042,7 @@ function gymSection(title, ms) {
   h += ms.map(m =>
     '<button class="gym-row" data-action="gym-open" data-id="' + m.id + '" data-back="' + (curWidget || 'gym-lib') + '">' +
     (BV_COVERS[m.bv] ? '<img class="gym-row-img" src="' + BV_COVERS[m.bv] + '" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">' : '') +
-    '<span class="gym-row-t"><b>' + m.n + '</b><em>' + gymNeedName(m) + ' · ' + m.sets + ' · ' + esc(m.by || 'B站教学') + '</em></span>' +
+    '<span class="gym-row-t"><b>' + m.n + sceneBadgeOf(m) + '</b><em>' + gymNeedName(m) + ' · ' + m.sets + ' · ' + esc(m.by || 'B站教学') + '</em></span>' +
     '<i class="gym-row-p">▶</i></button>').join('');
   h += '</div>';
   return h;
@@ -5037,8 +5058,11 @@ function gymPlanBody() {
     h += '<p class="sub">不知道每天练什么？点一下，我按「减脂 + 新手」给你排好一周：哪天练力量、哪天纯有氧、哪天休息，每天练哪几个动作都写好——照着做就行。</p>';
     if (eqNames.length) h += '<div class="divider">自动识别到你的器械</div><div class="gym-chips">' + eqNames.map(n => '<span class="set-chip on gym-eq">' + esc(n) + '</span>').join('') + '</div>';
     else h += '<div class="key-line">纯徒手也能排 · 去「健康营 → 运动与器械」勾上家里有的，计划会更准</div>';
-    h += '<button class="btn wcard-btn" data-action="gym-gen" style="margin-top:10px">生成一周计划</button>';
-    h += '<p class="set-tip">按「减脂+新手」配的量：力量 3 组、核心 3 组、有氧 30 秒起步 · 哪天累就挪到第二天，别硬顶</p>';
+    h += '<div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">' +
+      '<button class="btn wcard-btn" data-action="gym-gen" data-place="home" style="flex:1;min-width:130px">生成在家版</button>' +
+      '<button class="btn wcard-btn" data-action="gym-gen" data-place="gym" style="flex:1;min-width:130px">生成健身房版</button></div>' +
+      '<p class="set-tip">在家版＝徒手＋你勾的器械 · 健身房版＝杠铃和固定器械（办卡的钱花在刀刃上）· 生成后每天还能整套换场景、单个换动作</p>' +
+      '<p class="set-tip">按「减脂+新手」配的量：力量 3 组、核心 3 组 · 哪天累就挪到第二天，别硬顶</p>';
     return h;
   }
   /* ============ V110 图表版：今天结论 + 一周节奏格 + 点格看明细 ============ */
@@ -5069,12 +5093,17 @@ function gymPlanBody() {
   /* ③ 选中日的明细：动作 + 组数，点开有视频 */
   const sd = p.days[wkSelDay];
   const past = wkSelDay < todayIdx, future = wkSelDay > todayIdx;
-  h += '<div class="wk-detail"><div class="wk-detail-h"><b>周' + D[wkSelDay] + ' · ' + esc(sd.f) + '</b><span>' +
+  /* V113b: 只看力量动作定场景——有氧/核心日没有器械版可换，不显示按钮（点了没变化=骗人） */
+  const firstStrength = sd.ex.map(e => e.t ? null : GYM_MOVES.find(x => x.id === e.id)).filter(m => m && m.kind === 'strength')[0];
+  const curScene = firstStrength ? gymSceneOf(firstStrength) : null;
+  const swapTo = curScene === 'gym' ? 'home' : 'gym';
+  h += '<div class="wk-detail"><div class="wk-detail-h"><b>周' + D[wkSelDay] + ' · ' + esc(sd.f) + '</b><span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">' +
+    (curScene ? '<button class="wk-swapbtn" data-action="wk-dayswap" data-d="' + wkSelDay + '" data-to="' + swapTo + '">整天换成' + (swapTo === 'gym' ? '健身房版' : '在家版') + '</button>' : '') +
     (future ? '还没到' : (doneOf(wkSelDay) ? '<i class="ok">✓ 打卡了</i>' : (past ? '那天没练，正常' : '今天还没打卡'))) + '</span></div>';
   h += sd.ex.map((e, j) => {
     const m = e.t ? null : GYM_MOVES.find(x => x.id === e.id);
     return m ? '<div class="gym-row" role="button" tabindex="0" data-action="gym-open" data-id="' + m.id + '" data-back="gym-plan">' +
-      '<span class="gym-row-t"><b>' + m.n + '</b><em>' + m.sets + ' · 点开看怎么做</em></span>' +
+      '<span class="gym-row-t"><b>' + m.n + sceneBadgeOf(m) + '</b><em>' + m.sets + ' · 点开看怎么做</em></span>' +
       '<i class="gym-row-p">›</i>' +
       '<button class="wk-swapbtn" data-action="wk-swap" data-d="' + wkSelDay + '" data-j="' + j + '" aria-label="换掉这个动作">换</button></div>'
       : '<div class="gym-row gym-row-txt"><span class="gym-row-t"><b>' + esc(e.t) + '</b><em>' + esc(e.s || '') + '</em></span>' +
@@ -5082,9 +5111,11 @@ function gymPlanBody() {
   }).join('');
   h += '</div>';
   /* ④ 底部：换一套 + 说明 */
+  const curPlace = p.place === 'gym' ? 'gym' : 'home';
   h += '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px">' +
-    '<button class="btn ghost sm" data-action="gym-gen" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">换一套安排</button>' +
-    '<p class="set-tip" style="margin:0">' + p.gen + ' 生成 · 点上面的格子看每天安排</p></div>';
+    '<button class="btn ghost sm" data-action="gym-gen" data-place="' + curPlace + '" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">换一套安排</button>' +
+    '<button class="btn ghost sm" data-action="gym-gen" data-place="' + (curPlace === 'gym' ? 'home' : 'gym') + '" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px">整套换成' + (curPlace === 'gym' ? '在家版' : '健身房版') + '</button>' +
+    '<p class="set-tip" style="margin:0">' + p.gen + ' 生成 · 当前是<i class="pl-bdg ' + curPlace + '">' + (curPlace === 'gym' ? '健' : '家') + '</i>' + (curPlace === 'gym' ? '健身房器械版' : '在家版') + ' · 每天还能单独换（明细右上按钮）</p></div>';
   return h;
 }
 /* V112: 换动作选择器——按部位分组挑，今天想练哪就换哪 */
@@ -5092,7 +5123,7 @@ function renderSwapSheet() {
   const p = state.ui.gymPlan;
   if (!p || !p.days[wkSwapDay]) return;
   const cur = p.days[wkSwapDay].ex[wkSwapIdx];
-  const pool = gymPool();
+  const pool = gymPool('all'); /* V113: 选择器放开全部——去健身房的日子在家动作也能选，角标自己看 */
   const GRPS = ['腿部', '臀部', '胸部', '背部', '肩部', '手臂', '核心', '有氧'];
   const DL = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   let h = '<p class="set-tip">今天想练哪就换哪 · 点一个立刻换上 · 原来那个直接替换掉</p>';
@@ -5101,7 +5132,7 @@ function renderSwapSheet() {
     if (!ms.length) return;
     h += '<div class="divider">' + g + '</div><div class="gym-chips">' +
       ms.map(m => '<button class="set-chip' + (cur && cur.id === m.id ? ' on' : '') + '" data-action="wk-pick" data-id="' + m.id + '">' +
-        (cur && cur.id === m.id ? '✓ ' : '') + m.n + '</button>').join('') + '</div>';
+        (cur && cur.id === m.id ? '✓ ' : '') + m.n + sceneBadgeOf(m) + '</button>').join('') + '</div>';
   });
   h += '<p class="set-tip" style="margin-top:6px">都是你的器械能做到的动作 · 每个点开有视频教学和动作要点</p>';
   document.getElementById('plan-sheet-title').textContent = '换动作 · ' + DL[wkSwapDay] + ' 第 ' + (wkSwapIdx + 1) + ' 个';
@@ -6053,7 +6084,8 @@ document.addEventListener('click', e => {
     }
     else if (a === 'gym-gen') {
       try {
-        state.ui.gymPlan = genGymPlan();
+        const pl = act.getAttribute('data-place') === 'gym' ? 'gym' : 'home';
+        state.ui.gymPlan = genGymPlan(pl);
         persist(); refreshOpenSheet(); refreshWorkoutUI(); /* V109: 按钮在健身页，必须刷健身页不是健康营 */
         /* V109: 点了必须有看得见的反应——课表滚入视野+高亮闪现+按钮打勾（V27 双通道铁律） */
         var _sec = document.getElementById('wk-plan-anchor');
@@ -6068,7 +6100,7 @@ document.addEventListener('click', e => {
           _btn.classList.add('gen-ok');
           setTimeout(function () { _btn.textContent = _t; _btn.classList.remove('gen-ok'); }, 2400);
         }
-        toast('✓ 这周的课表排好了，就在下面');
+        toast(pl === 'gym' ? '✓ 健身房器械版排好了，就在下面' : '✓ 在家版排好了，就在下面');
       } catch (err) { toast('生成失败：' + err.message); }
     }
     else if (a === 'group-open') { openGroup(act.getAttribute('data-id'), act.getAttribute('data-store')); }
@@ -6276,6 +6308,36 @@ document.addEventListener('click', e => {
     }
     else if (a === 'mach-filter') { gymMachFilter = act.dataset.c || '全部'; refreshOpenSheet(); refreshWorkoutUI(); }
     else if (a === 'wk-day') { wkSelDay = Math.max(0, Math.min(6, +(act.getAttribute('data-i') || 0))); refreshOpenSheet(); refreshWorkoutUI(); }
+    else if (a === 'wk-dayswap') {
+      /* V113: 整天换成另一场景——力量换同部位，核心/有氧两版共用就不动 */
+      const day = Math.max(0, Math.min(6, +(act.getAttribute('data-d') || 0)));
+      const target = act.getAttribute('data-to') === 'gym' ? 'gym' : 'home';
+      const p = state.ui.gymPlan;
+      if (!p || !p.days[day]) { toast('先排一周计划'); return; }
+      const pool = gymPool(target);
+      const used = [];
+      let changedN = 0; /* V113b: 诚实反馈——换了几个要说真话 */
+      const newEx = p.days[day].ex.map(e => {
+        if (e.t) {
+          if (target === 'gym' && /快走|慢跑|散步/.test(e.t)) { changedN++; return { t: '跑步机快走/慢跑 30 分钟', s: '健身房标配有氧 · 微微出汗就行' }; }
+          if (target === 'home' && /跑步机/.test(e.t)) { changedN++; return { t: '快走 30 分钟', s: '微微出汗就行' }; }
+          return e;
+        }
+        const m = GYM_MOVES.find(x => x.id === e.id);
+        if (!m || gymSceneOf(m) === target) return e;
+        let cands = pool.filter(c => c.kind === m.kind && c.grp === m.grp && used.indexOf(c.id) < 0);
+        if (!cands.length) cands = pool.filter(c => c.kind === m.kind && used.indexOf(c.id) < 0);
+        if (!cands.length) return e;
+        const pick = cands[Math.floor(Math.random() * cands.length)];
+        used.push(pick.id);
+        changedN++;
+        return { id: pick.id };
+      });
+      p.days[day].ex = newEx;
+      persist(); refreshOpenSheet(); refreshWorkoutUI();
+      if (!changedN) toast('这天没有能换成器械的动作——有氧/核心在哪儿练都一样');
+      else toast(target === 'gym' ? '✓ 换了 ' + changedN + ' 个器械动作' : '✓ 换了 ' + changedN + ' 个在家动作');
+    }
     else if (a === 'wk-swap') {
       wkSwapDay = Math.max(0, Math.min(6, +(act.getAttribute('data-d') || 0)));
       wkSwapIdx = Math.max(0, +(act.getAttribute('data-j') || 0));
