@@ -1741,6 +1741,16 @@ body .card{ box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 1px 0 var(-
 
 /* ===== V112: 计划明细行——主体可点看教学 + 换钮 ===== */
 .gym-row-main{ flex:1; min-width:0; display:flex; align-items:center; gap:10px; background:none; border:0; padding:0; text-align:left; font:inherit; -webkit-tap-highlight-color:transparent; }
+/* V114: 今日流程四步卡 */
+.wk-flow{ margin:2px 0 10px; padding:10px 12px 9px; border-radius:14px; background:rgba(var(--tint-rgb),.06); border:1px solid rgba(var(--tint-rgb),.18); }
+.wk-flow-t{ font-size:12.5px; font-weight:800; color:var(--text); margin-bottom:8px; }
+.wk-flow-steps{ display:flex; align-items:stretch; gap:4px; }
+.wk-fstep{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; align-items:center; text-align:center; padding:4px 2px; }
+.wk-fstep i{ width:20px; height:20px; border-radius:50%; background:var(--tint); color:#fff; font-style:normal; font-size:11.5px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.wk-fstep b{ font-size:11.5px; font-weight:700; color:var(--text); }
+.wk-fstep em{ font-size:9.5px; color:var(--text2); font-style:normal; }
+.wk-farr{ align-self:center; color:var(--text3); font-style:normal; font-size:12px; flex:none; }
+.wk-flow-tip{ margin:7px 2px 0; font-size:11px; color:var(--text2); }
 /* V113: 场景角标——家(绿)/健(靛蓝)，放动作名右上角 */
 .pl-bdg{ display:inline-block; vertical-align:super; margin-left:2px; padding:0 4px; border-radius:5px; font-size:10px; font-style:normal; font-weight:700; line-height:1.5; color:#fff; }
 .pl-bdg.home{ background:#34c759; }
