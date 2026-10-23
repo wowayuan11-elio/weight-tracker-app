@@ -41,7 +41,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V110';
+const APP_VERSION = 'V111b（数据安全加固）';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -49,7 +49,14 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
-  'V110（10-23）周计划图表化：一周节奏格（力量/有氧/休息三色、今天有标记、打卡绿✓），点格子看当天动作明细——结论直出，明细点开',
+  { v: 'V111', d: '10月23日', items: [
+    '重要修复：堵住一个可能丢数据的隐患（生成过周计划后重启可能白屏重置——已根治）',
+    '周计划合并成一个：统计页那个旧「周计划」格子下架了——以前 App 里有两个重名的周计划各说各话，现在只留健身页那个真计划，重排和打卡都听它的',
+    '打卡升级：现在打卡会把你今天练的动作记进最近训练里，不再是一段固定文案'
+  ]},
+  { v: 'V110', d: '10月23日', items: [
+    '周计划图表化：一周节奏格（力量/有氧/休息三色、今天有标记、打卡绿✓），点格子看当天动作明细——结论直出，明细点开'
+  ]},
   { v: 'V109', d: '10月23日', items: [
     '修复「生成一周计划」点了没反应：其实一直在生成，但刷新错了页面——你眼前的健身页纹丝不动。现在点完课表立刻出现在下面，自动滚过去并绿色高亮，按钮也会打勾'
   ]},
@@ -462,6 +469,222 @@ const CHANGELOG = [
   ]}
 ];
 
+/* V111b 铁律 a 执行：loadState 链路引用的常量必须在 loadState 调用前定义（V32/V111b 两次事故教训）
+   GYM_MOVES / WEEK_PLAN_DEFAULT 从后文搬来——sanitizeUI 的 gymPlan/weekPlan 白名单要用它们 */
+const GYM_MOVES = [
+  /* 下肢力量 */
+  { id: 'squat',   n: '深蹲',     grp: '腿部', kind: 'strength', need: null,
+    sets: '3 组 × 12-15 次', rest: '组间休息 60-90 秒',
+    tips: ['双脚与肩同宽，脚尖微微外展', '膝盖始终对准脚尖方向，不要内扣', '臀部向后坐，重心压在脚跟，起身夹臀'],
+    bv: 'BV1FB4y137gi', by: '卓叔增重' },
+  { id: 'lunge',   n: '弓步蹲',   grp: '腿部', kind: 'strength', need: null,
+    sets: '3 组 × 每边 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['前脚膝盖对脚尖，后膝靠近地面但不砸地', '上身挺直，核心收紧别晃', '步幅别太小——太小膝盖压力反而大'],
+    bv: 'BV1iV89zME8a', by: 'ACE 认证教练 宋健鹏' },
+  { id: 'glutebridge', n: '臀桥', grp: '臀部', kind: 'strength', need: null,
+    sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
+    tips: ['脚跟踩实，用臀部发力顶起', '顶到身体成一条直线，停 1 秒再下', '下落时臀部别完全坐实地面，保持张力'],
+    bv: 'BV1kF411F7YG', by: 'MidoriLau' },
+  { id: 'wallsit', n: '靠墙静蹲', grp: '腿部', kind: 'strength', need: null,
+    sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 60 秒',
+    tips: ['背贴紧墙面，大腿与地面平行（做不到就高一点）', '膝盖不超过脚尖，小腿尽量垂直地面', '膝盖不舒服时抬高角度，量力而行'],
+    bv: 'BV1MscszTEJH', by: '运动康复陈老师' },
+  { id: 'pushup',  n: '俯卧撑',   grp: '胸部', kind: 'strength', need: null,
+    sets: '3 组 × 8-15 次（做不动就跪姿）', rest: '组间休息 60-90 秒',
+    tips: ['手在胸两侧，肘部与身体约 45 度，别外展 90 度', '全身绷直像一块板，塌腰=白练', '下去吸气上来呼气，幅度做满'],
+    bv: 'BV1Ta411K72v', by: '帅soserious' },
+  { id: 'dumbrow', n: '哑铃俯身划船', grp: '背部', kind: 'strength', need: 'dumb',
+    sets: '3 组 × 每边 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['俯身时背平，别弓腰', '肘部贴身向后拉，感受背部收紧', '用哑铃就从小重量开始，动作对了再加'],
+    bv: 'BV1JS411N7Yg', by: '拿铁孙同学' },
+  { id: 'press',   n: '哑铃肩上推举', grp: '肩部', kind: 'strength', need: 'dumb',
+    sets: '3 组 × 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['坐稳或站直，核心收紧别挺腰', '推起时哑铃轨迹略向后，头顶正上方', '下放慢一点，别借力甩'],
+    bv: 'BV1uw411N7MC', by: '凯圣王' },
+  { id: 'bandrow', n: '弹力带划船', grp: '背部', kind: 'strength', need: 'band',
+    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
+    tips: ['弹力带固定稳，两端拉直再开始', '肘贴身向后收，肩胛骨夹紧', '回放慢速对抗，别让带子弹回来'],
+    bv: 'BV183411N7uG', by: '菠萝头爱运动' },
+  /* 核心 */
+  { id: 'plank',   n: '平板支撑', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 45-60 秒',
+    tips: ['肘在肩正下方，小臂平行向前', '收腹夹臀，身体一条直线', '憋不住变形了就停——质量大于时长'],
+    bv: 'BV1Q34y1j79r', by: 'Gandy__' },
+  { id: 'crunch',  n: '卷腹',     grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
+    tips: ['下背贴地，靠腹部卷起肩胛骨就够', '脖子放松，手轻扶耳别抱头使劲拽', '起身呼气，慢下比快起有效'],
+    bv: 'BV15N4y1g7VV', by: 'ALEX 健身频道' },
+  { id: 'deadbug', n: '死虫式',   grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
+    tips: ['下背全程压紧地面，腰别拱起', '对侧手脚同时放，慢到像慢动作', '腰痛人群首选核心动作，安全'],
+    bv: 'BV1Bu411V7rW', by: '运动康复陈老师' },
+  { id: 'legraise', n: '仰卧抬腿', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
+    tips: ['手放身体两侧，下背压住地面', '腿慢抬慢放，落下来别碰地', '腰离地了就抬高一点腿再放'],
+    bv: 'BV1kq4y1n75T', by: 'Mina筱敏' },
+  /* 有氧 */
+  { id: 'jumpingjack', n: '开合跳', grp: '有氧', kind: 'cardio', need: null,
+    sets: '4 组 × 30-45 秒', rest: '组间休息 30-45 秒',
+    tips: ['落地膝盖微屈缓冲，别直腿砸地', '手臂摆到头顶，幅度做满', '节奏匀速，能边做边正常喘气为宜'],
+    bv: 'BV1Bb4y147tm', by: 'coolkii' },
+  { id: 'burpee',  n: '波比跳',   grp: '有氧', kind: 'cardio', need: null,
+    sets: '3-4 组 × 8-12 次', rest: '组间休息 60-90 秒',
+    tips: ['跳不起来的降级版：站起就行，不跳', '撑地时核心收紧，别塌腰', '心率猛就减次数，安全第一'],
+    bv: 'BV15E411E7AW', by: '闫帅奇' },
+  { id: 'mountain', n: '登山跑',  grp: '有氧', kind: 'cardio', need: null,
+    sets: '4 组 × 30 秒', rest: '组间休息 30-45 秒',
+    tips: ['肩在手腕正上方，屁股别撅高', '膝盖往胸口方向提，速度匀', '撑不住就放慢，姿态优先'],
+    bv: 'BV1D24y1t7CD', by: '运动科学' },
+  { id: 'highknees', n: '高抬腿', grp: '有氧', kind: 'cardio', need: null,
+    sets: '4 组 × 30-45 秒', rest: '组间休息 30-45 秒',
+    tips: ['膝盖抬到髋部高度，前脚掌落地', '上身挺直别后仰', '小区里怕吵就原地轻放，不用猛跺'],
+    bv: 'BV11J4m1u7R3', by: '阿娇教练' },
+  { id: 'jumprope', n: '跳绳（新手版）', grp: '有氧', kind: 'cardio', need: 'jump',
+    sets: '3-5 组 × 1 分钟', rest: '组间休息 60-90 秒',
+    tips: ['前脚掌起跳落，跳得低一点省力', '手腕摇绳，不是抡大臂', '膝盖踝关节有旧伤就先别跳'],
+    bv: 'BV1uS4y1k7sw', by: '麦斯跳绳' },
+  /* —— V66 腹肌专场 —— */
+  { id: 'reversecrunch', n: '反向卷腹', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
+    tips: ['练下腹王牌：膝盖往胸口收，屁股离地', '用腹部发力，不是甩腿', '腰始终贴地，腰拱起就停'],
+    bv: 'BV1hb4y1a7Rd', by: 'Mina筱敏' },
+  { id: 'bicycle', n: '空中蹬车', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 15 次', rest: '组间休息 45-60 秒',
+    tips: ['肘找对侧膝，转的是躯干不是脖子', '动作慢一点，蹬得越快越没效果', '下背压住地面'],
+    bv: 'BV1Mr4y1z7Ac', by: '三藩之犬' },
+  { id: 'russian', n: '俄罗斯转体', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 12 次', rest: '组间休息 45-60 秒',
+    tips: ['转的是肩膀和胸腔，不是只摆手', '新手脚可以着地，进阶抬脚', '腰背挺直，塌腰伤腰'],
+    bv: 'BV1Uk4y117VV', by: 'JunJ徒手俊杰' },
+  { id: 'sideplank', n: '侧平板支撑', grp: '腹肌', kind: 'core', need: null,
+    sets: '每边 3 组 × 20-40 秒', rest: '组间休息 45 秒',
+    tips: ['肘在肩正下方，髋部往上顶', '身体一条直线，别塌腰', '练侧腹和腰线，马甲线必练'],
+    bv: 'BV1eF3tzjEMk', by: 'ACE 认证教练 宋健鹏' },
+  { id: 'vup', n: 'V字两头起', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 8-12 次', rest: '组间休息 60 秒',
+    tips: ['手和脚同时起来找脚尖，像字母 V', '腹部抽筋就弯膝降难度', '下来时慢，别砸'],
+    bv: 'BV1uX4y1P7uX', by: '街健醉翁' },
+  { id: 'scissor', n: '剪刀腿', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 30 秒', rest: '组间休息 45 秒',
+    tips: ['下背贴死地面，腰离地就抬高腿', '上下交叉像剪刀，慢速控制', '脖子放松别使劲抬头'],
+    bv: 'BV1NnzzBSEyq', by: '居家锻炼的小宅' },
+  { id: 'birddog', n: '鸟狗式', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
+    tips: ['对侧手脚同时伸，像猎鸟犬姿势', '腰背平得像放杯水不掉', '腰痛人群最友好的核心动作'],
+    bv: 'BV1ne411W7MV', by: '科学康复频道' },
+  { id: 'toetap', n: '仰卧触踝', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 20 次', rest: '组间休息 45 秒',
+    tips: ['屈膝仰卧，左右手交替摸同侧脚跟', '用侧腹发力，幅度不用大', '肩胛骨微微离地保持张力'],
+    bv: 'BV1Ft421G7fw', by: '跟练健身 Online' },
+  { id: 'deadbug', n: '死虫式', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
+    tips: ['下背全程贴死地面，别弓腰', '对侧手脚同时下放，慢速控制', '腰疼人群最友好的核心动作，疼就减小幅度'],
+    bv: 'BV19hP9zvE8V', by: '运动科学（13万播放）' },
+  { id: 'kneewheel', n: '跪姿健腹轮', grp: '腹肌', kind: 'core', need: 'bar',
+    sets: '3 组 × 8-10 次', rest: '组间休息 60 秒',
+    tips: ['膝盖垫软垫，滚出去别塌腰', '先滚 60% 幅度，能收回来再加', '全程核心收紧像被打了一样绷住'],
+    bv: 'BV1fkoyY3EWs', by: 'Klein邵邵' },
+  { id: 'crunchknee', n: '卷腹摸膝', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 15 次', rest: '组间休息 45 秒',
+    tips: ['手顺着大腿滑向膝盖，肩胛离地即可', '脖子放松，下巴看天花板', '比标准卷腹更适合零基础'],
+    bv: 'BV115411d7MG', by: 'Gandy__' },
+  { id: 'hollow', n: '屈体收腹', grp: '腹肌', kind: 'core', need: null,
+    sets: '3 组 × 坚持 15-30 秒', rest: '组间休息 45 秒',
+    tips: ['像香蕉一样绷住：腰压地、腿手抬离地', '做不了就弯膝收一点', '街舞/徒手训练核心的地基动作'],
+    bv: 'BV1BK4y1o7sk', by: 'ICFC 国际徒手体适能' },
+  /* —— V66 其他部位 —— */
+  { id: 'widepushup', n: '宽距俯卧撑', grp: '胸部', kind: 'strength', need: null,
+    sets: '3 组 × 8-12 次', rest: '组间休息 60-90 秒',
+    tips: ['手比肩宽一掌，主打胸外侧', '胸部尽量贴近地面', '做不动就跪姿'],
+    bv: 'BV1MU411d7VU', by: '李志佑' },
+  { id: 'diamondpushup', n: '钻石俯卧撑', grp: '手臂', kind: 'strength', need: null,
+    sets: '3 组 × 6-10 次', rest: '组间休息 60-90 秒',
+    tips: ['双手食指拇指拼成钻石形，主打肱三头', '肘部贴身，别外展', '太难就跪姿做'],
+    bv: 'BV1m1421S7Tg', by: '曼巴yelomamba' },
+  { id: 'superman', n: '超人式', grp: '背部', kind: 'strength', need: null,
+    sets: '3 组 × 12 次（停 2 秒）', rest: '组间休息 45 秒',
+    tips: ['俯卧，手脚同时抬离地 2 秒', '练下背部，久坐腰酸救星', '动作幅度小而稳，别甩'],
+    bv: 'BV1QXqDYFEmZ', by: '增肌期' },
+  { id: 'ytw', n: '俯卧 YTW', grp: '肩部', kind: 'strength', need: null,
+    sets: '3 组 × 每个字 8 次', rest: '组间休息 45 秒',
+    tips: ['俯卧或俯身，手臂摆出 Y→T→W 字形', '圆肩驼背矫正必练', '拇指朝上，肩胛骨发力带动'],
+    bv: 'BV1zq4y197rR', by: '欧阳春晓Aurora' },
+  { id: 'bulgarian', n: '保加利亚分腿蹲', grp: '臀部', kind: 'strength', need: null,
+    sets: '3 组 × 每边 8-12 次', rest: '组间休息 60-90 秒',
+    tips: ['后脚搭沙发/床沿，前腿下蹲', '重心 80% 在前腿，膝盖对脚尖', '臀腿王牌，比普通深蹲累得多'],
+    bv: 'BV12M411L7k8', by: 'ALEX 健身频道' },
+  { id: 'singlebridge', n: '单腿臀桥', grp: '臀部', kind: 'strength', need: null,
+    sets: '3 组 × 每边 10-12 次', rest: '组间休息 45-60 秒',
+    tips: ['一腿伸直离地，单腿顶髋', '臀部发力，腰别代偿', '比双腿臀桥难度高一档'],
+    bv: 'BV1ys421T7gZ', by: '首桐康复小周' },
+  { id: 'squatjump', n: '深蹲跳', grp: '有氧', kind: 'cardio', need: null,
+    sets: '4 组 × 10-15 次', rest: '组间休息 45-60 秒',
+    tips: ['深蹲到底跳起来，落地缓冲', '膝盖不好就用不跳的深蹲替代', '楼下住户慎重，可去楼道或垫上'],
+    bv: 'BV1nE421u7Q4', by: '跟练健身 Online' },
+  { id: 'bearcrawl', n: '熊爬', grp: '全身', kind: 'core', need: null,
+    sets: '3 组 × 爬 20-30 秒', rest: '组间休息 60 秒',
+    tips: ['手膝着地微离地，像熊一样爬', '膝盖不着地，屁股别撅高', '全身核心肩带一起练，DNS 康复体系推荐'],
+    bv: 'BV1c34y1q73T', by: '康复学堂' },
+  /* V84: 健身房器械动作（B站教学逐一核实：卓叔增重/ALEX健身频道/健助师小珂/Jeff Nippard搬运等） */
+  { id: 'bench-press', n: '杠铃卧推', grp: '胸部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
+    tips: ['肩胛骨后收下沉挺胸，双脚踩实地面，臀部全程贴凳', '杠铃下放到乳头上沿，小臂始终垂直地面，肘部约 45° 夹角', '推起时杠铃走一条微斜直线，顶端不锁肘悬停'],
+    bv: 'BV16i421h71B', by: '卓叔增重（54万播放）' },
+  { id: 'incline-db', n: '上斜哑铃卧推', grp: '胸部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['凳面调到 30-45°，太高会练到肩前束', '哑铃下放到胸口两侧，肘部略低于肩线', '顶端哑铃别相撞，保持胸部张力不卸'],
+    bv: 'BV1k5411m76e', by: '萝卜大神Robert' },
+  { id: 'cable-fly', n: '龙门架绳索夹胸', grp: '胸部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
+    tips: ['滑轮调到略高于肩，身体略前倾站稳', '肘部微屈角度全程不变，像抱一棵大树合拢', '合拢时挤压胸部 1 秒，回放要慢，别让配重片相撞'],
+    bv: 'BV1ZZ421N7T8', by: 'ALEX健身频道' },
+  { id: 'pec-deck', n: '蝴蝶机夹胸', grp: '胸部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
+    tips: ['座椅高度调到把手与胸口同高，背贴紧靠垫', '用肘部小臂发力合拢，不是用手抓把手硬掰', '中缝挤压感是关键，重量宁轻勿重'],
+    bv: 'BV1fqtGzXE3m', by: '古Gu教练' },
+  { id: 'lat-pulldown', n: '高位下拉', grp: '背部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['大腿压紧挡垫，上身略后倾约 15° 并固定', '先用肘往下「插」的意识启动，杠拉到锁骨附近', '背阔肌顶点挤压 1 秒，还原时完全伸展背阔肌'],
+    bv: 'BV1oa4y1z73J', by: 'ALEX健身频道（49万播放）' },
+  { id: 'seated-row', n: '坐姿划船', grp: '背部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 10-12 次', rest: '组间休息 60-90 秒',
+    tips: ['膝微屈，腰背挺直，躯干别前后大幅摇摆', '拉把手到腹部，肘部贴身往后收，肩胛骨夹紧', '还原时控制速度，肩胛骨充分前伸拉长背阔肌'],
+    bv: 'BV1m2421L7tw', by: 'ALEX健身频道' },
+  { id: 'pullup', n: '引体向上', grp: '背部', kind: 'strength', need: 'bar',
+    sets: '4 组 × 力竭（目标 5-8 个）', rest: '组间休息 90 秒',
+    tips: ['握距略宽于肩，先沉肩再启动，别耸肩', '想象肘部往下往里拉，下巴过杠即可', '下放控制 2-3 秒，做不了就用弹力带辅助或做离心'],
+    bv: 'BV1WF411b7jb', by: '曼巴yelomamba' },
+  { id: 'ohp', n: '杠铃站姿推肩', grp: '肩部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
+    tips: ['握距略宽于肩，杠放锁骨前，核心臀腿收紧像根柱子', '杠贴脸往上推，过头后微微后移把杠推到头顶正上方', '别塌腰借力——腰往前顶说明重量大了'],
+    bv: 'BV1jx4y1K7Jw', by: '运动科学' },
+  { id: 'lat-raise', n: '哑铃侧平举', grp: '肩部', kind: 'strength', need: 'dumb',
+    sets: '4 组 × 12-15 次', rest: '组间休息 45 秒',
+    tips: ['微屈肘并固定角度，向两侧抬到与肩同高', '想象用小指侧引领上抬，肩峰别耸起来', '下放慢 2-3 秒，中束的张力全在下放阶段'],
+    bv: 'BV1aQJKz6Ezj', by: '健助师_小珂（56万播放）' },
+  { id: 'leg-press', n: '倒蹬机腿举', grp: '腿部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 10-15 次', rest: '组间休息 90 秒',
+    tips: ['脚放踏板中上部与肩同宽，膝盖对准脚尖方向', '下放到大腿约贴胸口即可，臀部别离开座椅卷起来', '蹬起时膝盖别完全锁死，保持持续张力'],
+    bv: 'BV1gs4y167gt', by: 'ALEX健身频道' },
+  { id: 'rdl', n: '罗马尼亚硬拉', grp: '腿部', kind: 'strength', need: 'gym',
+    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
+    tips: ['膝微屈固定不变，靠髋部往后折叠下放杠铃', '杠贴着大腿滑下去，感受大腿后侧被拉紧', '拉到腘绳肌极限（膝盖以下）就起，腰背始终平直'],
+    bv: 'BV1J3DaYWErt', by: 'Jeff Nippard（科学健身顶流·中文字幕）' },
+  { id: 'hack-squat', n: '哈克深蹲机', grp: '腿部', kind: 'strength', need: 'gym',
+    sets: '3 组 × 10-12 次', rest: '组间休息 90 秒',
+    tips: ['背贴紧靠垫，脚位适中偏下，膝盖对脚尖', '下到大腿平行或略低，全程腰部不离开靠垫', '比自由深蹲友好，适合新手建立腿部力量'],
+    bv: 'BV1rr4y1e7Wq', by: 'SallyTalk' },
+  { id: 'barbell-curl', n: '杠铃弯举', grp: '手臂', kind: 'strength', need: 'gym',
+    sets: '3 组 × 10-12 次', rest: '组间休息 60 秒',
+    tips: ['肘部固定在身体两侧，只动前臂', '顶端用力挤压肱二头肌 1 秒，别甩腰借力', '下放慢速到底，手臂接近伸直再弯下一次'],
+    bv: 'BV1nb4y1M7By', by: '凯圣王（28万播放）' },
+  { id: 'rope-pushdown', n: '绳索下压（三头）', grp: '手臂', kind: 'strength', need: 'gym',
+    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
+    tips: ['大臂夹紧身体固定，只有肘关节在动', '下压到底时绳索往两侧分开，挤压三头 1 秒', '上身别前倾压重量，慢速还原到前臂贴近大臂'],
+    bv: 'BV1nVjEz5EBQ', by: 'Gandy__（17万播放）' },
+];
+const WEEK_PLAN_DEFAULT = ['快走 40 分钟', '休息', '力量训练 30 分钟', '休息', '有氧运动 40 分钟', '拉伸散步', '休息'];
+
 let state = loadState();
 let currentDate = todayKey();   // 记录页当前编辑的日期
 let trendRange = (state.ui && state.ui.trendRange) || 7;  // 趋势图天数，0 = 全部；默认 7 天（直观），记住上次选择
@@ -769,218 +992,6 @@ function dietDaySum(key, w) {
 }
 
 /* ============ 居家训练动作库（V61）：视频均为人工验证的 B 站正规教学 ============ */
-const GYM_MOVES = [
-  /* 下肢力量 */
-  { id: 'squat',   n: '深蹲',     grp: '腿部', kind: 'strength', need: null,
-    sets: '3 组 × 12-15 次', rest: '组间休息 60-90 秒',
-    tips: ['双脚与肩同宽，脚尖微微外展', '膝盖始终对准脚尖方向，不要内扣', '臀部向后坐，重心压在脚跟，起身夹臀'],
-    bv: 'BV1FB4y137gi', by: '卓叔增重' },
-  { id: 'lunge',   n: '弓步蹲',   grp: '腿部', kind: 'strength', need: null,
-    sets: '3 组 × 每边 10-12 次', rest: '组间休息 60-90 秒',
-    tips: ['前脚膝盖对脚尖，后膝靠近地面但不砸地', '上身挺直，核心收紧别晃', '步幅别太小——太小膝盖压力反而大'],
-    bv: 'BV1iV89zME8a', by: 'ACE 认证教练 宋健鹏' },
-  { id: 'glutebridge', n: '臀桥', grp: '臀部', kind: 'strength', need: null,
-    sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
-    tips: ['脚跟踩实，用臀部发力顶起', '顶到身体成一条直线，停 1 秒再下', '下落时臀部别完全坐实地面，保持张力'],
-    bv: 'BV1kF411F7YG', by: 'MidoriLau' },
-  { id: 'wallsit', n: '靠墙静蹲', grp: '腿部', kind: 'strength', need: null,
-    sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 60 秒',
-    tips: ['背贴紧墙面，大腿与地面平行（做不到就高一点）', '膝盖不超过脚尖，小腿尽量垂直地面', '膝盖不舒服时抬高角度，量力而行'],
-    bv: 'BV1MscszTEJH', by: '运动康复陈老师' },
-  { id: 'pushup',  n: '俯卧撑',   grp: '胸部', kind: 'strength', need: null,
-    sets: '3 组 × 8-15 次（做不动就跪姿）', rest: '组间休息 60-90 秒',
-    tips: ['手在胸两侧，肘部与身体约 45 度，别外展 90 度', '全身绷直像一块板，塌腰=白练', '下去吸气上来呼气，幅度做满'],
-    bv: 'BV1Ta411K72v', by: '帅soserious' },
-  { id: 'dumbrow', n: '哑铃俯身划船', grp: '背部', kind: 'strength', need: 'dumb',
-    sets: '3 组 × 每边 10-12 次', rest: '组间休息 60-90 秒',
-    tips: ['俯身时背平，别弓腰', '肘部贴身向后拉，感受背部收紧', '用哑铃就从小重量开始，动作对了再加'],
-    bv: 'BV1JS411N7Yg', by: '拿铁孙同学' },
-  { id: 'press',   n: '哑铃肩上推举', grp: '肩部', kind: 'strength', need: 'dumb',
-    sets: '3 组 × 10-12 次', rest: '组间休息 60-90 秒',
-    tips: ['坐稳或站直，核心收紧别挺腰', '推起时哑铃轨迹略向后，头顶正上方', '下放慢一点，别借力甩'],
-    bv: 'BV1uw411N7MC', by: '凯圣王' },
-  { id: 'bandrow', n: '弹力带划船', grp: '背部', kind: 'strength', need: 'band',
-    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
-    tips: ['弹力带固定稳，两端拉直再开始', '肘贴身向后收，肩胛骨夹紧', '回放慢速对抗，别让带子弹回来'],
-    bv: 'BV183411N7uG', by: '菠萝头爱运动' },
-  /* 核心 */
-  { id: 'plank',   n: '平板支撑', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 坚持 30-60 秒', rest: '组间休息 45-60 秒',
-    tips: ['肘在肩正下方，小臂平行向前', '收腹夹臀，身体一条直线', '憋不住变形了就停——质量大于时长'],
-    bv: 'BV1Q34y1j79r', by: 'Gandy__' },
-  { id: 'crunch',  n: '卷腹',     grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 15-20 次', rest: '组间休息 45-60 秒',
-    tips: ['下背贴地，靠腹部卷起肩胛骨就够', '脖子放松，手轻扶耳别抱头使劲拽', '起身呼气，慢下比快起有效'],
-    bv: 'BV15N4y1g7VV', by: 'ALEX 健身频道' },
-  { id: 'deadbug', n: '死虫式',   grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
-    tips: ['下背全程压紧地面，腰别拱起', '对侧手脚同时放，慢到像慢动作', '腰痛人群首选核心动作，安全'],
-    bv: 'BV1Bu411V7rW', by: '运动康复陈老师' },
-  { id: 'legraise', n: '仰卧抬腿', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
-    tips: ['手放身体两侧，下背压住地面', '腿慢抬慢放，落下来别碰地', '腰离地了就抬高一点腿再放'],
-    bv: 'BV1kq4y1n75T', by: 'Mina筱敏' },
-  /* 有氧 */
-  { id: 'jumpingjack', n: '开合跳', grp: '有氧', kind: 'cardio', need: null,
-    sets: '4 组 × 30-45 秒', rest: '组间休息 30-45 秒',
-    tips: ['落地膝盖微屈缓冲，别直腿砸地', '手臂摆到头顶，幅度做满', '节奏匀速，能边做边正常喘气为宜'],
-    bv: 'BV1Bb4y147tm', by: 'coolkii' },
-  { id: 'burpee',  n: '波比跳',   grp: '有氧', kind: 'cardio', need: null,
-    sets: '3-4 组 × 8-12 次', rest: '组间休息 60-90 秒',
-    tips: ['跳不起来的降级版：站起就行，不跳', '撑地时核心收紧，别塌腰', '心率猛就减次数，安全第一'],
-    bv: 'BV15E411E7AW', by: '闫帅奇' },
-  { id: 'mountain', n: '登山跑',  grp: '有氧', kind: 'cardio', need: null,
-    sets: '4 组 × 30 秒', rest: '组间休息 30-45 秒',
-    tips: ['肩在手腕正上方，屁股别撅高', '膝盖往胸口方向提，速度匀', '撑不住就放慢，姿态优先'],
-    bv: 'BV1D24y1t7CD', by: '运动科学' },
-  { id: 'highknees', n: '高抬腿', grp: '有氧', kind: 'cardio', need: null,
-    sets: '4 组 × 30-45 秒', rest: '组间休息 30-45 秒',
-    tips: ['膝盖抬到髋部高度，前脚掌落地', '上身挺直别后仰', '小区里怕吵就原地轻放，不用猛跺'],
-    bv: 'BV11J4m1u7R3', by: '阿娇教练' },
-  { id: 'jumprope', n: '跳绳（新手版）', grp: '有氧', kind: 'cardio', need: 'jump',
-    sets: '3-5 组 × 1 分钟', rest: '组间休息 60-90 秒',
-    tips: ['前脚掌起跳落，跳得低一点省力', '手腕摇绳，不是抡大臂', '膝盖踝关节有旧伤就先别跳'],
-    bv: 'BV1uS4y1k7sw', by: '麦斯跳绳' },
-  /* —— V66 腹肌专场 —— */
-  { id: 'reversecrunch', n: '反向卷腹', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
-    tips: ['练下腹王牌：膝盖往胸口收，屁股离地', '用腹部发力，不是甩腿', '腰始终贴地，腰拱起就停'],
-    bv: 'BV1hb4y1a7Rd', by: 'Mina筱敏' },
-  { id: 'bicycle', n: '空中蹬车', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 每边 15 次', rest: '组间休息 45-60 秒',
-    tips: ['肘找对侧膝，转的是躯干不是脖子', '动作慢一点，蹬得越快越没效果', '下背压住地面'],
-    bv: 'BV1Mr4y1z7Ac', by: '三藩之犬' },
-  { id: 'russian', n: '俄罗斯转体', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 每边 12 次', rest: '组间休息 45-60 秒',
-    tips: ['转的是肩膀和胸腔，不是只摆手', '新手脚可以着地，进阶抬脚', '腰背挺直，塌腰伤腰'],
-    bv: 'BV1Uk4y117VV', by: 'JunJ徒手俊杰' },
-  { id: 'sideplank', n: '侧平板支撑', grp: '腹肌', kind: 'core', need: null,
-    sets: '每边 3 组 × 20-40 秒', rest: '组间休息 45 秒',
-    tips: ['肘在肩正下方，髋部往上顶', '身体一条直线，别塌腰', '练侧腹和腰线，马甲线必练'],
-    bv: 'BV1eF3tzjEMk', by: 'ACE 认证教练 宋健鹏' },
-  { id: 'vup', n: 'V字两头起', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 8-12 次', rest: '组间休息 60 秒',
-    tips: ['手和脚同时起来找脚尖，像字母 V', '腹部抽筋就弯膝降难度', '下来时慢，别砸'],
-    bv: 'BV1uX4y1P7uX', by: '街健醉翁' },
-  { id: 'scissor', n: '剪刀腿', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 30 秒', rest: '组间休息 45 秒',
-    tips: ['下背贴死地面，腰离地就抬高腿', '上下交叉像剪刀，慢速控制', '脖子放松别使劲抬头'],
-    bv: 'BV1NnzzBSEyq', by: '居家锻炼的小宅' },
-  { id: 'birddog', n: '鸟狗式', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
-    tips: ['对侧手脚同时伸，像猎鸟犬姿势', '腰背平得像放杯水不掉', '腰痛人群最友好的核心动作'],
-    bv: 'BV1ne411W7MV', by: '科学康复频道' },
-  { id: 'toetap', n: '仰卧触踝', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 20 次', rest: '组间休息 45 秒',
-    tips: ['屈膝仰卧，左右手交替摸同侧脚跟', '用侧腹发力，幅度不用大', '肩胛骨微微离地保持张力'],
-    bv: 'BV1Ft421G7fw', by: '跟练健身 Online' },
-  { id: 'deadbug', n: '死虫式', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 每边 10 次', rest: '组间休息 45 秒',
-    tips: ['下背全程贴死地面，别弓腰', '对侧手脚同时下放，慢速控制', '腰疼人群最友好的核心动作，疼就减小幅度'],
-    bv: 'BV19hP9zvE8V', by: '运动科学（13万播放）' },
-  { id: 'kneewheel', n: '跪姿健腹轮', grp: '腹肌', kind: 'core', need: 'bar',
-    sets: '3 组 × 8-10 次', rest: '组间休息 60 秒',
-    tips: ['膝盖垫软垫，滚出去别塌腰', '先滚 60% 幅度，能收回来再加', '全程核心收紧像被打了一样绷住'],
-    bv: 'BV1fkoyY3EWs', by: 'Klein邵邵' },
-  { id: 'crunchknee', n: '卷腹摸膝', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 15 次', rest: '组间休息 45 秒',
-    tips: ['手顺着大腿滑向膝盖，肩胛离地即可', '脖子放松，下巴看天花板', '比标准卷腹更适合零基础'],
-    bv: 'BV115411d7MG', by: 'Gandy__' },
-  { id: 'hollow', n: '屈体收腹', grp: '腹肌', kind: 'core', need: null,
-    sets: '3 组 × 坚持 15-30 秒', rest: '组间休息 45 秒',
-    tips: ['像香蕉一样绷住：腰压地、腿手抬离地', '做不了就弯膝收一点', '街舞/徒手训练核心的地基动作'],
-    bv: 'BV1BK4y1o7sk', by: 'ICFC 国际徒手体适能' },
-  /* —— V66 其他部位 —— */
-  { id: 'widepushup', n: '宽距俯卧撑', grp: '胸部', kind: 'strength', need: null,
-    sets: '3 组 × 8-12 次', rest: '组间休息 60-90 秒',
-    tips: ['手比肩宽一掌，主打胸外侧', '胸部尽量贴近地面', '做不动就跪姿'],
-    bv: 'BV1MU411d7VU', by: '李志佑' },
-  { id: 'diamondpushup', n: '钻石俯卧撑', grp: '手臂', kind: 'strength', need: null,
-    sets: '3 组 × 6-10 次', rest: '组间休息 60-90 秒',
-    tips: ['双手食指拇指拼成钻石形，主打肱三头', '肘部贴身，别外展', '太难就跪姿做'],
-    bv: 'BV1m1421S7Tg', by: '曼巴yelomamba' },
-  { id: 'superman', n: '超人式', grp: '背部', kind: 'strength', need: null,
-    sets: '3 组 × 12 次（停 2 秒）', rest: '组间休息 45 秒',
-    tips: ['俯卧，手脚同时抬离地 2 秒', '练下背部，久坐腰酸救星', '动作幅度小而稳，别甩'],
-    bv: 'BV1QXqDYFEmZ', by: '增肌期' },
-  { id: 'ytw', n: '俯卧 YTW', grp: '肩部', kind: 'strength', need: null,
-    sets: '3 组 × 每个字 8 次', rest: '组间休息 45 秒',
-    tips: ['俯卧或俯身，手臂摆出 Y→T→W 字形', '圆肩驼背矫正必练', '拇指朝上，肩胛骨发力带动'],
-    bv: 'BV1zq4y197rR', by: '欧阳春晓Aurora' },
-  { id: 'bulgarian', n: '保加利亚分腿蹲', grp: '臀部', kind: 'strength', need: null,
-    sets: '3 组 × 每边 8-12 次', rest: '组间休息 60-90 秒',
-    tips: ['后脚搭沙发/床沿，前腿下蹲', '重心 80% 在前腿，膝盖对脚尖', '臀腿王牌，比普通深蹲累得多'],
-    bv: 'BV12M411L7k8', by: 'ALEX 健身频道' },
-  { id: 'singlebridge', n: '单腿臀桥', grp: '臀部', kind: 'strength', need: null,
-    sets: '3 组 × 每边 10-12 次', rest: '组间休息 45-60 秒',
-    tips: ['一腿伸直离地，单腿顶髋', '臀部发力，腰别代偿', '比双腿臀桥难度高一档'],
-    bv: 'BV1ys421T7gZ', by: '首桐康复小周' },
-  { id: 'squatjump', n: '深蹲跳', grp: '有氧', kind: 'cardio', need: null,
-    sets: '4 组 × 10-15 次', rest: '组间休息 45-60 秒',
-    tips: ['深蹲到底跳起来，落地缓冲', '膝盖不好就用不跳的深蹲替代', '楼下住户慎重，可去楼道或垫上'],
-    bv: 'BV1nE421u7Q4', by: '跟练健身 Online' },
-  { id: 'bearcrawl', n: '熊爬', grp: '全身', kind: 'core', need: null,
-    sets: '3 组 × 爬 20-30 秒', rest: '组间休息 60 秒',
-    tips: ['手膝着地微离地，像熊一样爬', '膝盖不着地，屁股别撅高', '全身核心肩带一起练，DNS 康复体系推荐'],
-    bv: 'BV1c34y1q73T', by: '康复学堂' },
-  /* V84: 健身房器械动作（B站教学逐一核实：卓叔增重/ALEX健身频道/健助师小珂/Jeff Nippard搬运等） */
-  { id: 'bench-press', n: '杠铃卧推', grp: '胸部', kind: 'strength', need: 'gym',
-    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
-    tips: ['肩胛骨后收下沉挺胸，双脚踩实地面，臀部全程贴凳', '杠铃下放到乳头上沿，小臂始终垂直地面，肘部约 45° 夹角', '推起时杠铃走一条微斜直线，顶端不锁肘悬停'],
-    bv: 'BV16i421h71B', by: '卓叔增重（54万播放）' },
-  { id: 'incline-db', n: '上斜哑铃卧推', grp: '胸部', kind: 'strength', need: 'gym',
-    sets: '3 组 × 10-12 次', rest: '组间休息 60-90 秒',
-    tips: ['凳面调到 30-45°，太高会练到肩前束', '哑铃下放到胸口两侧，肘部略低于肩线', '顶端哑铃别相撞，保持胸部张力不卸'],
-    bv: 'BV1k5411m76e', by: '萝卜大神Robert' },
-  { id: 'cable-fly', n: '龙门架绳索夹胸', grp: '胸部', kind: 'strength', need: 'gym',
-    sets: '3 组 × 12-15 次', rest: '组间休息 45-60 秒',
-    tips: ['滑轮调到略高于肩，身体略前倾站稳', '肘部微屈角度全程不变，像抱一棵大树合拢', '合拢时挤压胸部 1 秒，回放要慢，别让配重片相撞'],
-    bv: 'BV1ZZ421N7T8', by: 'ALEX健身频道' },
-  { id: 'pec-deck', n: '蝴蝶机夹胸', grp: '胸部', kind: 'strength', need: 'gym',
-    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
-    tips: ['座椅高度调到把手与胸口同高，背贴紧靠垫', '用肘部小臂发力合拢，不是用手抓把手硬掰', '中缝挤压感是关键，重量宁轻勿重'],
-    bv: 'BV1fqtGzXE3m', by: '古Gu教练' },
-  { id: 'lat-pulldown', n: '高位下拉', grp: '背部', kind: 'strength', need: 'gym',
-    sets: '4 组 × 10-12 次', rest: '组间休息 60-90 秒',
-    tips: ['大腿压紧挡垫，上身略后倾约 15° 并固定', '先用肘往下「插」的意识启动，杠拉到锁骨附近', '背阔肌顶点挤压 1 秒，还原时完全伸展背阔肌'],
-    bv: 'BV1oa4y1z73J', by: 'ALEX健身频道（49万播放）' },
-  { id: 'seated-row', n: '坐姿划船', grp: '背部', kind: 'strength', need: 'gym',
-    sets: '4 组 × 10-12 次', rest: '组间休息 60-90 秒',
-    tips: ['膝微屈，腰背挺直，躯干别前后大幅摇摆', '拉把手到腹部，肘部贴身往后收，肩胛骨夹紧', '还原时控制速度，肩胛骨充分前伸拉长背阔肌'],
-    bv: 'BV1m2421L7tw', by: 'ALEX健身频道' },
-  { id: 'pullup', n: '引体向上', grp: '背部', kind: 'strength', need: 'bar',
-    sets: '4 组 × 力竭（目标 5-8 个）', rest: '组间休息 90 秒',
-    tips: ['握距略宽于肩，先沉肩再启动，别耸肩', '想象肘部往下往里拉，下巴过杠即可', '下放控制 2-3 秒，做不了就用弹力带辅助或做离心'],
-    bv: 'BV1WF411b7jb', by: '曼巴yelomamba' },
-  { id: 'ohp', n: '杠铃站姿推肩', grp: '肩部', kind: 'strength', need: 'gym',
-    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
-    tips: ['握距略宽于肩，杠放锁骨前，核心臀腿收紧像根柱子', '杠贴脸往上推，过头后微微后移把杠推到头顶正上方', '别塌腰借力——腰往前顶说明重量大了'],
-    bv: 'BV1jx4y1K7Jw', by: '运动科学' },
-  { id: 'lat-raise', n: '哑铃侧平举', grp: '肩部', kind: 'strength', need: 'dumb',
-    sets: '4 组 × 12-15 次', rest: '组间休息 45 秒',
-    tips: ['微屈肘并固定角度，向两侧抬到与肩同高', '想象用小指侧引领上抬，肩峰别耸起来', '下放慢 2-3 秒，中束的张力全在下放阶段'],
-    bv: 'BV1aQJKz6Ezj', by: '健助师_小珂（56万播放）' },
-  { id: 'leg-press', n: '倒蹬机腿举', grp: '腿部', kind: 'strength', need: 'gym',
-    sets: '4 组 × 10-15 次', rest: '组间休息 90 秒',
-    tips: ['脚放踏板中上部与肩同宽，膝盖对准脚尖方向', '下放到大腿约贴胸口即可，臀部别离开座椅卷起来', '蹬起时膝盖别完全锁死，保持持续张力'],
-    bv: 'BV1gs4y167gt', by: 'ALEX健身频道' },
-  { id: 'rdl', n: '罗马尼亚硬拉', grp: '腿部', kind: 'strength', need: 'gym',
-    sets: '4 组 × 8-12 次', rest: '组间休息 90 秒',
-    tips: ['膝微屈固定不变，靠髋部往后折叠下放杠铃', '杠贴着大腿滑下去，感受大腿后侧被拉紧', '拉到腘绳肌极限（膝盖以下）就起，腰背始终平直'],
-    bv: 'BV1J3DaYWErt', by: 'Jeff Nippard（科学健身顶流·中文字幕）' },
-  { id: 'hack-squat', n: '哈克深蹲机', grp: '腿部', kind: 'strength', need: 'gym',
-    sets: '3 组 × 10-12 次', rest: '组间休息 90 秒',
-    tips: ['背贴紧靠垫，脚位适中偏下，膝盖对脚尖', '下到大腿平行或略低，全程腰部不离开靠垫', '比自由深蹲友好，适合新手建立腿部力量'],
-    bv: 'BV1rr4y1e7Wq', by: 'SallyTalk' },
-  { id: 'barbell-curl', n: '杠铃弯举', grp: '手臂', kind: 'strength', need: 'gym',
-    sets: '3 组 × 10-12 次', rest: '组间休息 60 秒',
-    tips: ['肘部固定在身体两侧，只动前臂', '顶端用力挤压肱二头肌 1 秒，别甩腰借力', '下放慢速到底，手臂接近伸直再弯下一次'],
-    bv: 'BV1nb4y1M7By', by: '凯圣王（28万播放）' },
-  { id: 'rope-pushdown', n: '绳索下压（三头）', grp: '手臂', kind: 'strength', need: 'gym',
-    sets: '3 组 × 12-15 次', rest: '组间休息 45 秒',
-    tips: ['大臂夹紧身体固定，只有肘关节在动', '下压到底时绳索往两侧分开，挤压三头 1 秒', '上身别前倾压重量，慢速还原到前臂贴近大臂'],
-    bv: 'BV1nVjEz5EBQ', by: 'Gandy__（17万播放）' },
-];
 
 /* 首页卡片偏好：布局 / 顺序 / 显示哪些指标（V21） */
 function sanitizeUI(u) {
@@ -3014,7 +3025,7 @@ function statWeeklyBody() {
 const STAT_META = {
   compare: { n: '俩人对比', ico: '⚖️' }, weekly: { n: '本周 vs 上周', ico: '📅' }, monthly: { n: '本月复盘', ico: '🗓️' },
   waist: { n: '腰围', ico: '📏' }, comp: { n: '体成分', ico: '🫀' }, table: { n: '周报表', ico: '📊' },
-  plan: { n: '周计划', ico: '💪' }, history: { n: '历史记录', ico: '📜' }
+  history: { n: '历史记录', ico: '📜' }
 };
 function statFlow() {
   /* V95: 统计宫格展示顺序 = statsOrder（混排格子 id 与文件夹 id） */
@@ -3085,7 +3096,6 @@ function openStatSheet(key) { curStatSheet = key; curTrendSheet = null;
     waist:   [statWaistBody(), '腰围'],
     comp:    [statCompBody(), '体成分'],
     table:   [statWeeklyBody(), '周报 · 每周平均'],
-    plan:    [weekPlanHTML(), '周计划'],
     history: [historyHTML(), '历史记录']
   };
   const m = map[key];
@@ -3174,7 +3184,6 @@ let monthView = {}; /* V31: 每月视图 'list' | 'cal'，默认列表 */
 let planEditDow = -1; /* 正在改周几的运动（0=周一…6=周日） */
 let equipAddMode = false; /* plan-sheet 正在添加自定义器械（V37） */
 
-const WEEK_PLAN_DEFAULT = ['快走 40 分钟', '休息', '力量训练 30 分钟', '休息', '有氧运动 40 分钟', '拉伸散步', '休息'];
 const PLAN_PRESETS = ['俯卧撑 30 个', '仰卧起坐 30 个', '健身棒练胸 3 组', '快走 40 分钟', '慢跑 30 分钟', '力量训练 30 分钟', '有氧运动 40 分钟', '瑜伽 20 分钟', '拉伸散步', '休息'];
 
 /* V42 五套设计语言（+经典苹果风）：常量表放顶部（铁律），选择器渲染与每日轮换共用 */
@@ -3607,7 +3616,7 @@ function renderSettings() {
         '<button class="set-chip equip-add" data-action="equip-add">＋ 自定义</button>' +
       '</div>' +
       '<button class="btn sm" data-action="regen-plan">按我的器械重排周计划</button>' +
-      '<p class="set-tip">重排后仍可去统计页逐天微调 · 没勾的器械不会出现在安排里</p>' +
+      '<p class="set-tip">重排后去「健身页 → 周计划」看整周安排 · 没勾的器械不会出现</p>' +
     '</div>' +
     '<div class="card">' +
       '<h3 class="card-label">称呼</h3>' +
@@ -5981,29 +5990,14 @@ document.addEventListener('click', e => {
       renderSettings();
     }
     else if (a === 'regen-plan') {
-      state.ui.weekPlan = generateWeekPlan();
+      state.ui.gymPlan = genGymPlan();
       persist();
-      renderStats();
-      toast('✓ 周计划已按你的器械重排');
+      if (document.getElementById('workout-body')) renderWorkout();
+      renderTools(); refreshOpenSheet();
+      toast('✓ 一周计划已重排 · 去健身页周计划看');
     }
     else if (a === 'toggle-month') { const mk = act.dataset.mkey; expandedMonths[mk] = !expandedMonths[mk]; renderStats(); refreshOpenSheet(); }
     else if (a === 'month-view') { const mk = act.dataset.mkey; monthView[mk] = monthView[mk] === 'cal' ? 'list' : 'cal'; if (!expandedMonths[mk]) expandedMonths[mk] = true; renderStats(); refreshOpenSheet(); }
-    else if (a === 'plan-day') { planEditDow = +act.dataset.dow; renderPlanSheet(); document.getElementById('sheet-mask').classList.add('show'); document.getElementById('plan-sheet').classList.add('show'); }
-    else if (a === 'plan-pick-custom') {
-      const v = (document.getElementById('plan-custom-input') || {}).value || '';
-      if (planEditDow >= 0 && v.trim()) {
-        state.ui.weekPlan = weekPlanArr();
-        state.ui.weekPlan[planEditDow] = v.trim().slice(0, 20);
-        persist();
-        document.getElementById('plan-sheet').classList.remove('show');
-        planEditDow = -1;
-        const _ws2 = document.getElementById('widget-sheet');
-        if (_ws2.classList.contains('show')) { _ws2.classList.remove('show'); curWidget = null; widgetBack = null; document.getElementById('sheet-mask').classList.remove('show'); }
-        else if (!document.getElementById('settings-sheet').classList.contains('show')) { document.getElementById('sheet-mask').classList.remove('show'); }
-        renderStats();
-        toast('✓ 安排已更新');
-      } else if (!v.trim()) { toast('先写点内容再保存'); }
-    }
     else if (a === 'equip-add') {
       equipAddMode = true;
       renderPlanSheet();
@@ -6206,10 +6200,16 @@ document.addEventListener('click', e => {
     else if (a === 'wt-punch') {
       const tk = todayKey();
       state.records[tk] = state.records[tk] || {};
-      state.records[tk].workout = { done: 1, d: WORKOUT_DEFAULT };
+      const p = state.ui.gymPlan;
+      const wd = (parseKey(tk).getDay() + 6) % 7;
+      let desc = '';
+      if (p && Array.isArray(p.days) && p.days[wd]) desc = p.days[wd].ex
+    .map(e => e.t || (GYM_MOVES.find(m => m.id === e.id) || {}).n || '')
+    .filter(Boolean).join(' + ');
+      state.records[tk].workout = { done: 1, d: desc || WORKOUT_DEFAULT };
       persist();
       refreshWorkoutUI();
-      toast('已打卡！坚持 ' + workoutStats().streak + ' 天了');
+      toast('已打卡！' + (desc ? '今天的动作都记上了' : '') + ' 坚持 ' + workoutStats().streak + ' 天了');
     }
     else if (a === 'wt-undo') {
       const rec = state.records[todayKey()];
@@ -6252,20 +6252,6 @@ document.addEventListener('click', e => {
       document.getElementById('gym-body').innerHTML = '';
     }
     else if (a === 'close-plan') { equipAddMode = false; document.getElementById('plan-sheet').classList.remove('show'); document.getElementById('sheet-mask').classList.remove('show'); }
-    else if (a === 'plan-pick') {
-      if (planEditDow >= 0) {
-        state.ui.weekPlan = weekPlanArr();
-        state.ui.weekPlan[planEditDow] = act.dataset.v;
-        persist();
-        document.getElementById('plan-sheet').classList.remove('show');
-        planEditDow = -1;
-        const _ws = document.getElementById('widget-sheet');
-        if (_ws.classList.contains('show')) { _ws.classList.remove('show'); curWidget = null; widgetBack = null; document.getElementById('sheet-mask').classList.remove('show'); }
-        else if (!document.getElementById('settings-sheet').classList.contains('show')) { document.getElementById('sheet-mask').classList.remove('show'); }
-        renderStats();
-        toast('✓ 安排已更新');
-      }
-    }
     else if (a === 'close-sheets') { closeSettings(); closeDateSheet(); closeHeroSet(); document.getElementById('plan-sheet').classList.remove('show'); document.getElementById('widget-sheet').classList.remove('show'); document.getElementById('sheet-mask').classList.remove('show'); curWidget = null; widgetBack = null; curTrendSheet = null; curStatSheet = null; }
     else if (a === 'toggle-extra') { extraOpen = !extraOpen; renderRecord(); }
     else if (a === 'goto-extra') {
