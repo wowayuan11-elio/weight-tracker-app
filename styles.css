@@ -1767,6 +1767,12 @@ body[data-theme="onyx"] .gym-card{ border-color:rgba(255,255,255,.07); box-shado
 .gc-name{ font-size:13px; font-weight:700; color:var(--text); line-height:1.25; min-height:2.5em; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; padding:0 2px; }
 .gc-meta{ display:block; width:100%; font-style:normal; font-size:10.5px; color:var(--text2); line-height:1.35; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .gc-pill{ margin-top:7px; font-size:10px; font-weight:600; color:#fff; background:var(--tint,#3d7c47); border-radius:999px; padding:2px 9px; }
+/* V116: 添加动作按钮——虚线占位风格（1px 细线，不黑粗）；--line 只有部分主题定义，用 rgba 双模式写死 */
+.wk-addbtn{ display:flex; align-items:center; justify-content:center; width:100%; min-height:46px; margin-top:10px;
+  border:1px dashed rgba(0,0,0,.18); border-radius:12px; background:none; color:var(--text2); font-size:13.5px; font-weight:600;
+  cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.wk-addbtn:active{ background:var(--segbg); }
+body[data-theme="onyx"] .wk-addbtn{ border-color:rgba(255,255,255,.2); }
 /* V113: 场景角标——家(绿)/健(靛蓝)，放动作名右上角 */
 .pl-bdg{ display:inline-block; vertical-align:super; margin-left:2px; padding:0 4px; border-radius:5px; font-size:10px; font-style:normal; font-weight:700; line-height:1.5; color:#fff; }
 .pl-bdg.home{ background:#34c759; }
