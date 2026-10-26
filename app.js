@@ -41,7 +41,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V116';
+const APP_VERSION = 'V117';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -49,6 +49,12 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V117', d: '10月27日', items: [
+    '动作库大扩容：从开源项目 openGym 精选 351 个动作搬进来（52 → 403 个）',
+    '覆盖腿/背/肩/臂/胸/腹/有氧七个区，家里练和健身房练的动作都全了',
+    '新动作点开是「动作分解」分步图文（原 52 个仍是 B 站视频教学）',
+    '换动作/加动作的选择器同步变大——想练啥基本都能找到了',
+  ]},
   { v: 'V116', d: '10月25日', items: [
     '每天都能「＋ 添加动作」了——原来只能换掉原有动作，现在想加几个加几个',
     '休息日也能加练：加了自动变「加练日」，新动作排最前（先练后拉伸散步）',
@@ -1075,6 +1081,8 @@ function sanitizeUI(u) {
   if (u.gymPlan && typeof u.gymPlan === 'object' && Array.isArray(u.gymPlan.days)) {
     const okIds = {};
     GYM_MOVES.forEach(m => { okIds[m.id] = true; });
+    /* V117: openGym 动作进计划后重载也不能被吞——白名单同步吃 OG_MOVES */
+    if (typeof OG_MOVES !== 'undefined' && Array.isArray(OG_MOVES)) OG_MOVES.forEach(m => { okIds[m.id] = true; });
     const days = u.gymPlan.days.slice(0, 7).map(day => {
       if (!day || !Array.isArray(day.ex)) return null;
       const ex = day.ex.slice(0, 8).map(e => {
@@ -4022,21 +4030,25 @@ function yearReviewHTML() {
 /* ================= 工具页（V55：新功能集合地） ================= */
 /* 动作详情（V62：渲染进 widget-sheet，iframe 懒加载） */
 function openGymSheet(id, back) {
-  const m = GYM_MOVES.find(x => x.id === id);
+  const m = findMove(id);
   if (!m) return;
   widgetBack = back || (curWidget === 'gym-plan' ? 'gym-plan' : 'gym-lib');
   const sheetTitle = document.getElementById('widget-sheet-title');
   if (!sheetTitle) return;
   sheetTitle.textContent = m.n;
   const body = document.getElementById('widget-body');
+  /* V117: OG 动作（openGym 精选）没有 B 站视频——用「动作分解」图文步骤替代视频区 */
+  const isOG = m.src === 'openGym';
   body.innerHTML =
     '<div class="gym-meta"><span class="set-chip on">' + m.grp + '</span><span class="set-chip">' + m.sets + '</span>' +
     (m.rest ? '<span class="set-chip">' + m.rest + '</span>' : '') + '</div>' +
+    (isOG ? '' :
     '<div class="gym-video"><iframe src="https://player.bilibili.com/player.html?bvid=' + m.bv + '&autoplay=0&danmaku=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" title="' + esc(m.n) + ' 标准动作教学"></iframe></div>' +
-    '<p class="sub">教学来源：B 站 · ' + esc(m.by) + ' · 已人工核对为标准动作教学</p>' +
-    '<div class="divider">动作要点 · 做对比做多重要</div>' +
+    '<p class="sub">教学来源：B 站 · ' + esc(m.by) + ' · 已人工核对为标准动作教学</p>') +
+    '<div class="divider">' + (isOG ? '动作分解 · 跟着步骤做' : '动作要点 · 做对比做多重要') + '</div>' +
     '<div class="gym-tips">' + m.tips.map(t => '<div class="gym-tip"><i class="dotc" style="background:' + COLORS.me + '"></i>' + t + '</div>').join('') + '</div>' +
-    '<a class="btn ghost sm" href="https://www.bilibili.com/video/' + m.bv + '" target="_blank" rel="noopener" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px;text-decoration:none;margin-top:10px">卡了？去 B 站 App 看原视频 ↗</a>';
+    (isOG ? '<p class="sub">来源：开源动作库 openGym · 步骤经中文包+AI 校对</p>' :
+    '<a class="btn ghost sm" href="https://www.bilibili.com/video/' + m.bv + '" target="_blank" rel="noopener" style="width:auto;display:inline-block;padding:9px 14px;font-size:13px;text-decoration:none;margin-top:10px">卡了？去 B 站 App 看原视频 ↗</a>');
   const bk = WIDGETS.find(x => x.id === widgetBack);
   const backBtn = document.createElement('button');
   backBtn.className = 'btn ghost sm';
@@ -4553,9 +4565,9 @@ function gymPool(place) {
   const eq = (state.ui && state.ui.equip) || [];
   const has = k => eq.indexOf(k) > -1;
   const homeOk = m => !m.need || (m.need === 'dumb' && has('dumb')) || (m.need === 'band' && has('band')) || (m.need === 'jump' && has('jump')) || (m.need === 'bar' && has('bar'));
-  if (place === 'gym') return GYM_MOVES.filter(m => m.need === 'gym' || m.need === 'bar');
-  if (place === 'all') return GYM_MOVES.filter(m => m.need !== 'gym' ? (m.need !== 'bar' || has('bar')) : true);
-  return GYM_MOVES.filter(homeOk);
+  if (place === 'gym') return allMoves().filter(m => m.need === 'gym' || m.need === 'bar');
+  if (place === 'all') return allMoves().filter(m => m.need !== 'gym' ? (m.need !== 'bar' || has('bar')) : true);
+  return allMoves().filter(homeOk);
 }
 function sceneBadgeOf(m) {
   return gymSceneOf(m) === 'gym' ? '<i class="pl-bdg gym">健</i>' : '<i class="pl-bdg home">家</i>';
@@ -4570,7 +4582,7 @@ function genGymPlan(place) {
   place = place === 'gym' ? 'gym' : 'home';
   /* V113: 力量按场景取池；核心/有氧两版共用徒手池（健身房里核心照样平板支撑） */
   const stPool = gymPool(place).filter(m => m.kind === 'strength');
-  const auxPool = GYM_MOVES.filter(m => m.kind === 'core' || m.kind === 'cardio');
+  const auxPool = allMoves().filter(m => m.kind === 'core' || m.kind === 'cardio');
   const legs = stPool.filter(m => ['腿部', '臀部'].indexOf(m.grp) > -1);
   const upper = stPool.filter(m => ['胸部', '背部', '肩部', '手臂'].indexOf(m.grp) > -1);
   const core = auxPool.filter(m => m.kind === 'core'), cardio = auxPool.filter(m => m.kind === 'cardio');
@@ -4763,7 +4775,7 @@ function todayPlanHTML() {
   if (p && Array.isArray(p.days) && p.days[wd]) {
     const d = p.days[wd];
     /* V113b: 名字转义、角标保持 HTML——esc(exs) 会把角标转成可见代码文本（VLM 验收抓到） */
-    const exs = d.ex.map(e => { if (e.t) return esc(e.t); const m = GYM_MOVES.find(x => x.id === e.id); return m ? esc(m.n) + sceneBadgeOf(m) : '动作'; }).join(' · ');
+    const exs = d.ex.map(e => { if (e.t) return esc(e.t); const m = findMove(e.id); return m ? esc(m.n) + sceneBadgeOf(m) : '动作'; }).join(' · ');
     const isRest = d.f.indexOf('休息') > -1;
     return '<div class="card wtplan' + (isRest ? ' rest' : '') + '">' +
       '<div class="tp-head"><b>' + dayNames[wd] + '今日推荐 · ' + esc(d.f) + '</b>' +
@@ -4828,7 +4840,7 @@ function workoutPageHTML() {
   if (rw) h += '<div data-psortkey="recent">' + rw + '</div>';
   let tail = '<div class="fit-seg" role="tablist" style="margin-top:12px">' +
     '<button class="fit-seg-btn' + (fitTab === 'video' ? ' on' : '') + '" data-action="fit-tab" data-v="video">在家跟练</button>' +
-    '<button class="fit-seg-btn' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">动作库 ' + GYM_MOVES.length + '</button>' +
+    '<button class="fit-seg-btn' + (fitTab === 'moves' ? ' on' : '') + '" data-action="fit-tab" data-v="moves">动作库 ' + allMoves().length + '</button>' +
     '<button class="fit-seg-btn' + (fitTab === 'mach' ? ' on' : '') + '" data-action="fit-tab" data-v="mach">器械速查</button>' +
     '<button class="fit-seg-btn' + (fitTab === 'plan' ? ' on' : '') + '" data-action="fit-tab" data-v="plan">周计划</button>' +
     '</div>';
@@ -4896,6 +4908,9 @@ let gymFilter = '全部';
 let gymScene = 'all';
 const GYM_HOME_NEEDS = [null, 'dumb', 'band', 'jump', 'bar'];
 const GYM_NEED_NAME = { dumb: '哑铃', band: '弹力带', jump: '跳绳', bar: '单杠', gym: '健身房器械' };
+/* V117: OG_MOVES 来自 og-moves.js（index.html 里在 app.js 之前引入，加载即定义，无 TDZ 风险；typeof 双保险防缓存混装） */
+function allMoves() { return (typeof OG_MOVES !== 'undefined' && Array.isArray(OG_MOVES)) ? GYM_MOVES.concat(OG_MOVES) : GYM_MOVES; }
+function findMove(id) { for (let i = 0; i < GYM_MOVES.length; i++) if (GYM_MOVES[i].id === id) return GYM_MOVES[i]; if (typeof OG_MOVES !== 'undefined' && Array.isArray(OG_MOVES)) for (let i = 0; i < OG_MOVES.length; i++) if (OG_MOVES[i].id === id) return OG_MOVES[i]; return null; }
 function gymSceneOf(m) { return GYM_HOME_NEEDS.indexOf(m.need) > -1 ? 'home' : 'gym'; }
 function gymNeedName(m) { return m.need ? (GYM_NEED_NAME[m.need] || m.need) : '徒手'; }
 
@@ -5058,14 +5073,14 @@ function muscFigure(grp) {
     '<g class="mg-hi">' + (MUSC_FIG[grp] || '') + '</g></svg>';
 }
 function gymLibBody() {
-  let h = '<p class="sub">点卡片看视频教学 · 小人蓝色区域 = 这个动作主要练哪</p>';
+  let h = '<p class="sub">点卡片看教学（带 B 站视频或分步图文） · 小人蓝色区域 = 练哪</p>';
   /* 场景：在家 / 健身房 */
   h += '<div class="fit-seg" role="tablist">' +
-    '<button class="fit-seg-btn' + (gymScene === 'all' ? ' on' : '') + '" data-action="gym-scene" data-v="all">全部 ' + GYM_MOVES.length + '</button>' +
+    '<button class="fit-seg-btn' + (gymScene === 'all' ? ' on' : '') + '" data-action="gym-scene" data-v="all">全部 ' + allMoves().length + '</button>' +
     '<button class="fit-seg-btn' + (gymScene === 'home' ? ' on' : '') + '" data-action="gym-scene" data-v="home">在家练</button>' +
     '<button class="fit-seg-btn' + (gymScene === 'gym' ? ' on' : '') + '" data-action="gym-scene" data-v="gym">健身房</button>' +
     '</div>';
-  const pool = GYM_MOVES.filter(m => (gymScene === 'all' || gymSceneOf(m) === gymScene) && (gymFilter === '全部' || m.grp === gymFilter));
+  const pool = allMoves().filter(m => (gymScene === 'all' || gymSceneOf(m) === gymScene) && (gymFilter === '全部' || m.grp === gymFilter));
   /* V115: 训记式左右布局——左部位竖导航 sticky + 右双列卡片 */
   const sideName = { '腹肌': '核心' };
   h += '<div class="gym-libwrap">' +
@@ -5087,7 +5102,8 @@ function gymLibBody() {
     }).join('');
   }
   h += '</div></div>';
-  h += '<p class="set-tip">腹部新手路径：卷腹摸膝 → 卷腹 → 反向卷腹 → 空中蹬车 → 平板支撑，每组都能保证动作质量再加难度</p>';
+  h += '<p class="set-tip">腹部新手路径：卷腹摸膝 → 卷腹 → 反向卷腹 → 空中蹬车 → 平板支撑，每组都能保证动作质量再加难度</p>' +
+    '<p class="set-tip">动作库含 ' + (allMoves().length - GYM_MOVES.length) + ' 个精选自开源项目 openGym 的动作（AGPL-3.0 · 中文步骤经人工+AI 校对）</p>';
   return h;
 }
 /* V115: gymSection 退役——动作库改双列卡片，分区行式列表不再用 */
@@ -5137,8 +5153,8 @@ function gymPlanBody() {
   /* ③ 选中日的明细：动作 + 组数，点开有视频 */
   const sd = p.days[wkSelDay];
   const past = wkSelDay < todayIdx, future = wkSelDay > todayIdx;
-  /* V113b: 只看力量动作定场景——有氧/核心日没有器械版可换，不显示按钮（点了没变化=骗人） */
-  const firstStrength = sd.ex.map(e => e.t ? null : GYM_MOVES.find(x => x.id === e.id)).filter(m => m && m.kind === 'strength')[0];
+  /* V113b: 只看力量动作定场景——有氧/核心日没有器械版可换，不显示按钮（点了没变化=骗人）；V117: 换 findMove 兼容 OG 动作 */
+  const firstStrength = sd.ex.map(e => e.t ? null : findMove(e.id)).filter(m => m && m.kind === 'strength')[0];
   const curScene = firstStrength ? gymSceneOf(firstStrength) : null;
   const swapTo = curScene === 'gym' ? 'home' : 'gym';
   /* V114: 今日流程——先力量后有氧（糖原先喂力量，动作质量高+后置有氧燃脂更高效） */
@@ -5157,7 +5173,7 @@ function gymPlanBody() {
     (curScene ? '<button class="wk-swapbtn" data-action="wk-dayswap" data-d="' + wkSelDay + '" data-to="' + swapTo + '">整天换成' + (swapTo === 'gym' ? '健身房版' : '在家版') + '</button>' : '') +
     (future ? '还没到' : (doneOf(wkSelDay) ? '<i class="ok">✓ 打卡了</i>' : (past ? '那天没练，正常' : '今天还没打卡'))) + '</span></div>';
   h += sd.ex.map((e, j) => {
-    const m = e.t ? null : GYM_MOVES.find(x => x.id === e.id);
+    const m = e.t ? null : findMove(e.id);
     return m ? '<div class="gym-row" role="button" tabindex="0" data-action="gym-open" data-id="' + m.id + '" data-back="gym-plan">' +
       '<span class="gym-row-t"><b>' + m.n + sceneBadgeOf(m) + '</b><em>' + m.sets + ' · 点开看怎么做</em></span>' +
       '<i class="gym-row-p">›</i>' +
@@ -6332,7 +6348,7 @@ document.addEventListener('click', e => {
       const wd = (parseKey(tk).getDay() + 6) % 7;
       let desc = '';
       if (p && Array.isArray(p.days) && p.days[wd]) desc = p.days[wd].ex
-    .map(e => e.t || (GYM_MOVES.find(m => m.id === e.id) || {}).n || '')
+    .map(e => e.t || ((findMove(e.id) || {}).n || ''))
     .filter(Boolean).join(' + ');
       state.records[tk].workout = { done: 1, d: desc || WORKOUT_DEFAULT };
       persist();
@@ -6384,7 +6400,7 @@ document.addEventListener('click', e => {
           if (target === 'home' && /跑步机/.test(e.t)) { changedN++; return { t: '快走 30 分钟', s: '微微出汗就行' }; }
           return e;
         }
-        const m = GYM_MOVES.find(x => x.id === e.id);
+        const m = findMove(e.id);
         if (!m || gymSceneOf(m) === target) return e;
         let cands = pool.filter(c => c.kind === m.kind && c.grp === m.grp && used.indexOf(c.id) < 0);
         if (!cands.length) cands = pool.filter(c => c.kind === m.kind && used.indexOf(c.id) < 0);
@@ -6417,7 +6433,7 @@ document.addEventListener('click', e => {
       const id = act.getAttribute('data-id');
       const p = state.ui.gymPlan;
       if (p && p.days[wkSwapDay]) {
-        const m = GYM_MOVES.find(x => x.id === id);
+        const m = findMove(id);
         if (wkSwapIdx < 0) { /* 添加 */
           if (p.days[wkSwapDay].ex.length >= 8) { toast('这天满了（一天上限 8 个）——先「换」别硬加'); return; }
           const wasRest = /休息/.test(p.days[wkSwapDay].f);
