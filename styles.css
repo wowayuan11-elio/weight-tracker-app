@@ -1779,3 +1779,19 @@ body[data-theme="onyx"] .wk-addbtn{ border-color:rgba(255,255,255,.2); }
 .pl-bdg.gym{ background:#5e5ce6; }
 .wk-swapbtn{ flex:none; padding:6px 11px; border-radius:999px; border:1px solid rgba(var(--tint-rgb),.45); background:rgba(var(--tint-rgb),.08); color:var(--tint); font-size:12px; font-weight:700; -webkit-tap-highlight-color:transparent; }
 .wk-swapbtn:active{ transform:scale(.94); }
+
+/* ============ V119: 日内称重卡 ============ */
+.daylog-card{ padding:2px 0 6px; }
+.daylog-card .divider.sm{ margin:12px 0 8px; }
+.log-block{ margin:6px 0 2px; }
+.log-head{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--text); opacity:.75; margin-bottom:2px; }
+.log-row{ display:flex; align-items:center; gap:12px; padding:5px 0; font-variant-numeric:tabular-nums; }
+.log-t{ font-size:12px; color:var(--text2); width:38px; }
+.log-w{ font-size:15px; color:var(--text); min-width:46px; }
+.log-d{ font-size:13px; color:var(--text2); flex:1; }
+.log-d.up{ color:var(--text2); }
+.log-d.dn{ color:var(--text2); }
+.log-d.base{ color:var(--text2); opacity:.9; }
+.log-adopt{ color:var(--accent,var(--text)); }
+.log-read{ margin-top:4px; padding:8px 10px; border-radius:10px; background:var(--card-2,rgba(127,127,127,.08)); font-size:12.5px; line-height:1.55; color:var(--text2); }
+.log-read b{ color:var(--text); }
