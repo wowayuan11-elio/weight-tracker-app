@@ -1795,3 +1795,8 @@ body[data-theme="onyx"] .wk-addbtn{ border-color:rgba(255,255,255,.2); }
 .log-adopt{ color:var(--accent,var(--text)); }
 .log-read{ margin-top:4px; padding:8px 10px; border-radius:10px; background:var(--card-2,rgba(127,127,127,.08)); font-size:12.5px; line-height:1.55; color:var(--text2); }
 .log-read b{ color:var(--text); }
+
+/* ============ V120: 3D 动作动画 ============ */
+.vital-anim{ position:relative; margin:12px 0 4px; border-radius:16px; overflow:hidden; background:#101014; box-shadow:0 1px 3px rgba(0,0,0,.18); }
+.vital-anim video{ display:block; width:100%; height:auto; }
+.vital-tag{ position:absolute; left:10px; top:10px; padding:3px 9px; border-radius:99px; font-size:10.5px; font-weight:600; color:#fff; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); letter-spacing:.02em; }
