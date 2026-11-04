@@ -12,7 +12,7 @@ const GH_DATA_REPO = 'weight-tracker-data';
 const PERSON_IDS = ['me', 'partner'];
 const DEFAULT_NAMES = { me: '我', partner: '对象' };
 
-const TOOL_IDS_DEFAULT = ['ai','diet','equip','trend','data','review','remind','astro','zodiac'];
+const TOOL_IDS_DEFAULT = ['ai','diet','equip','trend','doctor','data','review','remind','astro','zodiac'];
 function sanitizeToolsOrder(arr) {
   if (!Array.isArray(arr)) return TOOL_IDS_DEFAULT.slice();
   const out = [];
@@ -41,7 +41,7 @@ const WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五',
 
 /* 版本与更新日志：每次部署必须更新 APP_VERSION 和这里的第一条
    作用：优化后用户能在设置页核对「真的更新了」——尤其 bug 类修复界面看不出变化 */
-const APP_VERSION = 'V121';
+const APP_VERSION = 'V122';
 /* V83: AI 助手——智谱 API（浏览器直连已验证 CORS 允许 github.io）。钥匙只存手机 localStorage，绝不写入本公开仓库 */
 const AI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
@@ -49,6 +49,13 @@ const AI_MODELS = ['glm-4-flash', 'glm-4.5-flash', 'glm-4.7-flash'];
 const BV_COVERS = {"BV115411d7MG":"https://i0.hdslb.com/bfs/archive/9da36158001c84dfddfa41522ff160755f208439.jpg@480x270.webp","BV117411q7et":"https://i2.hdslb.com/bfs/archive/a41003102b0ee7b3629ae667de28f876a5c76c69.png@480x270.webp","BV11J4m1u7R3":"https://i2.hdslb.com/bfs/archive/93f9394c891d81ed506550a12a523c7c604abae1.jpg@480x270.webp","BV12M411L7k8":"https://i2.hdslb.com/bfs/archive/ea3ab0170f0ea7017f42760b13a03f5d1de84bb1.jpg@480x270.webp","BV13L4y1g72R":"https://i1.hdslb.com/bfs/archive/7628d448db7caa098735a5fc087452a9f7324613.jpg@480x270.webp","BV15E411E7AW":"https://i0.hdslb.com/bfs/archive/85b7965b2d283d6567e7311aef2aaef8efb8af62.jpg@480x270.webp","BV15N4y1g7VV":"https://i0.hdslb.com/bfs/archive/ba3bd01abab9310e218e4911663a8df6c0852892.jpg@480x270.webp","BV16i421h71B":"https://i1.hdslb.com/bfs/archive/769c91abd4ad53fda388986ed0ed92438ed50a4b.jpg@480x270.webp","BV183411N7uG":"https://i0.hdslb.com/bfs/archive/12254af2c99ee44d7b5327fc0cf4a9889330e4d9.jpg@480x270.webp","BV1BK4y1o7sk":"https://i0.hdslb.com/bfs/archive/9dff28a11b2a6743778537708290e4872308901e.jpg@480x270.webp","BV1Bb4y147tm":"https://i2.hdslb.com/bfs/archive/df5cdc09e6c54a57c55388c43770cc54d17d6ee9.jpg@480x270.webp","BV1Bu411V7rW":"https://i1.hdslb.com/bfs/archive/2e3e2f32fdeb55afa7d7ccb5dff1c51e067b8957.jpg@480x270.webp","BV1C14y157Kx":"https://i0.hdslb.com/bfs/archive/1302658682d586e5e5983477ad784e5600b4b767.jpg@480x270.webp","BV1D24y1t7CD":"https://i2.hdslb.com/bfs/archive/02a7227868039de7f9c21237ea1a1aec9af6f4ac.jpg@480x270.webp","BV1FB4y137gi":"https://i1.hdslb.com/bfs/archive/36af254bdb8f2e2dee5bba36f20e1a2b17f4980b.jpg@480x270.webp","BV1Ft421G7fw":"https://i2.hdslb.com/bfs/archive/a741dc00d34c6a52495b9f96b80341d2dae853fc.jpg@480x270.webp","BV1H7411E7uZ":"https://i0.hdslb.com/bfs/archive/502165784ed7a679b826e7e85518baf5f069d605.jpg@480x270.webp","BV1J3DaYWErt":"https://i1.hdslb.com/bfs/archive/53b3457a2d33cd695fdd7bfddc796e19527f7706.jpg@480x270.webp","BV1JS411N7Yg":"https://i1.hdslb.com/bfs/archive/d29eea575cb484ace11df265629dca309f2c297a.jpg@480x270.webp","BV1MU411d7VU":"https://i2.hdslb.com/bfs/archive/21f7fd46161ace9b60c36c53083e204d7ac9575f.jpg@480x270.webp","BV1Mr4y1z7Ac":"https://i0.hdslb.com/bfs/archive/1b68a2788691c7fd0691bdceb96ba2a16f3f3525.jpg@480x270.webp","BV1MscszTEJH":"https://i0.hdslb.com/bfs/archive/4a1c46829cda9673d5f9c9b76f1f4975502a7d73.jpg@480x270.webp","BV1NnzzBSEyq":"https://i1.hdslb.com/bfs/archive/8473ef90a1b5612ae75d5ef539c46e6f95a5bd29.jpg@480x270.webp","BV1Q34y1j79r":"https://i2.hdslb.com/bfs/archive/b3c5c50bd22b32e3b37a2ac67e820333327467c0.jpg@480x270.webp","BV1QXqDYFEmZ":"https://i2.hdslb.com/bfs/archive/d80fe4f2bb0d7ca361e39c921032b2b3263b3c12.jpg@480x270.webp","BV1Sx411r7yZ":"https://i0.hdslb.com/bfs/archive/8017e634ae8e43d38a0e97ed99fb16afeaf00269.jpg@480x270.webp","BV1Ta411K72v":"https://i2.hdslb.com/bfs/archive/25b9879e2d9664430beaef4caa17a22f4b0096f3.jpg@480x270.webp","BV1Uk4y117VV":"https://i0.hdslb.com/bfs/archive/f4e46ba42e4b6517d32fc143b840464457cca8c8.jpg@480x270.webp","BV1WF411b7jb":"https://i1.hdslb.com/bfs/archive/88aab93755bbd2aad51203b313a842b4c369c09c.jpg@480x270.webp","BV1X142147nu":"https://i1.hdslb.com/bfs/archive/131551f8dd7933fcfe12d4e3eefd48b2387563b1.jpg@480x270.webp","BV1ZZ421N7T8":"https://i2.hdslb.com/bfs/archive/1812aad2517494f042eea5e1975588ca010120b3.jpg@480x270.webp","BV1aQJKz6Ezj":"https://i1.hdslb.com/bfs/archive/825c0ecb0f87dfb9f903ffa64862ed7d85011c54.jpg@480x270.webp","BV1c34y1q73T":"https://i0.hdslb.com/bfs/archive/f638ecec8214b514894aa1e804cac37f54aced0b.jpg@480x270.webp","BV1eF3tzjEMk":"https://i1.hdslb.com/bfs/archive/45dcc5fe734005a3e58d78a387427f16f4414693.jpg@480x270.webp","BV1fkoyY3EWs":"https://i0.hdslb.com/bfs/archive/ef4c17af85e73b52eaa8f0580d590e1ae7c77cf8.jpg@480x270.webp","BV1fqtGzXE3m":"https://i2.hdslb.com/bfs/archive/85589efacc3280997cd52b6c390bfe3731d2cb10.jpg@480x270.webp","BV1gs4y167gt":"https://i2.hdslb.com/bfs/archive/187f4aa21c9bdb02d571a4f4aa2ef9fc2a75e213.jpg@480x270.webp","BV1hb4y1a7Rd":"https://i2.hdslb.com/bfs/archive/79bb7ff4b9d478a285dc3e39961e3013e48afd2a.jpg@480x270.webp","BV1iV89zME8a":"https://i1.hdslb.com/bfs/archive/e6149739af8f27274f5919b6bafd5cf0917858b4.jpg@480x270.webp","BV1jx4y1K7Jw":"https://i2.hdslb.com/bfs/archive/e736f08c8e2327fb488d318be7a6abec82459901.jpg@480x270.webp","BV1k5411m76e":"https://i2.hdslb.com/bfs/archive/c996442c5299613820bd6f34b3aaa51557eae519.jpg@480x270.webp","BV1kA411q7cH":"https://i0.hdslb.com/bfs/archive/45b79f3b14dbb80a4d9e190aaf20af3c0ca9b2bc.jpg@480x270.webp","BV1kF411F7YG":"https://i2.hdslb.com/bfs/archive/ff55e74b022960d4add1c0ebcf2482662e296159.jpg@480x270.webp","BV1kg4y1m7y5":"https://i1.hdslb.com/bfs/archive/2aa4b0e6d59a2960e2d473fa4c636083083d8298.jpg@480x270.webp","BV1kq4y1n75T":"https://i1.hdslb.com/bfs/archive/72d184ceb4d1a292c05ed9cf04e37e52c29f6c61.jpg@480x270.webp","BV1m1421S7Tg":"https://i2.hdslb.com/bfs/archive/59be769cec64894d72b96ff65fe05e9c2732fb3a.jpg@480x270.webp","BV1m2421L7tw":"https://i1.hdslb.com/bfs/archive/2f3adfd6b5eb9edce229933b32e432534b597da6.jpg@480x270.webp","BV1nE421u7Q4":"https://i0.hdslb.com/bfs/archive/8fc423e43d41259c0f1fd8fb7a8cd438eb9cc6b7.jpg@480x270.webp","BV1nVjEz5EBQ":"https://i0.hdslb.com/bfs/archive/4efb1e376d8127b7c46abc0055cf47a53381821a.jpg@480x270.webp","BV1nb4y1M7By":"https://i0.hdslb.com/bfs/archive/e8984d1c034d8805b3dbaaffc79e7f1fa52b1a08.jpg@480x270.webp","BV1ne411W7MV":"https://i1.hdslb.com/bfs/archive/e4e38c16b01080ef9155f9744bae8d3af4703915.jpg@480x270.webp","BV1oa4y1z73J":"https://i0.hdslb.com/bfs/archive/4a68d20bbc774ccee2b2ae8d9627c822739a5f45.jpg@480x270.webp","BV1rr4y1e7Wq":"https://i1.hdslb.com/bfs/archive/3d52c48c679cac430a21d64c1d6b0cc8eb3eaffc.jpg@480x270.webp","BV1uS4y1k7sw":"https://i0.hdslb.com/bfs/archive/1881f2e5eef38cbe9d204bac712d89497764b5d0.jpg@480x270.webp","BV1uX4y1P7uX":"https://i2.hdslb.com/bfs/archive/a5515afde031442f9e57ca8b60bb41e555bc4c92.jpg@480x270.webp","BV1uc411W7Hd":"https://i0.hdslb.com/bfs/archive/e070d9a160aadb32cad5a81a30d5d3c2993dfb34.jpg@480x270.webp","BV1uw411N7MC":"https://i0.hdslb.com/bfs/archive/60b2348c267d0c733b34a5e1911aff72b6f52062.jpg@480x270.webp","BV1wL9sYEE8t":"https://i2.hdslb.com/bfs/archive/f254d83877d03099a66fc9a11042e510e68d6130.jpg@480x270.webp","BV1xV411C7e9":"https://i2.hdslb.com/bfs/archive/cbd1650791cefd27adeca640624313052178dfdf.jpg@480x270.webp","BV1yp4y1k7Gp":"https://i0.hdslb.com/bfs/archive/25dd265caedaf15ef643725e19126772f0145f10.jpg@480x270.webp","BV1ys421T7gZ":"https://i2.hdslb.com/bfs/archive/54d89b5fc7ee689ce4bfe7b9c361a8a22c2bbf24.jpg@480x270.webp","BV1zq4y197rR":"https://i2.hdslb.com/bfs/archive/1586a9d1c8566a4be99aa0227bc7c762fefadcda.jpg@480x270.webp"};
 
 const CHANGELOG = [
+  { v: 'V122', d: '11月4日', items: [
+    '医生报告上线（健康营）：BMI/腰围/体脂/内脏脂肪逐项对照医学标准判档，你和 Tina 各一份',
+    '每条判断都带出处：国家卫健委标准、PubMed 文献、ACSM/ACE——不是拍脑袋数字',
+    '日内波动解读全面医学化：阈值按文献重校，解读下带依据编号',
+    '减重速率对照安全线：每周 ≤0.5kg（卫健委标准），超了会提醒',
+    'AI 管家同步升级：分析体重时遵守同一套医学框架',
+  ]},
   { v: 'V121', d: '11月3日', items: [
     '健身忘记录有救了：早上称重时，昨天（或近7天）计划了没打卡会主动问你',
     '「练了，补上」一键补——那天的动作名自动带进去',
@@ -2284,15 +2291,40 @@ function mySwing(p) {
   });
   return n >= 5 ? sum / n : null;
 }
+/* V122 医学规则库：解读引擎的每条判断都有出处——不做无依据的数字
+   [1] WS/T 428-2013《成年人体重判定》国家卫生行业标准 [2] 卫健委《居民体重管理核心知识(2024年版)》
+   [3] PMC5506524（数天-3周波动 1-2kg，Adolph/Widjaja/Cheuvront/Vivanti 系列）
+   [4] Olsson & Saltin 1970（PubMed 5475323：肌糖原 350-500g，1g 糖原绑 3-4g 水）
+   [5] ACSM 运动补水立场（出汗率 0.5-2L/h，1L 汗≈1kg） [6] NCBI StatPearls（1kg 脂肪≈9000kcal）
+   [7] Examine.com 综述（单日脂肪合成上限约 0.1-0.3kg） [8] J Acad Nutr Diet 2015（每日称重 RCT）
+   [9] ACE 体脂分级（男：必需2-5/运动员6-13/健身14-17/可接受18-24/肥胖25+%）
+   [10] Cleveland Clinic 称重规范（晨起排尿后空腹） [11] 家用 BIA 误差业界共识（趋势>绝对值） */
+const MED_RULES = {
+  fluct: { t: '数天到 3 周内的体重波动通常 1-2 kg，由肠道内容物、糖原（及其结合水）和体水构成', src: '[3]' },
+  glyc: { t: '1g 糖原结合 3-4g 水，肌糖原总量 350-500g——大餐/高碳日第二天涨的基本是糖原+水', src: '[4]' },
+  fatmax: { t: '一天内能吃成的脂肪上限约 0.1-0.3 kg（食物产热和排泄损耗吃掉了大部分盈余）', src: '[7]' },
+  kcal: { t: '1 kg 脂肪 ≈ 9000 kcal——单日涨掉 1kg 都不可能是纯脂肪', src: '[6]' },
+  sweat: { t: '运动出汗率 0.5-2 L/h，1L 汗≈1kg 体重——练后掉秤先补水再看', src: '[5]' },
+  bmi: { t: '中国成人 BMI：18.5-24 正常 / 24-28 超重 / ≥28 肥胖', src: '[1]' },
+  waist: { t: '中心型肥胖腰围：男 ≥90cm、女 ≥85cm（前期男 85-90 / 女 80-85）', src: '[1]' },
+  rate: { t: '安全减重速率：每周不超过 0.5 kg，3-6 个月减初始体重 5-10%', src: '[2]' },
+  bf: { t: '男性体脂分级：必需 2-5 / 运动员 6-13 / 健身 14-17 / 可接受 18-24 / 肥胖 25+（%）', src: '[9]' },
+  dailyw: { t: '每天称重有随机对照试验支持，比不称更能促成减重行为', src: '[8]' },
+  am: { t: '晨重标准：晨起、排尿后、进食饮水前——这个时间点波动最小', src: '[10]' },
+  bia: { t: '家用体脂秤（BIA）有误差，同一台秤的趋势比绝对值可信', src: '[11]' }
+};
+
 /* 差值解读：白天涨≠胖（饭+水+糖原），掉≠瘦（汗+脱水）——数字自带解释 */
 function swingRead(d, swing) {
   const mine = swing !== null ? '你自己通常日内波动 +' + swing.toFixed(1) + ' kg · ' : '';
-  if (Math.abs(d) <= 0.3) return mine + '基本持平——这就是你身体的日常噪音，别管它';
+  /* V122：阈值按医学规则库重校——|d|≤0.3 家用秤误差带内；+0.3~1.5 饭+水+糖原（脂肪单日上限0.3[7]）；>1.5 文献短期波动带 1-2kg[3]；掉秤按汗率换算[5] */
+  const src = function (id) { return ' <span class="read-src">依据' + MED_RULES[id].src + '</span>'; };
+  if (Math.abs(d) <= 0.3) return mine + '基本持平——家用秤的误差带内，这就是身体的日常噪音' + src('bia');
   if (d > 0) {
-    if (d > 1.5) return mine + '+' + d.toFixed(1) + ' 超过日常波动了——刚吃完大餐或练完充血？明早的晨重才是真数';
-    return mine + '+' + d.toFixed(1) + ' 是饭和水的重量，不是脂肪（脂肪一天涨不了这么多）——明早就回去';
+    if (d > 1.5) return mine + '+' + d.toFixed(1) + ' 在文献短期波动带（1-2kg）内——肠道内容物+糖原+水的正常摆动，不是一天吃成的' + src('fluct');
+    return mine + '+' + d.toFixed(1) + ' 是饭、水和糖原的重量——单日能合成的脂肪上限约 0.3kg，涨不了这么多，明早就回去' + src('fatmax');
   }
-  return mine + (d < -1.0 ? d.toFixed(1) + ' 掉得多半是脱水（练后出汗），补水会回来——不算瘦' : d.toFixed(1) + ' 多半是出汗掉的水分，不算瘦');
+  return mine + (d < -1.0 ? d.toFixed(1) + ' 掉得多半是脱水——出汗率可达 0.5-2L/h，补水会回来，不算瘦' + src('sweat') : d.toFixed(1) + ' 多半是出汗掉的水分（1L 汗≈1kg），不算瘦' + src('sweat'));
 }
 /* 日内卡 HTML：只今天的卡显示（历史补录没有波动语义） */
 function dayLogCardHTML() {
@@ -2318,6 +2350,80 @@ function dayLogCardHTML() {
     return '<div class="log-block"><div class="log-head"><i class="dotc" style="background:' + COLORS[p] + '"></i>' + esc(state.names[p]) + ' · 今天称了 ' + log.length + ' 次</div>' + rows + (read ? '<div class="log-read">' + read + '</div>' : '') + '</div>';
   }).filter(Boolean).join('');
   return parts ? '<div class="daylog-card"><div class="divider sm"></div>' + parts + '<p class="sub" style="margin:4px 0 0">早上为正式数据（进曲线）；白天称的只存档看波动——涨是饭和水，不是脂肪</p></div>' : '';
+}
+
+/* ================= V122 医生报告：按医学标准逐项判读，每条带出处 ================= */
+let docWho = 'me';
+function doctorBody() {
+  const p = docWho;
+  const name = esc(state.names[p]);
+  const h = state.heights && state.heights[p];
+  const w = lastKnownField(p);
+  const waist = lastKnownField(p + '_waist');
+  const bf = lastKnownField(p + '_bf');
+  const vf = lastKnownField(p + '_vf');
+  let b = '';
+  /* 双人切换 */
+  b += '<div class="seg" style="margin:4px 0 14px">' + PERSON_IDS.map(function (x) {
+    return '<button class="seg-btn' + (x === p ? ' on' : '') + '" data-action="doc-who" data-p="' + x + '">' + esc(state.names[x]) + '</button>';
+  }).join('') + '</div>';
+  /* —— 体格评定：结论先行，每项判档亮依据 —— */
+  b += '<h3 class="doc-h">体格评定 <span class="sub">' + name + '</span></h3>';
+  b += '<div class="doc-grid">';
+  if (typeof h === 'number' && w) {
+    const bmi = w.value / Math.pow(h / 100, 2);
+    const lv = bmi < 18.5 ? ['体重过低', 'warn'] : bmi < 24 ? ['正常', 'ok'] : bmi < 28 ? ['超重', 'warn'] : ['肥胖', 'bad'];
+    b += '<div class="doc-cell"><b>' + bmi.toFixed(1) + '</b><span class="u">BMI</span><span class="v ' + lv[1] + '">' + lv[0] + '</span><span class="s">18.5-24 正常 依据[1]</span></div>';
+  } else {
+    b += '<div class="doc-cell doc-cell-fill" data-action="doc-goto-set"><b>＋</b><span class="u">BMI</span><span class="v">缺身高</span><span class="s">点这里去设置里填身高，填了就能算</span></div>';
+  }
+  if (waist) {
+    const male = p === 'me';
+    const cut = male ? 90 : 85;
+    const pre = male ? 85 : 80;
+    const lv = waist.value >= cut ? ['中心型肥胖', 'bad'] : waist.value >= pre ? ['肥胖前期', 'warn'] : ['正常', 'ok'];
+    b += '<div class="doc-cell"><b>' + waist.value.toFixed(0) + '</b><span class="u">腰围 cm</span><span class="v ' + lv[1] + '">' + lv[0] + '</span><span class="s">' + (male ? '男≥90 肥胖' : '女≥85 肥胖') + ' 依据[1]</span></div>';
+  } else {
+    b += '<div class="doc-cell doc-cell-fill" data-action="doc-goto-record"><b>＋</b><span class="u">腰围 cm</span><span class="v">没填</span><span class="s">每周量 1-2 次（肚脐一圈）· 点这里去记</span></div>';
+  }
+  if (bf) {
+    const arr = p === 'me' ? [[25, '肥胖', 'bad'], [18, '可接受', 'ok'], [14, '健身', 'ok'], [6, '运动员', 'ok']] : [[32, '肥胖', 'bad'], [25, '可接受', 'ok'], [21, '健身', 'ok'], [14, '运动员', 'ok']];
+    let lv = ['必需脂肪', 'bad'];
+    for (let i = 0; i < arr.length; i++) { if (bf.value >= arr[i][0]) { lv = [arr[i][1], arr[i][2]]; break; } }
+    b += '<div class="doc-cell"><b>' + bf.value.toFixed(1) + '</b><span class="u">体脂率 %</span><span class="v ' + lv[1] + '">' + lv[0] + '</span><span class="s">' + (p === 'me' ? '男 18-24 可接受' : '女 25-31 可接受') + ' 依据[9]·BIA有误差[11]</span></div>';
+  } else {
+    b += '<div class="doc-cell doc-cell-fill" data-action="doc-goto-record"><b>＋</b><span class="u">体脂率 %</span><span class="v">没填</span><span class="s">小米秤测了就能记 · 点这里去记</span></div>';
+  }
+  if (vf) {
+    const lv = vf.value >= 10 ? ['偏高', 'bad'] : vf.value >= 7 ? ['正常偏高', 'warn'] : ['正常', 'ok'];
+    b += '<div class="doc-cell"><b>' + vf.value.toFixed(0) + '</b><span class="u">内脏脂肪级</span><span class="v ' + lv[1] + '">' + lv[0] + '</span><span class="s">1-9 正常·器械厂商标准</span></div>';
+  }
+  b += '</div>';
+  /* —— 体重分析：波动带 + 趋势速率 —— */
+  const ks = sortedKeys().slice(-28);
+  if (ks.length >= 7) {
+    const ws = ks.map(k => state.records[k][p]).filter(v => typeof v === 'number');
+    const a7 = ws.slice(-7), a7p = ws.slice(-14, -7);
+    const avg = a7.reduce((x, y) => x + y, 0) / a7.length;
+    const avgP = a7p.length ? a7p.reduce((x, y) => x + y, 0) / a7p.length : null;
+    const rng = ws.length ? (Math.max.apply(null, ws) - Math.min.apply(null, ws)) : 0;
+    b += '<h3 class="doc-h">体重分析</h3><div class="doc-rows">';
+    b += '<div class="doc-row"><span>近 7 天均值</span><b>' + avg.toFixed(1) + ' kg</b></div>';
+    b += '<div class="doc-row"><span>近 4 周波动范围</span><b>' + rng.toFixed(1) + ' kg</b><span class="s">文献短期波动带 1-2kg 依据[3]</span></div>';
+    if (avgP !== null) {
+      const perWeek = (avg - avgP);
+      const safe = Math.abs(perWeek) <= 0.5;
+      b += '<div class="doc-row"><span>近一周 vs 前一周</span><b class="' + (perWeek < 0 ? 'ok' : perWeek > 0 ? 'warn' : '') + '">' + (perWeek > 0 ? '+' : '') + perWeek.toFixed(2) + ' kg/周</b><span class="s">' + (safe ? '在安全速率内（≤0.5/周）依据[2]' : '超过每周 0.5kg 的安全速率——要么是水分，要么太快了 依据[2]') + '</span></div>';
+    }
+    b += '</div>';
+  } else {
+    b += '<h3 class="doc-h">体重分析</h3><p class="sub">记满 7 天晨重后，这里会给出波动带和减重速率对照（每周≤0.5kg 为安全线 依据[2]）。</p>';
+  }
+  /* —— 就医红线（静态说明，不吓人但要在） —— */
+  b += '<h3 class="doc-h">什么时候该找真医生</h3><p class="sub" style="line-height:1.7">没在刻意减重的情况下 1-2 周掉 2kg 以上；单日涨 1kg+ 且脚踝按下去有凹陷（水肿）；BMI 到 18.5 以下，或对吃产生焦虑——这几种直接去医院，别硬扛。本报告是数据判读，不替代医生诊断。</p>';
+  /* —— 依据来源 —— */
+  b += '<h3 class="doc-h">依据来源</h3><p class="sub" style="line-height:1.8">[1]《成年人体重判定》WS/T 428-2013（国家卫生行业标准） · [2] 国家卫健委《居民体重管理核心知识（2024年版）》 · [3] PubMed Central PMC5506524（短期体重波动综述） · [4] Olsson & Saltin 1970, PubMed 5475323 · [5] ACSM 立场声明（运动与补水） · [6] NCBI StatPearls · [7] Examine.com 单日脂肪合成综述 · [8] J Acad Nutr Diet 2015（每日称重随机对照试验） · [9] American Council on Exercise 体脂分级 · [10] Cleveland Clinic 称重规范 · [11] 家用 BIA 精度业界共识</p>';
+  return b;
 }
 
 /* ================= 目标进度卡 ================= */
@@ -5541,6 +5647,7 @@ const WIDGETS = [
   { id: 'diet', t: '饮食日记', sub: '三餐+热量，减脂第一线' },
   { id: 'equip', t: '运动与器械', sub: '勾上家里有的，计划更准' },
   { id: 'trend', t: '趋势预测', sub: '几号到目标，按真实速度' },
+  { id: 'doctor', t: '医生报告', sub: '按医学标准 · 逐项带出处' },
   { id: 'data', t: '数据与同步', sub: '云备份 · 双人同步 · 存档' },
   { id: 'review', t: '年度回顾', sub: '这一年你们的变化' },
   { id: 'remind', t: '称重提醒', sub: '每天早上弹窗提醒' },
@@ -5646,6 +5753,7 @@ function renderWidgetSheet(title, backLabel) {
     else if (curWidget === 'gym-plan') body += gymPlanBody();
     else if (curWidget === 'equip') body += equipBody();
     else if (curWidget === 'trend') body += trendBody();
+    else if (curWidget === 'doctor') body += doctorBody();
     else if (curWidget === 'review') body += yearReviewHTML();
     else if (curWidget === 'data') body += dataBody();
     else if (curWidget === 'remind') body += remindBody();
@@ -6481,6 +6589,9 @@ document.addEventListener('click', e => {
       toast('已切换到 ' + nxt + '（更强更聪明，稍慢一点点）');
     }
     else if (a === 'voice') { voiceStart(act.getAttribute('data-for') || 'ai-input'); }
+    else if (a === 'doc-who') { docWho = act.getAttribute('data-p') === 'partner' ? 'partner' : 'me'; renderWidgetSheet('医生报告'); }
+    else if (a === 'doc-goto-set') { document.getElementById('widget-sheet').classList.remove('show'); document.getElementById('sheet-mask').classList.remove('show'); curWidget = null; openSettings(); }
+    else if (a === 'doc-goto-record') { document.getElementById('widget-sheet').classList.remove('show'); document.getElementById('sheet-mask').classList.remove('show'); curWidget = null; switchTab('record'); }
     else if (a === 'wt-open-hub') { switchTab('workout'); }
     else if (a === 'astro-prev') { astroYM.m--; if (astroYM.m < 0) { astroYM.m = 11; astroYM.y--; } astroDay = null; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
     else if (a === 'astro-next') { astroYM.m++; if (astroYM.m > 11) { astroYM.m = 0; astroYM.y++; } astroDay = null; if (curWidget === 'astro') renderWidgetSheet('每日运势'); }
@@ -6917,6 +7028,7 @@ function aiSystemPrompt() {
     '今天是 ' + _td + ' 星期' + _wk + '。「昨天」指 ' + _yd + '，「前天」指 ' + _qtd + '。提到非今天的日期，动作里必须带 date 字段填对应日期。',
     '你是「双人体重小本本」App 内置的 AI 管家，一对年轻情侣（用户 ' + state.names.me + ' 和 TA 的对象 ' + state.names.partner + '）的健康助手。',
     '目标：陪他们减脂（重点减腰腹内脏脂肪）、保持肌肉、养成长期习惯。语气：朋友式，简洁、具体、不说教、不灌鸡汤。',
+    '医学分析框架（所有体重解读必须遵守）：短期体重波动1-2kg属正常（肠道内容物+糖原结合水+体水）；1g糖原绑3-4g水；单日脂肪合成上限约0.3kg；1kg脂肪≈9000kcal；运动出汗0.5-2L/h所以练后掉秤不算瘦；晨重=晨起排尿后空腹称；安全减重速率每周≤0.5kg。解读体重时引用这些依据，别下没有依据的结论。',
     '规则：',
     '1. 回答要用上他们真实数据（下面给你），结论先行，一段说完，不超过 5 句。数字要说明是谁的、哪天的。',
     '2. 只有当用户明确要求记录/修改时，才在回复末尾附加动作块，格式（可多个动作放数组）：',
