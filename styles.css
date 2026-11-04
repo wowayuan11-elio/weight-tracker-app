@@ -1803,3 +1803,26 @@ body[data-theme="onyx"] .wk-addbtn{ border-color:rgba(255,255,255,.2); }
 
 /* ============ V121: 健身欠账条 ============ */
 .wk-bar{ background:rgba(88,86,214,.10); }
+
+/* ============ V122: 医生报告 ============ */
+.doc-h{ margin:18px 0 10px; font-size:16px; font-weight:800; color:var(--text); }
+.doc-h .sub{ font-size:12px; font-weight:400; margin-left:6px; }
+.doc-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+.doc-cell{ background:var(--card,#fff); border:var(--card-border); border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:2px; }
+.doc-cell b{ font-size:24px; font-weight:800; color:var(--text); }
+.doc-cell .u{ font-size:11.5px; color:var(--text2,#888); }
+.doc-cell .v{ font-size:12.5px; font-weight:700; margin-top:4px; }
+.doc-cell .v.ok{ color:#2e9e5b; } .doc-cell .v.warn{ color:#c77f0a; } .doc-cell .v.bad{ color:#d64545; }
+.doc-cell .s{ font-size:10.5px; color:var(--text2,#999); margin-top:2px; line-height:1.4; }
+.doc-rows{ display:flex; flex-direction:column; gap:8px; }
+.doc-row{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; background:var(--card,#fff); border:var(--card-border); border-radius:12px; padding:10px 14px; }
+.doc-row > span:first-child{ font-size:13px; color:var(--text2,#666); }
+.doc-row b{ font-size:16px; font-weight:800; color:var(--text); }
+.doc-row b.ok{ color:#2e9e5b; } .doc-row b.warn{ color:#c77f0a; }
+.doc-row .s{ font-size:10.5px; color:var(--text2,#999); width:100%; }
+.read-src{ font-size:10px; color:var(--text2,#999); white-space:nowrap; }
+
+/* V122: 医生报告空格子——虚线＋占位，点击直达填写（展示/入口闭环） */
+.doc-cell-fill{ border:1.5px dashed rgba(120,120,128,.4); background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.doc-cell-fill:active{ transform:scale(.97); }
+.doc-cell-fill b{ color:var(--text2); font-weight:600; }
