@@ -11,7 +11,7 @@ input, textarea { -webkit-user-select: text; user-select: text; }
   --segbg:#ffffff;
   --text:#1d1d1f;
   --text2:#6e6e73;
-  --text3:#86868b;
+  --text3:#75757a;
   --sep:rgba(60,60,67,.12);
   --chipbg:rgba(118,118,128,.10);
   --bar:rgba(249,249,251,.88);
@@ -38,7 +38,7 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 /* —— 曜石 ONYX：黑金老钱 · 暖黑底 + 香槟金细线 + 衬线数字（参考 Aesop / 高级腕表官网） —— */
 body[data-theme="onyx"]{
   --bg:#0b0a08; --card:#151310; --segbg:#151310;
-  --text:#ede4d3; --text2:#a4977f; --text3:#6f6450;
+  --text:#ede4d3; --text2:#a4977f; --text3:#8a7f6a;
   --sep:rgba(201,169,97,.16); --chipbg:rgba(201,169,97,.09);
   --bar:rgba(15,13,10,.90);
   --tint:#c9a961; --tint-rgb:201,169,97;
@@ -251,7 +251,7 @@ main{ flex:1; min-height:0; position:relative; }
   background:rgba(var(--tint-rgb),.10); border-radius:14px; font-size:13px; color:var(--text);
   line-height:1.5;
 }
-.makeup-bar .linklike{ font-weight:600; padding:4px 2px; flex:none; }
+.makeup-bar .linklike{ font-weight:600; padding:6px 8px; flex:none; }
 
 /* 当天备注 */
 .note-input{
@@ -498,7 +498,7 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
   padding:9px 13px; font-size:14.5px; color:var(--text);
   -webkit-appearance:none; appearance:none;
 }
-.linklike{ background:none; border:0; color:var(--tint); font-size:14px; padding:6px 2px; }
+.linklike{ background:none; border:0; color:var(--tint); font-size:14px; padding:8px 6px; min-height:28px; box-sizing:border-box; }
 
 .in-row{ display:flex; align-items:center; gap:10px; padding:7px 0; }
 .in-name{ width:70px; font-size:15px; font-weight:600; display:flex; align-items:center; gap:7px; flex:none; }
@@ -621,7 +621,7 @@ body[data-theme="mono"] .hero-num{ font-variant-numeric:oldstyle-nums; letter-sp
   margin-top:16px; font-size:12.5px; color:var(--text3);
   display:flex; gap:4px; align-items:center; flex-wrap:wrap;
 }
-.hint .linklike{ font-size:12.5px; padding:2px 4px; }
+.hint .linklike{ font-size:12.5px; padding:6px 6px; }
 
 /* ---------- 趋势页 ---------- */
 .seg{ display:flex; background:var(--chipbg); border-radius:12px; padding:3px; margin-top:10px; }
